@@ -5,6 +5,23 @@ app_description = "none"
 app_email = "alik@mail.hybrowlabs.com"
 app_license = "mit"
 
+
+
+fixtures = [
+    {
+        "doctype": "Custom Field",
+        "filters": [
+            ["dt", "in", ["KRA", "Goal"]]
+        ]
+    },
+    {
+        "doctype": "Property Setter",
+        "filters": [
+            ["name", "in", ["Goal-section_break_cycle-hidden"]]
+        ]
+    }
+]
+
 # Apps
 # ------------------
 

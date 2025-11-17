@@ -1,0 +1,18 @@
+[
+ {
+  "default_value": null,
+  "doc_type": "Goal",
+  "docstatus": 0,
+  "doctype": "Property Setter",
+  "doctype_or_field": "DocField",
+  "field_name": "section_break_cycle",
+  "is_system_generated": 0,
+  "modified": "2025-11-17 11:08:03.016422",
+  "module": null,
+  "name": "Goal-section_break_cycle-hidden",
+  "property": "hidden",
+  "property_type": "Check",
+  "row_name": null,
+  "value": "1"
+ }
+]
