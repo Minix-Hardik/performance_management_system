@@ -6,7 +6,7 @@ export default defineConfig({
     ...defaultConfig,
     root: 'build-root',
     build: {
-        outDir: '../public/pms-ui',
+        outDir: '../../public/pms-ui',
         rollupOptions: {
             output: {
                 entryFileNames: '[name].bundle.js',
