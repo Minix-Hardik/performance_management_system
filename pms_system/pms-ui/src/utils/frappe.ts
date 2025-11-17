@@ -1,0 +1,1 @@
+export const isInFrappe = () => !!window.frappe?.csrf_token
