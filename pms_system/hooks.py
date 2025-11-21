@@ -61,6 +61,12 @@ fixtures = [
 
 # include js in doctype views
 # doctype_js = {"doctype" : "public/js/doctype.js"}
+doctype_js = {
+    "Appraisal Cycle": "public/js/appraisalCycle.js"
+}
+override_doctype_class = {
+    "Appraisal Cycle": "pms_system.python.appraisal_cycle.CustomAppraisalCycle"
+}
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
 # doctype_calendar_js = {"doctype" : "public/js/doctype_calendar.js"}
