@@ -9,7 +9,7 @@
   "title",
   "description",
   "weightage",
-  "is_mandatory_for_all_employee"
+  "disabled"
  ],
  "fields": [
   {
@@ -31,16 +31,16 @@
    "label": "Weightage(%)"
   },
   {
-   "default": "1",
-   "fieldname": "is_mandatory_for_all_employee",
+   "default": "0",
+   "fieldname": "disabled",
    "fieldtype": "Check",
-   "label": "Is Mandatory For All Employee"
+   "label": "Disabled"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-11-17 10:05:07.303403",
+ "modified": "2025-11-24 12:10:15.989877",
  "modified_by": "Administrator",
  "module": "Pms System",
  "name": "Competency",

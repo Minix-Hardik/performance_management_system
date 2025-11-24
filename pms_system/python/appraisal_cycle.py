@@ -9,8 +9,8 @@ class CustomAppraisalCycle(AppraisalCycle):
         self.validate_weightage()
 
     def validate_weightage(self):
-        kra = self.custom_kra_weight or 0
-        comp = self.custom_competency_weight or 0
+        kra = float(self.custom_kra_weight) or 0
+        comp = float(self.custom_competency_weight) or 0
         total = kra + comp
 
         if total != 100:

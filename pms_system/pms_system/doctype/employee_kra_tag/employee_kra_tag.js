@@ -2,6 +2,19 @@
 // For license information, please see license.txt
 
 frappe.ui.form.on("Employee KRA Tag", {
+    refresh(frm) {
+        frm.set_query("kra", "kra_vs_goal", function () {
+
+            // get all KRA from first child table
+            let kra_list = (frm.doc.kra_and_goal_add || []).map(row => row.kra);
+
+            return {
+                filters: [
+                    ["KRA", "name", "in", kra_list]
+                ]
+            };
+        });
+    },
     validate(frm) {
         let total = 0;
         let kra_list = [];
@@ -20,7 +33,4 @@ frappe.ui.form.on("Employee KRA Tag", {
             frappe.throw(`Total Weightage must be 100%. Current: <b>${total}</b>`);
         }
     }
-    // refresh(frm) {
-
-    // },
 });

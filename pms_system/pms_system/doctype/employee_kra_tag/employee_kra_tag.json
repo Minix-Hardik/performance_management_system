@@ -7,7 +7,8 @@
  "engine": "InnoDB",
  "field_order": [
   "employee",
-  "kra_and_goal_add"
+  "kra_and_goal_add",
+  "kra_vs_goal"
  ],
  "fields": [
   {
@@ -20,14 +21,20 @@
   {
    "fieldname": "kra_and_goal_add",
    "fieldtype": "Table",
-   "label": "KRA And Goal Add",
+   "label": "KRA Add",
    "options": "KRA Goal Add"
+  },
+  {
+   "fieldname": "kra_vs_goal",
+   "fieldtype": "Table",
+   "label": "KRA VS Goal",
+   "options": "KRA Goal Map"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-11-20 15:14:43.445412",
+ "modified": "2025-11-24 17:02:04.811807",
  "modified_by": "Administrator",
  "module": "Pms System",
  "name": "Employee KRA Tag",
