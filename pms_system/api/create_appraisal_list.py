@@ -5,8 +5,6 @@ def get_reports_to(employee, level):
     level = 1  → Single Level
     level = 2  → Second Level
     """
-
-    # Get immediate manager
     first_manager = frappe.db.get_value("Employee", employee, "reports_to")
 
     if not first_manager:
@@ -14,8 +12,6 @@ def get_reports_to(employee, level):
 
     if level == 1:
         return first_manager
-
-    # Get second level manager
     second_manager = frappe.db.get_value("Employee", first_manager, "reports_to")
 
     return second_manager if second_manager else first_manager

@@ -150,7 +150,7 @@
   {
    "fieldname": "answer",
    "fieldtype": "Table",
-   "label": "Answer",
+   "label": "Questions",
    "options": "Question Child Table"
   },
   {
@@ -328,7 +328,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-11-25 20:14:11.232329",
+ "modified": "2025-11-25 22:49:13.797812",
  "modified_by": "Administrator",
  "module": "Pms System",
  "name": "Appraisal List",

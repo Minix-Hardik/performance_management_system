@@ -35,3 +35,23 @@ frappe.ui.form.on('Question Child Table', {
         frm.fields_dict['answer'].grid.get_field("employee_ans_in_option").set_options(options_list, cdn);
     }
 });
+
+frappe.ui.form.on("Competency Calculation", {
+    employee_rating_number(frm, cdt, cdn) {
+        let row = locals[cdt][cdn];
+        validate_rating_value(frm, row, "employee_rating_number");
+    },
+
+    manager_rating(frm, cdt, cdn) {
+        let row = locals[cdt][cdn];
+        validate_rating_value(frm, row, "manager_rating");
+    }
+});
+
+function validate_rating_value(frm, row, fieldname) {
+    if (row[fieldname] > 10) {
+        frappe.msgprint(__("Value cannot be greater than 10"));
+        row[fieldname] = 10;
+        frm.refresh_field("competency");
+    }
+}
