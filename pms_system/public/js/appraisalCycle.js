@@ -24,6 +24,37 @@ frappe.ui.form.on("Appraisal Cycle", {
             }
         }
     },
+    custom_get_employee(frm) {
+        frappe.call({
+            method: "pms_system.api.get_employees_list.get_employees_list",
+            args: {
+                doc: frm.doc
+            },
+            freeze: true,
+            freeze_message: __("Fetching Employees"),
+
+            callback: function (r) {
+                if (!r.message) {
+                    frappe.msgprint("No employees found.");
+                    return;
+                }
+
+                // Clear existing rows
+                frm.clear_table("appraisees");
+
+                // Add returned rows
+                r.message.forEach(row => {
+                    let child = frm.add_child("appraisees");
+                    Object.assign(child, row);
+                });
+
+                // Refresh only child table (no full form refresh)
+                frm.refresh_field("appraisees");
+
+                frm.dirty();
+            },
+        });
+    },
 
     my_custom_create_appraisals(frm) {
         frappe.msgprint(__("Custom Appraisal Creation Triggered"));
