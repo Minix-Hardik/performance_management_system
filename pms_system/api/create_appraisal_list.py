@@ -1,4 +1,5 @@
 import frappe
+from frappe import _
 
 def get_reports_to(employee, level):
     """
@@ -39,6 +40,7 @@ def create_appraisal_list(doc_name):
 
             appraisal.insert(ignore_permissions=True)
             created_appraisals.append(appraisal.name)
+        frappe.msgprint(_("Appraisal Lists created successfully."))
 
     else:
         frappe.msgprint(_("No employees found in Appraisees table."))
