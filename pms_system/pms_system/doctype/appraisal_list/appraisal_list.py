@@ -9,6 +9,7 @@ class AppraisalList(Document):
         self.update_competency_rows()
         self.update_kra_rows()
         self.add_question()
+        self.check_duplicate_entry()
 
     def update_competency_rows(self):
         existing = {d.competency for d in self.competency}
@@ -66,3 +67,28 @@ class AppraisalList(Document):
                     "kra": row.kra,
 					"goal": row.goal
                 })
+
+    def check_duplicate_entry(self):
+        if not self.employee or not self.appraisal_cycle:
+            return
+
+        # Filter for existing Appraisal List for same employee & cycle
+        existing = frappe.get_all(
+            "Appraisal List",
+            filters={
+                "employee": self.employee,
+                "appraisal_cycle": self.appraisal_cycle,
+                "name": ("!=", self.name)   # exclude current doc
+            },
+            fields=["name"]
+        )
+
+        if existing:
+            docname = existing[0].name
+            employee_name = frappe.db.get_value("Employee", self.employee, "employee_name")
+            frappe.throw(
+                f"<b>{docname}</b> already exists for Employee <b>{employee_name}</b> "
+                f"for this Appraisal Cycle or overlapping period",
+                title="Duplicate Entry"
+            )
+

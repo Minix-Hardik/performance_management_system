@@ -7,6 +7,8 @@ frappe.ui.form.on('Appraisal List', {
     },
     refresh: function (frm) {
         set_all_employee_options(frm);
+        $(frm.$wrapper).find('.form-dashboard-section.form-stats').hide();
+        $(frm.$wrapper).find('.form-dashboard-section.form-links').hide();
     }
 });
 
