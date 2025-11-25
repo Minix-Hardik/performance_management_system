@@ -13,6 +13,7 @@
   "appraisal_cycle",
   "start_date",
   "end_date",
+  "reports_to",
   "section_break_gdem",
   "final_score",
   "self_appraisal_tab",
@@ -35,9 +36,19 @@
   "competency_rating_mandatory",
   "competency_comment",
   "competency_comment_mandatory",
-  "section_break_nhvu",
-  "rating_type",
-  "highest_rating_number"
+  "section_break_expy",
+  "question",
+  "question_answer_mandatory",
+  "section_break_efaz",
+  "manager_kra_rating",
+  "manager_kra_rating_mandatory",
+  "manager_kra_comment",
+  "manager_kra_comment_mandatory",
+  "section_break_dywm",
+  "manager_competency_rating",
+  "manager_competency_rating_mandatory",
+  "manger_competency_comment",
+  "manager_competency_comment_mandatory"
  ],
  "fields": [
   {
@@ -84,7 +95,7 @@
    "fieldtype": "Section Break"
   },
   {
-   "description": "Average of Goal Score, Feedback Score, and Self Appraisal Score (out of 5)",
+   "description": "Average of Goal Score, Feedback Score, and Self Appraisal Score (out of 10)",
    "fieldname": "final_score",
    "fieldtype": "Float",
    "label": "Final Score",
@@ -148,18 +159,6 @@
    "label": "Hidden"
   },
   {
-   "fetch_from": "appraisal_cycle.custom_rating_type",
-   "fieldname": "rating_type",
-   "fieldtype": "Data",
-   "label": "Rating Type"
-  },
-  {
-   "fetch_from": "appraisal_cycle.custom_highest_number",
-   "fieldname": "highest_rating_number",
-   "fieldtype": "Int",
-   "label": "Highest Rating Number"
-  },
-  {
    "fieldname": "kra_section",
    "fieldtype": "Section Break",
    "label": "KRA Section"
@@ -191,10 +190,6 @@
    "fieldname": "kra_comment_mandatory",
    "fieldtype": "Check",
    "label": "KRA Comment Mandatory"
-  },
-  {
-   "fieldname": "section_break_nhvu",
-   "fieldtype": "Section Break"
   },
   {
    "fieldname": "competency_section_section",
@@ -239,12 +234,101 @@
    "fieldtype": "Table",
    "label": "KRA VS Goal",
    "options": "KRA Goal Map"
+  },
+  {
+   "fieldname": "section_break_efaz",
+   "fieldtype": "Section Break"
+  },
+  {
+   "default": "0",
+   "fetch_from": "appraisal_cycle.custom_manager_kra_rating",
+   "fieldname": "manager_kra_rating",
+   "fieldtype": "Check",
+   "label": "Manager KRA Rating"
+  },
+  {
+   "default": "0",
+   "fetch_from": "appraisal_cycle.custom_kra_rating_mandatory",
+   "fieldname": "manager_kra_rating_mandatory",
+   "fieldtype": "Check",
+   "label": "Manager KRA Rating Mandatory"
+  },
+  {
+   "default": "0",
+   "fetch_from": "appraisal_cycle.custom_manager_kra_comment",
+   "fieldname": "manager_kra_comment",
+   "fieldtype": "Check",
+   "label": "Manager KRA Comment"
+  },
+  {
+   "default": "0",
+   "fetch_from": "appraisal_cycle.custom_manager_kra_comment_mandatory",
+   "fieldname": "manager_kra_comment_mandatory",
+   "fieldtype": "Check",
+   "label": "Manager KRA Comment Mandatory"
+  },
+  {
+   "fieldname": "section_break_dywm",
+   "fieldtype": "Section Break"
+  },
+  {
+   "default": "0",
+   "fetch_from": "appraisal_cycle.custom_manager_competency_rating",
+   "fieldname": "manager_competency_rating",
+   "fieldtype": "Check",
+   "label": "Manager Competency Rating"
+  },
+  {
+   "default": "0",
+   "fetch_from": "appraisal_cycle.custom_manager_competency_rating_mandatory",
+   "fieldname": "manager_competency_rating_mandatory",
+   "fieldtype": "Check",
+   "label": "Manager Competency Rating Mandatory"
+  },
+  {
+   "default": "0",
+   "fetch_from": "appraisal_cycle.custom_manager_competency_comment",
+   "fieldname": "manger_competency_comment",
+   "fieldtype": "Check",
+   "label": "Manger Competency Comment"
+  },
+  {
+   "default": "0",
+   "fetch_from": "appraisal_cycle.custom_manager_competency_comment_mandatory",
+   "fieldname": "manager_competency_comment_mandatory",
+   "fieldtype": "Check",
+   "label": "Manager Competency Comment Mandatory"
+  },
+  {
+   "fieldname": "section_break_expy",
+   "fieldtype": "Section Break"
+  },
+  {
+   "default": "0",
+   "fetch_from": "appraisal_cycle.custom_question",
+   "fieldname": "question",
+   "fieldtype": "Check",
+   "label": "Question"
+  },
+  {
+   "default": "0",
+   "fetch_from": "appraisal_cycle.custom_question_answer_mandatory",
+   "fieldname": "question_answer_mandatory",
+   "fieldtype": "Check",
+   "label": "Question Answer Mandatory"
+  },
+  {
+   "fieldname": "reports_to",
+   "fieldtype": "Link",
+   "label": "Reports To",
+   "options": "Employee",
+   "reqd": 1
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-11-24 17:12:58.494637",
+ "modified": "2025-11-25 20:14:11.232329",
  "modified_by": "Administrator",
  "module": "Pms System",
  "name": "Appraisal List",

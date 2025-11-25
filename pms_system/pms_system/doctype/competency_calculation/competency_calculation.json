@@ -7,10 +7,8 @@
  "engine": "InnoDB",
  "field_order": [
   "competency",
-  "employee_rating_star",
   "employee_rating_number",
   "employee_description",
-  "manager_rating_star",
   "manager_rating",
   "manager_description",
   "weightage"
@@ -28,8 +26,7 @@
    "depends_on": "eval:parent.competency_comment",
    "fieldname": "employee_description",
    "fieldtype": "Small Text",
-   "label": "Employee Description",
-   "mandatory_depends_on": "eval:parent.competency_comment && parent.competency_comment_mandatory"
+   "label": "Employee Description"
   },
   {
    "fieldname": "manager_description",
@@ -37,7 +34,7 @@
    "label": "Manager Description"
   },
   {
-   "depends_on": "eval:parent.rating_type==\"Number\"",
+   "depends_on": "eval:parent.manager_competency_rating",
    "fieldname": "manager_rating",
    "fieldtype": "Float",
    "label": "Manager Rating"
@@ -50,31 +47,17 @@
    "read_only": 1
   },
   {
-   "depends_on": "eval:parent.rating_type==\"Star\" && parent.competency_rating\n",
-   "fieldname": "employee_rating_star",
-   "fieldtype": "Rating",
-   "label": "Employee Rating",
-   "mandatory_depends_on": "eval:parent.kra_rating_mandatory && parent.rating_type==\"Star\""
-  },
-  {
-   "depends_on": "eval:parent.rating_type==\"Number\"&& parent.competency_rating",
+   "depends_on": "eval:parent.competency_rating",
    "fieldname": "employee_rating_number",
    "fieldtype": "Float",
-   "label": "Employee Rating",
-   "mandatory_depends_on": "eval:parent.rating_type==\"Number\" && parent.kra_rating_mandatory "
-  },
-  {
-   "depends_on": "eval:parent.rating_type==\"Star\"",
-   "fieldname": "manager_rating_star",
-   "fieldtype": "Rating",
-   "label": "Manager Rating"
+   "label": "Employee Rating"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2025-11-24 15:26:48.514895",
+ "modified": "2025-11-25 19:45:40.697664",
  "modified_by": "Administrator",
  "module": "Pms System",
  "name": "Competency Calculation",
