@@ -8,7 +8,9 @@
  "field_order": [
   "title",
   "question",
-  "question_type"
+  "question_type",
+  "options",
+  "disable"
  ],
  "fields": [
   {
@@ -32,12 +34,26 @@
    "label": "Title",
    "reqd": 1,
    "unique": 1
+  },
+  {
+   "depends_on": "eval:doc.question_type==\"Select\"",
+   "description": "Write Options in \",\" Separate Option add like (a,b)",
+   "fieldname": "options",
+   "fieldtype": "Small Text",
+   "label": "Options",
+   "mandatory_depends_on": "eval:doc.question_type==\"Select\""
+  },
+  {
+   "default": "0",
+   "fieldname": "disable",
+   "fieldtype": "Check",
+   "label": "Disable"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-11-24 12:35:07.990278",
+ "modified": "2025-11-25 15:19:16.535279",
  "modified_by": "Administrator",
  "module": "Pms System",
  "name": "Question Master",

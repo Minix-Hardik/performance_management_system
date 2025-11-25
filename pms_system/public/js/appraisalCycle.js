@@ -57,15 +57,14 @@ frappe.ui.form.on("Appraisal Cycle", {
     },
 
     my_custom_create_appraisals(frm) {
-        frappe.msgprint(__("Custom Appraisal Creation Triggered"));
-        // frappe.call({
-        //     method: "your_app.your_module.doctype.appraisal_cycle.appraisal_cycle.custom_create_appraisals",
-        //     args: { docname: frm.doc.name },
-        //     freeze: true,
-        //     freeze_message: __("Running Custom Appraisal Creation"),
-        //     callback() {
-        //         frm.reload_doc();
-        //     }
-        // });
+        frappe.call({
+            method: "pms_system.api.create_appraisal_list.create_appraisal_list",
+            args: { doc_name: frm.doc.name },
+            freeze: true,
+            freeze_message: __("Running Custom Appraisal Creation"),
+            callback() {
+                frm.reload_doc();
+            }
+        });
     }
 })

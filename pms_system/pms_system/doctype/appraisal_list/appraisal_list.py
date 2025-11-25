@@ -8,6 +8,7 @@ class AppraisalList(Document):
     def validate(self):
         self.update_competency_rows()
         self.update_kra_rows()
+        self.add_question()
 
     def update_competency_rows(self):
         existing = {d.competency for d in self.competency}
@@ -23,6 +24,21 @@ class AppraisalList(Document):
                 self.append("competency", {
                     "competency": comp.name,
                     "weightage": comp.weightage
+                })
+    def add_question(self):
+        existing = {d.title for d in self.answer}
+        questions = frappe.get_all(
+            "Question Master",
+            filters={"disable": 0},
+            fields=["title","question","question_type","options"]
+        )
+        for ques in questions:
+            if ques.title not in existing:
+                self.append("answer", {
+                    "title": ques.title,
+                    "question": ques.question,
+                    "question_type": ques.question_type,
+                    "options": ques.options
                 })
 
     def update_kra_rows(self):
