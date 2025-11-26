@@ -51,7 +51,8 @@
   "manager_competency_comment_mandatory",
   "section_break_xjna",
   "self_appraisal_reminder_send",
-  "manager_review_reminder_sent"
+  "manager_review_reminder_sent",
+  "employee_user_id"
  ],
  "fields": [
   {
@@ -342,12 +343,18 @@
    "fieldname": "manager_review_reminder_sent",
    "fieldtype": "Check",
    "label": "Manager Review Reminder sent"
+  },
+  {
+   "fetch_from": "employee.user_id",
+   "fieldname": "employee_user_id",
+   "fieldtype": "Data",
+   "label": "Employee User Id"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-11-26 15:28:29.518167",
+ "modified": "2025-11-26 16:35:15.766452",
  "modified_by": "Administrator",
  "module": "Pms System",
  "name": "Appraisal List",
