@@ -173,24 +173,31 @@ permission_query_conditions = {
 
 # Scheduled Tasks
 # ---------------
-
 # scheduler_events = {
-# 	"all": [
-# 		"pms_system.tasks.all"
-# 	],
-# 	"daily": [
-# 		"pms_system.tasks.daily"
-# 	],
-# 	"hourly": [
-# 		"pms_system.tasks.hourly"
-# 	],
-# 	"weekly": [
-# 		"pms_system.tasks.weekly"
-# 	],
-# 	"monthly": [
-# 		"pms_system.tasks.monthly"
-# 	],
+#     "cron": {
+#         "*/2 * * * *": [
+#             "pms_system.tasks.remider_mail_for_selfappraisal.send_self_appraisal_reminder"
+#         ]
+#     }
 # }
+scheduler_events = {
+	# "all": [
+	# 	"pms_system.tasks.all"
+	# ],
+	"daily": [
+		"pms_system.tasks.remider_mail.send_self_appraisal_reminder",
+        "pms_system.tasks.remider_mail.send_manager_review_reminder"
+	],
+	# "hourly": [
+	# 	"pms_system.tasks.hourly"
+	# ],
+	# "weekly": [
+	# 	"pms_system.tasks.weekly"
+	# ],
+	# "monthly": [
+	# 	"pms_system.tasks.monthly"
+	# ],
+}
 
 # Testing
 # -------

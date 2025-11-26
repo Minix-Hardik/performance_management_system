@@ -48,7 +48,10 @@
   "manager_competency_rating",
   "manager_competency_rating_mandatory",
   "manger_competency_comment",
-  "manager_competency_comment_mandatory"
+  "manager_competency_comment_mandatory",
+  "section_break_xjna",
+  "self_appraisal_reminder_send",
+  "manager_review_reminder_sent"
  ],
  "fields": [
   {
@@ -323,12 +326,28 @@
    "label": "Reports To",
    "options": "Employee",
    "reqd": 1
+  },
+  {
+   "fieldname": "section_break_xjna",
+   "fieldtype": "Section Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "self_appraisal_reminder_send",
+   "fieldtype": "Check",
+   "label": "Self Appraisal Reminder Send"
+  },
+  {
+   "default": "0",
+   "fieldname": "manager_review_reminder_sent",
+   "fieldtype": "Check",
+   "label": "Manager Review Reminder sent"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-11-25 22:49:13.797812",
+ "modified": "2025-11-26 15:28:29.518167",
  "modified_by": "Administrator",
  "module": "Pms System",
  "name": "Appraisal List",
