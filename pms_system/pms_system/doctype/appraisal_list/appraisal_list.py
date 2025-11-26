@@ -35,15 +35,13 @@ class AppraisalList(Document):
         questions = frappe.get_all(
             "Question Master",
             filters={"disable": 0},
-            fields=["title","question","question_type","options"]
+            fields=["title","question"]
         )
         for ques in questions:
             if ques.title not in existing:
                 self.append("answer", {
                     "title": ques.title,
                     "question": ques.question,
-                    "question_type": ques.question_type,
-                    "options": ques.options
                 })
 
     def update_kra_rows(self):

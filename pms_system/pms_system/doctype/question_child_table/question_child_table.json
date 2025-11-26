@@ -8,10 +8,7 @@
  "field_order": [
   "title",
   "question",
-  "employee_ans_in_discriptive",
-  "employee_ans_in_option",
-  "options",
-  "question_type"
+  "employee_ans_in_discriptive"
  ],
  "fields": [
   {
@@ -23,30 +20,9 @@
    "reqd": 1
   },
   {
-   "depends_on": "eval:doc.question_type==\"Descriptive\"",
    "fieldname": "employee_ans_in_discriptive",
    "fieldtype": "Small Text",
    "label": "Employee Answer"
-  },
-  {
-   "depends_on": "eval:doc.question_type==\"Select\"",
-   "fieldname": "employee_ans_in_option",
-   "fieldtype": "Select",
-   "label": "Employee Answer"
-  },
-  {
-   "fetch_from": "title.options",
-   "fieldname": "options",
-   "fieldtype": "Small Text",
-   "hidden": 1,
-   "label": "Options"
-  },
-  {
-   "fetch_from": "title.question_type",
-   "fieldname": "question_type",
-   "fieldtype": "Data",
-   "hidden": 1,
-   "label": "Question Type"
   },
   {
    "fieldname": "title",
@@ -61,7 +37,7 @@
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2025-11-25 16:37:18.710147",
+ "modified": "2025-11-26 19:48:57.047530",
  "modified_by": "Administrator",
  "module": "Pms System",
  "name": "Question Child Table",
