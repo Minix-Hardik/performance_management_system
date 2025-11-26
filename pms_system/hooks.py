@@ -67,6 +67,9 @@ doctype_js = {
 override_doctype_class = {
     "Appraisal Cycle": "pms_system.python.appraisal_cycle.CustomAppraisalCycle"
 }
+permission_query_conditions = {
+    "Appraisal List": "pms_system.api.get_appraisal_list_permission.get_permission_query_conditions"
+}
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
 # doctype_calendar_js = {"doctype" : "public/js/doctype_calendar.js"}

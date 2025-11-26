@@ -12,6 +12,8 @@ class AppraisalList(Document):
         self.check_duplicate_entry()
 
     def update_competency_rows(self):
+        if not self.competency_rating:
+            return
         existing = {d.competency for d in self.competency}
 
         competencies = frappe.get_all(
@@ -27,6 +29,8 @@ class AppraisalList(Document):
                     "weightage": comp.weightage
                 })
     def add_question(self):
+        if not self.question:
+            return
         existing = {d.title for d in self.answer}
         questions = frappe.get_all(
             "Question Master",
@@ -43,7 +47,7 @@ class AppraisalList(Document):
                 })
 
     def update_kra_rows(self):
-        if not self.employee:
+        if not self.employee or not self.kra_rating:
             return
 
         try:
