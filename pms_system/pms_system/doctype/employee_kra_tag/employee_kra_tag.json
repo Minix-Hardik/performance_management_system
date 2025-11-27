@@ -8,7 +8,8 @@
  "field_order": [
   "employee",
   "kra_and_goal_add",
-  "kra_vs_goal"
+  "kra_vs_goal",
+  "goal_vs_task"
  ],
  "fields": [
   {
@@ -29,12 +30,18 @@
    "fieldtype": "Table",
    "label": "KRA VS Goal",
    "options": "KRA Goal Map"
+  },
+  {
+   "fieldname": "goal_vs_task",
+   "fieldtype": "Table",
+   "label": "Goal vs Task",
+   "options": "Goal Task Table"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-11-24 17:02:04.811807",
+ "modified": "2025-11-27 12:42:05.929115",
  "modified_by": "Administrator",
  "module": "Pms System",
  "name": "Employee KRA Tag",

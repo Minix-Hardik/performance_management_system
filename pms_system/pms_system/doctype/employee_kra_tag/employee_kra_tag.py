@@ -23,3 +23,32 @@ class EmployeeKRATag(Document):
         if total != 100:
             frappe.throw(f"Total Weightage must be exactly 100%. Currently: <b>{total}%</b>")
 
+
+
+@frappe.whitelist()
+def get_kra_list(doctype, txt, searchfield, start, page_len, filters):
+    employee = filters.get("employee")
+    if not employee:
+        return []
+
+    # Get employee details
+    emp = frappe.get_doc("Employee", employee)
+    designation = emp.designation
+    department = emp.department
+
+    # Query KRA with OR filtration
+    return frappe.db.sql("""
+        SELECT name
+        FROM `tabKRA`
+        WHERE 
+            (custom_designation = %(designation)s)
+            AND (custom_department = %(department)s)
+            AND ({search} LIKE %(txt)s)
+        LIMIT %(start)s, %(page_len)s
+    """.format(search=searchfield), {
+        "designation": designation,
+        "department": department,
+        "txt": "%" + txt + "%",
+        "start": start,
+        "page_len": page_len
+    })
