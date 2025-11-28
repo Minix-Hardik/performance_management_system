@@ -4,14 +4,14 @@
 frappe.ui.form.on("Employee KRA Tag", {
 	setup: function (frm) {
 		frm.fields_dict["kra_vs_goal"].grid.get_field("goal").get_query = function (doc, cdt, cdn) {
-            let row = locals[cdt][cdn];
+			let row = locals[cdt][cdn];
 
-            return {
-                filters: {
-                    "custom_kr": row.kra   // filter goals based on selected KRA
-                }
-            };
-        };
+			return {
+				filters: {
+					"custom_kr": row.kra   // filter goals based on selected KRA
+				}
+			};
+		};
 	},
 	employee: function (frm) {
 		if (!frm.doc.employee) {

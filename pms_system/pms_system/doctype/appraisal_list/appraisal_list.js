@@ -8,7 +8,15 @@ function lock_child_table(frm, childfield) {
     grid.cannot_delete_all_rows = true;
     frm.refresh_field(childfield);
 }
-
+function load_appraisal_cycle_weights(frm) {
+    frappe.db.get_doc("Appraisal Cycle", frm.doc.appraisal_cycle)
+        .then(doc => {
+            frm.appraisal_cycle_data = {
+                kra_weight: doc.custom_kra_weight || 70,           // fallback
+                competency_weight: doc.custom_competency_weight || 30
+            };
+        });
+}
 function make_all_readonly(frm) {
     Object.keys(frm.fields_dict).forEach(f => {
         frm.set_df_property(f, "read_only", 1);
@@ -49,18 +57,13 @@ function make_readonly_except_multi(frm, table_map) {
 
         child_meta.fields.forEach(cdf => {
             let fname = cdf.fieldname;
-
-            // HIDE only the specified fields
             if (hidden_fields.includes(fname)) {
                 grid.update_docfield_property(fname, "hidden", 1);
                 grid.update_docfield_property(fname, "read_only", 1);
                 return;
             }
-
-            // MAKE ONLY THESE FIELDS EDITABLE
             if (editable_fields.includes(fname)) {
                 grid.update_docfield_property(fname, "read_only", 0);
-                // DO NOT TOUCH hidden property
                 return;
             }
             grid.update_docfield_property(fname, "read_only", 1);
@@ -89,9 +92,21 @@ frappe.ui.form.on('Appraisal List', {
                 }
             });
         }
+        if (frm.doc.workflow_state === "Manager Appraisal" && frm.doc.reports_to_user_id === user) {
+            make_readonly_except_multi(frm, {
+                competency: {
+                    readonly: ["manager_rating", "manager_description"],
+                    hidden: []
+                }
+            });
+        }
+
     },
     refresh: function (frm) {
         const user = frappe.session.user;
+        if (frm.doc.appraisal_cycle) {
+            load_appraisal_cycle_weights(frm);
+        }
         make_all_readonly(frm);
         if (frm.doc.workflow_state === "Self Appraisal" && frm.doc.employee_user_id === user) {
             make_readonly_except_multi(frm, {
@@ -114,8 +129,41 @@ frappe.ui.form.on('Appraisal List', {
     }
 });
 
+function validate_rating_value(frm, row, field) {
+    if (row[field] < 0 || row[field] > 10) {
+        frappe.msgprint("Rating must be between 0 and 10");
+        row[field] = 0;
+        frm.refresh_field("competency_calculation");
+    }
+    calculate_competency_total(frm);
+}
 
+function calculate_row_weighted_score(frm, row) {
+    let employee = cint(row.employee_rating_number) || 0;
+    let manager = cint(row.manager_rating) || 0;
+    let combined_score = (manager + employee) / 2;
+    return ((combined_score / 10) * (row.weightage || 0));
+}
 
+function calculate_competency_total(frm) {
+    let raw_total = 0;
+
+    (frm.doc.competency || []).forEach(row => {
+        raw_total += calculate_row_weighted_score(frm, row);
+    });
+
+    let comp_weight_ratio = (frm.appraisal_cycle_data?.competency_weight || 50) / 100;
+    if (frm.appraisal_cycle_data && frm.appraisal_cycle_data.competency_weight) {
+        comp_weight = frm.appraisal_cycle_data.competency_weight / 100;
+    }
+
+    let final_score = raw_total * comp_weight_ratio;
+
+    frm.set_value("competency_score", final_score);
+    frm.set_value("final_score", final_score)
+    frm.refresh_field("competency_score");
+    frm.refresh_field("final_score")
+}
 
 frappe.ui.form.on("Competency Calculation", {
     employee_rating_number(frm, cdt, cdn) {
@@ -129,10 +177,11 @@ frappe.ui.form.on("Competency Calculation", {
     }
 });
 
-function validate_rating_value(frm, row, fieldname) {
-    if (row[fieldname] > 10) {
-        frappe.msgprint(__("Value cannot be greater than 10"));
-        row[fieldname] = 10;
-        frm.refresh_field("competency");
-    }
-}
+
+// function validate_rating_value(frm, row, fieldname) {
+//     if (row[fieldname] > 10) {
+//         frappe.msgprint(__("Value cannot be greater than 10"));
+//         row[fieldname] = 10;
+//         frm.refresh_field("competency");
+//     }
+// }

@@ -31,19 +31,42 @@ def get_kra_list(doctype, txt, searchfield, start, page_len, filters):
     if not employee:
         return []
 
-    # Get employee details
     emp = frappe.get_doc("Employee", employee)
     designation = emp.designation
     department = emp.department
 
-    # Query KRA with OR filtration
     return frappe.db.sql("""
         SELECT name
         FROM `tabKRA`
-        WHERE 
-            (custom_designation = %(designation)s)
-            AND (custom_department = %(department)s)
-            AND ({search} LIKE %(txt)s)
+        WHERE
+            -- Case 1: Both des & dept set in KRA
+            (
+                custom_designation IS NOT NULL
+                AND custom_department IS NOT NULL
+                AND custom_designation = %(designation)s
+                AND custom_department = %(department)s
+            )
+            OR
+            -- Case 2: only designation set
+            (
+                custom_designation IS NOT NULL
+                AND custom_department IS NULL
+                AND custom_designation = %(designation)s
+            )
+            OR
+            -- Case 3: only department set
+            (
+                custom_designation IS NULL
+                AND custom_department IS NOT NULL
+                AND custom_department = %(department)s
+            )
+            OR
+            -- Case 4: both empty → show for all
+            (
+                custom_designation IS NULL
+                AND custom_department IS NULL
+            )
+            AND {search} LIKE %(txt)s
         LIMIT %(start)s, %(page_len)s
     """.format(search=searchfield), {
         "designation": designation,
