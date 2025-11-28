@@ -54,6 +54,7 @@ function make_readonly_except_multi(frm, table_map) {
 
         let editable_fields = cfg.readonly || [];
         let hidden_fields = cfg.hidden || [];
+        let mandatory_fields = cfg.mandatory || [];
 
         child_meta.fields.forEach(cdf => {
             let fname = cdf.fieldname;
@@ -65,6 +66,9 @@ function make_readonly_except_multi(frm, table_map) {
             if (editable_fields.includes(fname)) {
                 grid.update_docfield_property(fname, "read_only", 0);
                 return;
+            }
+            if (mandatory_fields.includes(fname)) {
+                grid.update_docfield_property(fname, "reqd", 1);
             }
             grid.update_docfield_property(fname, "read_only", 1);
         });
@@ -95,15 +99,25 @@ frappe.ui.form.on('Appraisal List', {
             hide_all_workflow_actions(frm)
         }
         if (frm.doc.workflow_state === "Self Appraisal" && frm.doc.employee_user_id === user) {
+            let mandatory_competency = []
+            // mandatory_competency
+            if (frm.doc.competency_rating_mandatory) {
+                mandatory_competency.push("employee_rating_number")
+            }
+            if (frm.doc.competency_comment_mandatory) {
+                mandatory_competency.push("employee_description")
+            }
             make_readonly_except_multi(frm, {
                 answer: {
                     readonly: ["employee_ans_in_option", "employee_ans_in_discriptive"],
-                    hidden: []
+                    hidden: [],
+                    mandatory: []
 
                 },
                 competency: {
                     readonly: ["employee_rating_number", "employee_description"],
-                    hidden: ["manager_rating", "manager_description"]
+                    hidden: ["manager_rating", "manager_description"],
+                    mandatory: mandatory_competency
                 }
             });
         }
@@ -136,15 +150,24 @@ frappe.ui.form.on('Appraisal List', {
             hide_all_workflow_actions(frm);
         }
         if (frm.doc.workflow_state === "Self Appraisal" && frm.doc.employee_user_id === user) {
+            let mandatory_competency = []
+            // mandatory_competency
+            if (frm.doc.competency_rating_mandatory) {
+                mandatory_competency.push("employee_rating_number")
+            }
+            if (frm.doc.competency_comment_mandatory) {
+                mandatory_competency.push("employee_description")
+            }
             make_readonly_except_multi(frm, {
                 answer: {
                     readonly: ["employee_ans_in_discriptive"],
-                    hidden: []
-
+                    hidden: [],
+                    mandatory: []
                 },
                 competency: {
                     readonly: ["employee_rating_number", "employee_description"],
-                    hidden: ["manager_rating", "manager_description"]
+                    hidden: ["manager_rating", "manager_description"],
+                    mandatory: mandatory_competency
                 }
             });
 
