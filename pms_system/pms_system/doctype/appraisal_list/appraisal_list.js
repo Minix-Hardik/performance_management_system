@@ -72,13 +72,28 @@ function make_readonly_except_multi(frm, table_map) {
         frm.refresh_field(table);
     });
 }
+function hide_all_workflow_actions(frm) {
+    $(frm.page.wrapper).find('button[data-label="Actions"]').hide();
+    $(frm.page.wrapper)
+        .find('button:contains("Actions")')
+        .closest("button")
+        .hide();
 
+    // Hide dropdown if rendered as secondary button
+    frm.page.btn_secondary?.hide();
+}
 
 
 frappe.ui.form.on('Appraisal List', {
     onload: function (frm) {
         make_all_readonly(frm)
         const user = frappe.session.user;
+        if (frm.doc.workflow_state === "Self Appraisal" && user !== frm.doc.employee_user_id) {
+            hide_all_workflow_actions(frm)
+        }
+        if (frm.doc.workflow_state === "Manager Appraisal" && user !== frm.doc.reports_to_user_id) {
+            hide_all_workflow_actions(frm)
+        }
         if (frm.doc.workflow_state === "Self Appraisal" && frm.doc.employee_user_id === user) {
             make_readonly_except_multi(frm, {
                 answer: {
@@ -108,6 +123,18 @@ frappe.ui.form.on('Appraisal List', {
             load_appraisal_cycle_weights(frm);
         }
         make_all_readonly(frm);
+        lock_child_table(frm, "competency");
+        lock_child_table(frm, "answer");
+        lock_child_table(frm, "kra_vs_goal");
+        lock_child_table(frm, "kra");
+        if (frm.doc.workflow_state === "Self Appraisal" && user !== frm.doc.employee_user_id) {
+            hide_all_workflow_actions(frm);
+        }
+
+        // Condition 2: Manager Appraisal stage → only manager can see button
+        if (frm.doc.workflow_state === "Manager Appraisal" && user !== frm.doc.reports_to_user_id) {
+            hide_all_workflow_actions(frm);
+        }
         if (frm.doc.workflow_state === "Self Appraisal" && frm.doc.employee_user_id === user) {
             make_readonly_except_multi(frm, {
                 answer: {
@@ -120,11 +147,15 @@ frappe.ui.form.on('Appraisal List', {
                     hidden: ["manager_rating", "manager_description"]
                 }
             });
-            lock_child_table(frm, "competency");
-            lock_child_table(frm, "answer");
-            lock_child_table(frm, "kra_vs_goal");
-            lock_child_table(frm, "kra");
 
+        }
+        if (frm.doc.workflow_state === "Manager Appraisal" && frm.doc.reports_to_user_id === user) {
+            make_readonly_except_multi(frm, {
+                competency: {
+                    readonly: ["manager_rating", "manager_description"],
+                    hidden: []
+                }
+            });
         }
     }
 });

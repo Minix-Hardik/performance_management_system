@@ -5,6 +5,17 @@ import frappe
 from frappe.model.document import Document
 
 class AppraisalList(Document):
+    def before_workflow_action(self, action):
+        current_user = frappe.session.user
+        if action == "Submit Self Appraisal":
+            if current_user != self.employee_user_id:
+                frappe.throw("Only the employee can submit Self Appraisal.")
+        elif action == "Manager Review":
+            if current_user != self.reports_to_user_id:
+                frappe.throw("Only the reporting manager can perform Manager Appraisal.")
+        elif action == "Approve":
+            if current_user != self.reports_to_user_id:
+                frappe.throw("Only the reporting manager can approve this appraisal.")
     def validate(self):
         self.update_competency_rows()
         self.update_kra_rows()
