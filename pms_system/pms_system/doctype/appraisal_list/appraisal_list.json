@@ -17,6 +17,7 @@
   "section_break_gdem",
   "final_score",
   "self_appraisal_tab",
+  "appraisal",
   "kra",
   "kra_vs_goal_section",
   "kra_vs_goal",
@@ -369,12 +370,18 @@
    "fieldtype": "Link",
    "label": "Reports to user Id",
    "options": "User"
+  },
+  {
+   "fieldname": "appraisal",
+   "fieldtype": "HTML",
+   "label": "Appraisal",
+   "options": "&lt;appraisal-rating&gt;&lt;/appraisal-rating&gt;"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-11-28 12:46:40.286540",
+ "modified": "2025-11-29 18:56:03.060888",
  "modified_by": "Administrator",
  "module": "Pms System",
  "name": "Appraisal List",
