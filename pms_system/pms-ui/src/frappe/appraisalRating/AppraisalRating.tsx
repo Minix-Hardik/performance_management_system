@@ -11,8 +11,7 @@ import type {
 import { KRATab } from "./component/kra/KraTab";
 import { CompetencyTab } from "./component/compenency/CompetencyTab";
 import { QuestionsTab } from "./component/question/QuestionsTab";
-
-// import { calculateSelfScore, calculateFinalScore } from "./utils/scoring";
+import { calculateAppraisalScores } from "./utils/scoring"
 
 export const AppraisalRating = () => {
     const [activeTab, setActiveTab] = useState<"kra" | "competency" | "questions">("kra");
@@ -146,6 +145,17 @@ export const AppraisalRating = () => {
         const frm = (window as any).cur_frm;
         if (!frm) return;
         const doc = frm.doc;
+
+        const scores = calculateAppraisalScores(
+            appraisalData,
+            frm.doc.kra_percentage,
+            frm.doc.competency_percentage,
+            frm.doc.workflow_state == "Manager Appraisal",
+            frm.doc.employee_score
+        );
+        console.log(scores)
+        doc.final_score = scores.finalScore;
+        doc.employee_score = scores.employeeSelfScore;
         doc.kra.forEach((k: any, idx: number) => {
             const updated = appraisalData.kra.find(kra => kra.id === idx + 1);
             if (!updated) return;

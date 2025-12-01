@@ -52,9 +52,10 @@
   "self_appraisal_reminder_send",
   "manager_review_reminder_sent",
   "employee_user_id",
-  "competency_score",
-  "kra_score",
-  "reports_to_user_id"
+  "reports_to_user_id",
+  "kra_percentage",
+  "competency_percentage",
+  "employee_score"
  ],
  "fields": [
   {
@@ -338,16 +339,6 @@
    "label": "Employee User Id"
   },
   {
-   "fieldname": "competency_score",
-   "fieldtype": "Float",
-   "label": "Competency Score"
-  },
-  {
-   "fieldname": "kra_score",
-   "fieldtype": "Float",
-   "label": "KRA Score"
-  },
-  {
    "fetch_from": "reports_to.user_id",
    "fieldname": "reports_to_user_id",
    "fieldtype": "Link",
@@ -366,12 +357,29 @@
    "fieldname": "manager_question_report_mandatory",
    "fieldtype": "Check",
    "label": "Manager Question Report Mandatory"
+  },
+  {
+   "fetch_from": "appraisal_cycle.custom_kra_weight",
+   "fieldname": "kra_percentage",
+   "fieldtype": "Percent",
+   "label": "Kra Percentage"
+  },
+  {
+   "fetch_from": "appraisal_cycle.custom_competency_weight",
+   "fieldname": "competency_percentage",
+   "fieldtype": "Percent",
+   "label": "Competency Percentage"
+  },
+  {
+   "fieldname": "employee_score",
+   "fieldtype": "Float",
+   "label": "Employee Score"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-12-01 14:53:34.359259",
+ "modified": "2025-12-01 21:53:30.196762",
  "modified_by": "Administrator",
  "module": "Pms System",
  "name": "Appraisal List",

@@ -42,7 +42,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-11-28 16:24:25.435484",
+ "modified": "2025-12-01 22:18:21.060811",
  "modified_by": "Administrator",
  "module": "Pms System",
  "name": "Employee KRA Tag",
@@ -58,6 +58,7 @@
    "read": 1,
    "report": 1,
    "role": "System Manager",
+   "select": 1,
    "share": 1,
    "write": 1
   }

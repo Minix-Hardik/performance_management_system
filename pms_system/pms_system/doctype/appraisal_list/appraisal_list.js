@@ -55,7 +55,7 @@ function hide_all_workflow_actions(frm) {
 
 frappe.ui.form.on('Appraisal List', {
     onload: function (frm) {
-        // make_all_readonly(frm)
+        make_all_readonly(frm)
         const user = frappe.session.user;
         if (frm.doc.workflow_state === "Self Appraisal" && user !== frm.doc.employee_user_id) {
             hide_all_workflow_actions(frm)
@@ -63,9 +63,6 @@ frappe.ui.form.on('Appraisal List', {
         if (frm.doc.workflow_state === "Manager Appraisal" && user !== frm.doc.reports_to_user_id) {
             hide_all_workflow_actions(frm)
         }
-
-
-
     },
     refresh: function (frm) {
         frm.get_field('appraisal').$wrapper.html(
@@ -75,7 +72,7 @@ frappe.ui.form.on('Appraisal List', {
         if (frm.doc.appraisal_cycle) {
             load_appraisal_cycle_weights(frm);
         }
-        // make_all_readonly(frm);
+        make_all_readonly(frm);
         if (frm.doc.workflow_state === "Self Appraisal" && user !== frm.doc.employee_user_id) {
             hide_all_workflow_actions(frm);
         }
@@ -93,7 +90,6 @@ function validate_rating_value(frm, row, field) {
         row[field] = 0;
         frm.refresh_field("competency_calculation");
     }
-    calculate_competency_total(frm);
 }
 
 function calculate_row_weighted_score(frm, row) {
@@ -103,25 +99,7 @@ function calculate_row_weighted_score(frm, row) {
     return ((combined_score / 10) * (row.weightage || 0));
 }
 
-function calculate_competency_total(frm) {
-    let raw_total = 0;
 
-    (frm.doc.competency || []).forEach(row => {
-        raw_total += calculate_row_weighted_score(frm, row);
-    });
-
-    let comp_weight_ratio = (frm.appraisal_cycle_data?.competency_weight || 50) / 100;
-    if (frm.appraisal_cycle_data && frm.appraisal_cycle_data.competency_weight) {
-        comp_weight = frm.appraisal_cycle_data.competency_weight / 100;
-    }
-
-    let final_score = raw_total * comp_weight_ratio;
-
-    frm.set_value("competency_score", final_score);
-    frm.set_value("final_score", final_score)
-    frm.refresh_field("competency_score");
-    frm.refresh_field("final_score")
-}
 
 frappe.ui.form.on("Competency Calculation", {
     employee_rating_number(frm, cdt, cdn) {

@@ -78,7 +78,10 @@ class AppraisalList(Document):
             if row.kra not in existing_vs_goal:
                 self.append("kra_vs_goal", {
                     "kra": row.kra,
-					"goal": row.goal
+					"goal": row.goal,
+                    "weightage":row.weightage,
+                    "goal_name":row.goal_name,
+                    "progress":row.progress
                 })
 
     def check_duplicate_entry(self):
