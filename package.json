@@ -1,0 +1,22 @@
+{
+  "name": "pms_system",
+  "version": "1.0.0",
+  "description": "none",
+  "main": "index.js",
+  "scripts": {
+    "postinstall": "cd pms_system/pms-ui && yarn install",
+    "build": "cd pms_system/pms-ui && yarn build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://alik02-laha@github.com/alik02-laha/performance_management_system.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/alik02-laha/performance_management_system/issues"
+  },
+  "homepage": "https://github.com/alik02-laha/performance_management_system#readme"
+}
