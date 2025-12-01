@@ -142,6 +142,7 @@ export const AppraisalRating = () => {
         };
     }
     const saveToFrappe = () => {
+        if (!validateMandatory()) return;
         const frm = (window as any).cur_frm;
         if (!frm) return;
         const doc = frm.doc;
@@ -195,7 +196,6 @@ export const AppraisalRating = () => {
             .catch((err: any) => console.error(err));
 
     };
-
 
     const toggleKRA = (kraId: number) => {
         setExpandedKRA((prev) => ({
@@ -302,9 +302,152 @@ export const AppraisalRating = () => {
     // Who can see manager data? (employee must not)
     const showManagerData =
         isManager || isAuditUser;  // HR & Admin can see everything
+    const validateMandatory = () => {
+        const doc = window?.cur_frm?.doc;
+        const errors: string[] = [];
 
+        // ============================================================
+        // EMPLOYEE VALIDATION
+        // ============================================================
+        if (employeeCanEdit) {
 
+            if (doc.kra_rating_mandatory) {
+                appraisalData.kra.forEach(k => {
 
+                    // ❌ Skip KRA rating if goals exist
+                    if (!k.goals.length && !k.selfRating) {
+                        errors.push(`Self Rating missing in KRA: ${k.title}`);
+                    }
+
+                    // ✔ Goal rating always required
+                    k.goals.forEach(g => {
+                        if (!g.selfRating) {
+                            errors.push(`Self Rating missing in Goal: ${g.description}`);
+                        }
+                    });
+                });
+            }
+            if (doc.kra_comment_mandatory) {
+                appraisalData.kra.forEach(k => {
+
+                    // ❌ Skip KRA comment if goals exist
+                    if (!k.goals.length && !k.selfComments) {
+                        errors.push(`Self Comment missing in KRA: ${k.title}`);
+                    }
+
+                    // ✔ Goal comment always required
+                    k.goals.forEach(g => {
+                        if (!g.selfComments) {
+                            errors.push(`Self Comment missing in Goal: ${g.description}`);
+                        }
+                    });
+                });
+            }
+
+            // -----------------------------
+            // COMPETENCY RATING (Employee)
+            // -----------------------------
+            if (doc.competency_rating_mandatory) {
+                appraisalData.competencies.forEach(c => {
+                    if (!c.selfRating) {
+                        errors.push(`Self Rating missing in Competency: ${c.name}`);
+                    }
+                });
+            }
+
+            // -----------------------------
+            // COMPETENCY COMMENT (Employee)
+            // -----------------------------
+            if (doc.competency_comment_mandatory) {
+                appraisalData.competencies.forEach(c => {
+                    if (!c.selfComments) {
+                        errors.push(`Self Comment missing in Competency: ${c.name}`);
+                    }
+                });
+            }
+
+            // -----------------------------
+            // QUESTION ANSWER (Employee)
+            // -----------------------------
+            if (doc.question_answer_mandatory) {
+                appraisalData.questions.forEach(q => {
+                    if (!q.selfAnswer) {
+                        errors.push(`Answer missing for Question: ${q.question}`);
+                    }
+                });
+            }
+        }
+
+        // ============================================================
+        // MANAGER VALIDATION
+        // ============================================================
+        if (managerCanEdit) {
+
+            // -----------------------------
+            // MANAGER KRA RATING MANDATORY
+            // -----------------------------
+            if (doc.manager_kra_rating_mandatory) {
+                appraisalData.kra.forEach(k => {
+
+                    // ❌ Skip KRA rating if goals exist
+                    if (!k.goals.length && !k.managerRating) {
+                        errors.push(`Manager Rating missing in KRA: ${k.title}`);
+                    }
+
+                    // ✔ Goal rating always required
+                    k.goals.forEach(g => {
+                        if (!g.managerRating) {
+                            errors.push(`Manager Rating missing in Goal: ${g.description}`);
+                        }
+                    });
+                });
+            }
+            if (doc.manager_kra_comment_mandatory) {
+                appraisalData.kra.forEach(k => {
+                    if (!k.goals.length && !k.managerComments) {
+                        errors.push(`Manager Comment missing in KRA: ${k.title}`);
+                    }
+                    k.goals.forEach(g => {
+                        if (!g.managerComments) {
+                            errors.push(`Manager Comment missing in Goal: ${g.description}`);
+                        }
+                    });
+                });
+            }
+            if (doc.manager_competency_rating_mandatory) {
+                appraisalData.competencies.forEach(c => {
+                    if (!c.managerRating) {
+                        errors.push(`Manager Rating missing in Competency: ${c.name}`);
+                    }
+                });
+            }
+            if (doc.manager_competency_comment_mandatory) {
+                appraisalData.competencies.forEach(c => {
+                    if (!c.managerComments) {
+                        errors.push(`Manager Comment missing in Competency: ${c.name}`);
+                    }
+                });
+            }
+            if (doc.manager_question_report_mandatory) {
+                appraisalData.questions.forEach(q => {
+                    if (!q.managerComments) {
+                        errors.push(`Manager Comment missing for Question: ${q.question}`);
+                    }
+                });
+            }
+        }
+        if (errors.length > 0) {
+            frappe.msgprint({
+                title: "Mandatory Fields Missing",
+                indicator: "red",
+                message: `<ul>${errors.map(e => `<li>${e}</li>`).join("")}</ul>`
+            });
+            return false;
+        }
+
+        return true;
+    };
+    const canShowSaveButton = employeeCanEdit || managerCanEdit;
     return (
         <div className="ef-min-h-screen ef-bg-gray-50 ef-p-6">
             <div className="ef-max-w-7xl ef-mx-auto">
@@ -387,15 +530,16 @@ export const AppraisalRating = () => {
                             />
                         )}
                     </div>
-                    <div className="ef-flex ef-justify-end ef-px-6 ef-pb-6">
-                        <button
-                            onClick={saveToFrappe}
-                            className="ef-bg-blue-600 ef-text-white ef-px-6 ef-py-2 ef-rounded-lg ef-font-semibold hover:ef-bg-blue-700 ef-transition"
-                        >
-                            Save Appraisal
-                        </button>
-                    </div>
-
+                    {canShowSaveButton && (
+                        <div className="ef-flex ef-justify-end ef-px-6 ef-pb-6">
+                            <button
+                                onClick={saveToFrappe}
+                                className="ef-bg-blue-600 ef-text-white ef-px-6 ef-py-2 ef-rounded-lg ef-font-semibold hover:ef-bg-blue-700 ef-transition"
+                            >
+                                Save Appraisal
+                            </button>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

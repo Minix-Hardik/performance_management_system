@@ -37,6 +37,7 @@
   "answer",
   "question",
   "question_answer_mandatory",
+  "manager_question_report_mandatory",
   "section_break_efaz",
   "manager_kra_rating",
   "manager_kra_rating_mandatory",
@@ -358,12 +359,19 @@
    "fieldtype": "HTML",
    "label": "Appraisal",
    "options": "\n"
+  },
+  {
+   "default": "0",
+   "fetch_from": "appraisal_cycle.custom_question_comment_mandatory",
+   "fieldname": "manager_question_report_mandatory",
+   "fieldtype": "Check",
+   "label": "Manager Question Report Mandatory"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-11-30 22:32:31.765259",
+ "modified": "2025-12-01 14:53:34.359259",
  "modified_by": "Administrator",
  "module": "Pms System",
  "name": "Appraisal List",
