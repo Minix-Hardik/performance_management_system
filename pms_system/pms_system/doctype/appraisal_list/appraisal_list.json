@@ -18,26 +18,23 @@
   "final_score",
   "self_appraisal_tab",
   "appraisal",
-  "kra",
-  "kra_vs_goal_section",
-  "kra_vs_goal",
-  "competency_section",
-  "competency",
-  "questions_section",
-  "answer",
   "full_report_tab",
   "hidden_tab",
   "kra_section",
+  "kra",
+  "kra_vs_goal",
   "kra_rating",
   "kra_rating_mandatory",
   "kra_comment",
   "kra_comment_mandatory",
   "competency_section_section",
+  "competency",
   "competency_rating",
   "competency_rating_mandatory",
   "competency_comment",
   "competency_comment_mandatory",
   "section_break_expy",
+  "answer",
   "question",
   "question_answer_mandatory",
   "section_break_efaz",
@@ -140,20 +137,10 @@
    "options": "KRA Vs Goal"
   },
   {
-   "fieldname": "competency_section",
-   "fieldtype": "Section Break",
-   "label": "Competency"
-  },
-  {
    "fieldname": "competency",
    "fieldtype": "Table",
    "label": "Competency",
    "options": "Competency Calculation"
-  },
-  {
-   "fieldname": "questions_section",
-   "fieldtype": "Section Break",
-   "label": "Questions"
   },
   {
    "fieldname": "answer",
@@ -231,11 +218,6 @@
    "fieldname": "competency_comment_mandatory",
    "fieldtype": "Check",
    "label": "Competency Comment Mandatory"
-  },
-  {
-   "fieldname": "kra_vs_goal_section",
-   "fieldtype": "Section Break",
-   "label": "KRA VS Goal"
   },
   {
    "fieldname": "kra_vs_goal",
@@ -375,13 +357,13 @@
    "fieldname": "appraisal",
    "fieldtype": "HTML",
    "label": "Appraisal",
-   "options": "&lt;appraisal-rating&gt;&lt;/appraisal-rating&gt;"
+   "options": "\n"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-11-29 18:56:03.060888",
+ "modified": "2025-11-30 22:32:31.765259",
  "modified_by": "Administrator",
  "module": "Pms System",
  "name": "Appraisal List",

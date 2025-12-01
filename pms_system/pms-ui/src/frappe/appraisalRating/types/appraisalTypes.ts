@@ -1,11 +1,12 @@
 export interface Goal {
     id: number;
     description: string;
-    target: string;
+    progress: number;
     selfRating?: number;
     selfComments?: string;
     managerRating?: number;
     managerComments?: string;
+    weightage?: number;
 }
 
 export interface KRA {

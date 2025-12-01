@@ -8,7 +8,8 @@
  "field_order": [
   "title",
   "question",
-  "employee_ans_in_discriptive"
+  "employee_ans_in_discriptive",
+  "manager_comment"
  ],
  "fields": [
   {
@@ -31,13 +32,18 @@
    "label": "Title",
    "options": "Question Master",
    "reqd": 1
+  },
+  {
+   "fieldname": "manager_comment",
+   "fieldtype": "Small Text",
+   "label": "Manager Comment"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2025-11-26 19:48:57.047530",
+ "modified": "2025-11-30 21:15:51.244008",
  "modified_by": "Administrator",
  "module": "Pms System",
  "name": "Question Child Table",

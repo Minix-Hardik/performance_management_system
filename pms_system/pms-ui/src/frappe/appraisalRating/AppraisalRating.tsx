@@ -1,5 +1,4 @@
-import { useState } from "react";
-import { User, UserCheck, Lock } from "lucide-react";
+import { useEffect, useState } from "react";
 
 import type {
     AppraisalData,
@@ -38,7 +37,7 @@ export const AppraisalRating = () => {
                     {
                         id: 1,
                         description: "Complete 3 major projects",
-                        target: "3 projects",
+                        progress: 2.00,
                         selfRating: 8,
                         selfComments: "Completed 3 projects successfully",
                         managerRating: 9,
@@ -47,7 +46,7 @@ export const AppraisalRating = () => {
                     {
                         id: 2,
                         description: "Maintain 95% on-time delivery",
-                        target: "95%",
+                        progress: 2.00,
                         selfRating: 7,
                         selfComments: "Achieved 90%",
                         managerRating: 7,
@@ -64,7 +63,7 @@ export const AppraisalRating = () => {
                     {
                         id: 3,
                         description: "Reduce bug count by 20%",
-                        target: "20% reduction",
+                        progress: 2.00,
                         selfRating: 9,
                         selfComments: "Reduced bugs by 25%",
                         managerRating: 9,
@@ -92,7 +91,7 @@ export const AppraisalRating = () => {
                     {
                         id: 4,
                         description: "Propose 2 process improvements",
-                        target: "2 proposals",
+                        progress: 2.00,
                         selfRating: 8,
                         selfComments: "Proposed automation",
                         managerRating: 8,
@@ -138,6 +137,72 @@ export const AppraisalRating = () => {
             },
         ],
     });
+    function transformAppraisal(frmDoc: any) {
+        if (frmDoc.workflow_state == "Self Appraisal") {
+            setAppraisalMode("self")
+        } else {
+            setAppraisalMode("manager")
+        }
+        const kraList = frmDoc.kra || [];
+        const goalsList = frmDoc.kra_vs_goal || [];
+        return {
+            employee: {
+                name: frmDoc.employee_name,
+                designation: frmDoc.designation,
+                department: frmDoc.department,
+                period: `${frmDoc.from_date} - ${frmDoc.to_date}`,
+            },
+
+            selfAppraisalSubmitted: frmDoc.self_appraisal_submitted || true,
+
+            kra: kraList.map((k: any, index: number) => {
+                // Filter goals matching the kra name/value
+                const goals = goalsList
+                    .filter((g: any) => g.kra === k.kra) // 👈 match by KRA name
+                    .map((g: any, idx: number) => ({
+                        id: idx + 1,
+                        description: g.goal_name,
+                        progress: g.progress || "",
+                        weightage: g.weightage,
+                        selfRating: g.employee_rating_number,
+                        selfComments: g.employee_description,
+                        managerRating: g.manager_rating_number,
+                        managerComments: g.management_description
+                    }));
+
+                return {
+                    id: index + 1,
+                    title: k.kra,                     // KRA name
+                    description: k.description || "", // if any
+                    weightage: k.weightage,
+                    selfRating: k.employee_rating_number,
+                    selfComments: k.employee_description,
+                    managerRating: k.manager_rating_number,
+                    managerComments: k.management_description,
+                    goals
+                };
+            }) || [],
+
+            competencies: frmDoc.competency?.map((c: any, index: number) => ({
+                id: index + 1,
+                name: c.competency,
+                description: c.description || "",
+                weightage: c.weightage,
+                selfRating: c.employee_rating_number,
+                selfComments: c.employee_description,
+                managerRating: c.manager_rating,
+                managerComments: c.manager_description
+            })) || [],
+
+            questions: frmDoc.answer?.map((q: any, index: number) => ({
+                id: index + 1,
+                question: q.question,
+                selfAnswer: q.employee_ans_in_discriptive,
+                managerComments: q.manager_comment
+            })) || [],
+        };
+    }
+
 
     const toggleKRA = (kraId: number) => {
         setExpandedKRA((prev) => ({
@@ -205,51 +270,17 @@ export const AppraisalRating = () => {
             ),
         }));
     };
+    const frm = (window as any).cur_frm;
+
+    if (!frm?.doc) return "Loading...";
+
+    useEffect(() => {
+        setAppraisalData(transformAppraisal(frm.doc))
+    }, [frm?.doc])
 
     return (
         <div className="ef-min-h-screen ef-bg-gray-50 ef-p-6">
             <div className="ef-max-w-7xl ef-mx-auto">
-
-                {/* MODE SWITCH */}
-                <div className="ef-bg-white ef-rounded-lg ef-shadow-sm ef-p-4 ef-mb-6">
-                    <div className="ef-flex ef-gap-4">
-                        <button
-                            onClick={() => setAppraisalMode("self")}
-                            className={`ef-flex ef-items-center ef-gap-2 ef-px-6 ef-py-3 ef-rounded-lg ef-font-semibold ${appraisalMode === "self"
-                                ? "ef-bg-blue-600 ef-text-white"
-                                : "ef-bg-gray-100 ef-text-gray-700"
-                                }`}
-                        >
-                            <User size={20} />
-                            Self Appraisal
-                        </button>
-
-                        <button
-                            onClick={() => setAppraisalMode("manager")}
-                            className={`ef-flex ef-items-center ef-gap-2 ef-px-6 ef-py-3 ef-rounded-lg ef-font-semibold ${appraisalMode === "manager"
-                                ? "ef-bg-purple-600 ef-text-white"
-                                : "ef-bg-gray-100 ef-text-gray-700"
-                                }`}
-                        >
-                            <UserCheck size={20} />
-                            Manager Review
-                            {!appraisalData.selfAppraisalSubmitted && (
-                                <Lock size={16} className="ef-text-yellow-500" />
-                            )}
-                        </button>
-                    </div>
-
-                    {appraisalMode === "manager" &&
-                        !appraisalData.selfAppraisalSubmitted && (
-                            <div className="ef-mt-4 ef-p-3 ef-bg-yellow-50 ef-border ef-border-yellow-200 ef-rounded-lg ef-flex ef-items-center ef-gap-2">
-                                <Lock size={18} className="ef-text-yellow-600" />
-                                <p className="ef-text-sm ef-text-yellow-800">
-                                    Manager review is locked until employee completes self-appraisal
-                                </p>
-                            </div>
-                        )}
-                </div>
-
                 {/* TABS */}
                 <div className="ef-bg-white ef-rounded-lg ef-shadow-sm">
                     <div className="ef-border-b">

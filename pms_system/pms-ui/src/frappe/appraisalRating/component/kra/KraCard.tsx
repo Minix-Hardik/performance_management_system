@@ -69,11 +69,24 @@ export const KRACard = ({
                                 <div className="ef-mb-3">
                                     <p className="ef-font-medium ef-text-gray-900">
                                         {goal.description}
+                                        <span className="ef-inline-flex ef-items-center ef-px-3 ef-py-1 ef-bg-gradient-to-r ef-from-purple-500 ef-to-pink-500 ef-text-white ef-text-xs ef-font-semibold ef-rounded-full ef-shadow-sm ef-mx-3">
+                                            {goal.weightage}% weightage
+                                        </span>
                                     </p>
-                                    <p className="ef-text-sm ef-text-gray-600">
-                                        Target: {goal.target}
+
+                                    {/* PROGRESS BAR */}
+                                    <div className="ef-w-full ef-bg-gray-200 ef-rounded-full ef-h-3 ef-overflow-hidden ef-mt-2">
+                                        <div
+                                            className="ef-h-full ef-bg-gradient-to-r ef-from-green-400 ef-to-green-600 ef-transition-all ef-duration-500"
+                                            style={{ width: `${Math.min(goal.progress, 100)}%` }}
+                                        ></div>
+                                    </div>
+
+                                    <p className="ef-text-sm ef-text-gray-600 ef-mt-1">
+                                        Progress: {Math.min(goal.progress, 100)}%
                                     </p>
                                 </div>
+
 
                                 <GoalRating
                                     kra={kra}
