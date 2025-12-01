@@ -150,8 +150,6 @@ export const AppraisalRating = () => {
             appraisalData,
             frm.doc.kra_percentage,
             frm.doc.competency_percentage,
-            frm.doc.workflow_state == "Manager Appraisal",
-            frm.doc.employee_score
         );
         console.log(scores)
         doc.final_score = scores.finalScore;

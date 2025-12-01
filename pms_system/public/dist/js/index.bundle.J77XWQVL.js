@@ -568,7 +568,7 @@
           const se = window.cur_frm;
           if (!se)
             return;
-          const U = se.doc, k = ty(d, se.doc.kra_percentage, se.doc.competency_percentage, se.doc.workflow_state == "Manager Appraisal", se.doc.employee_score);
+          const U = se.doc, k = ty(d, se.doc.kra_percentage, se.doc.competency_percentage);
           console.log(k), U.final_score = k.finalScore, U.employee_score = k.employeeSelfScore, U.kra.forEach((X, ee) => {
             const $ = d.kra.find((E) => E.id === ee + 1);
             $ && (X.employee_rating_number = $.selfRating, X.employee_description = $.selfComments, X.manager_rating_number = $.managerRating, X.management_description = $.managerComments, X.weightage = $.weightage);
@@ -12251,4 +12251,4 @@ Error generating stack: ` + a.message + `
 * This source code is licensed under the ISC license.
 * See the LICENSE file in the root directory of this source tree.
 */
-//# sourceMappingURL=index.bundle.3BJVI7XL.js.map
+//# sourceMappingURL=index.bundle.J77XWQVL.js.map
