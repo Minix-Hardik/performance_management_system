@@ -10,6 +10,9 @@ interface QuestionsTabProps {
         field: keyof Question,
         value: any
     ) => void;
+    employeeCanEdit: boolean;
+    managerCanEdit: boolean;
+    showManagerData: boolean;
 }
 
 export const QuestionsTab = ({
@@ -17,6 +20,9 @@ export const QuestionsTab = ({
     appraisalMode,
     selfAppraisalSubmitted,
     updateQuestion,
+    employeeCanEdit,
+    managerCanEdit,
+    showManagerData
 }: QuestionsTabProps) => {
     return (
         <div className="ef-space-y-6">
@@ -28,6 +34,9 @@ export const QuestionsTab = ({
                     appraisalMode={appraisalMode}
                     selfAppraisalSubmitted={selfAppraisalSubmitted}
                     updateQuestion={updateQuestion}
+                    employeeCanEdit={employeeCanEdit}
+                    managerCanEdit={managerCanEdit}
+                    showManagerData={showManagerData}
                 />
             ))}
         </div>

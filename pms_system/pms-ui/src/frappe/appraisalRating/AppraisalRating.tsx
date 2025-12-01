@@ -156,7 +156,7 @@ export const AppraisalRating = () => {
             k.weightage = updated.weightage;
         });
 
-        doc.kra_vs_goal.forEach((g: any, idx: number) => {
+        doc.kra_vs_goal.forEach((g: any) => {
             const parentKRA = appraisalData.kra.find(k => k.title === g.kra);
             if (!parentKRA) return;
 
@@ -271,6 +271,40 @@ export const AppraisalRating = () => {
         setAppraisalData(transformAppraisal(frm.doc))
     }, [frm?.doc])
 
+    const currentUser = frappe.session.user;
+    const employeeUserId = frm.doc.employee_user_id;
+    const reportsToUserId = frm.doc.reports_to_user_id;
+    const workflowStatus = frm.doc.workflow_state;
+
+    // --- Identify user type ---
+    const isEmployee = currentUser === employeeUserId;
+    const isManager = currentUser === reportsToUserId;
+
+    const roles = frappe.user_roles || [];
+    const isHR = roles.includes("HR Manager");
+    const isAdmin = currentUser === "Administrator";
+
+    // HR + Administrator → read-only view with full visibility
+    const isAuditUser = isHR || isAdmin;
+
+    // Employees can edit only during Self Appraisal
+    const employeeCanEdit =
+        isEmployee &&
+        workflowStatus === "Self Appraisal" &&
+        !isAuditUser;  // HR/Admin cannot edit
+
+    // Managers can edit only during Manager Review
+    const managerCanEdit =
+        isManager &&
+        workflowStatus === "Manager Appraisal" &&
+        !isAuditUser;  // HR/Admin cannot edit
+
+    // Who can see manager data? (employee must not)
+    const showManagerData =
+        isManager || isAuditUser;  // HR & Admin can see everything
+
+
+
     return (
         <div className="ef-min-h-screen ef-bg-gray-50 ef-p-6">
             <div className="ef-max-w-7xl ef-mx-auto">
@@ -318,9 +352,12 @@ export const AppraisalRating = () => {
                                 expandedKRA={expandedKRA}
                                 toggleKRA={toggleKRA}
                                 appraisalMode={appraisalMode}
-                                selfAppraisalSubmitted={appraisalData.selfAppraisalSubmitted}
                                 updateGoalRating={updateGoalRating}
                                 updateKRARating={updateKRARating}
+
+                                employeeCanEdit={employeeCanEdit}
+                                managerCanEdit={managerCanEdit}
+                                showManagerData={showManagerData}
                             />
                         )}
 
@@ -330,6 +367,10 @@ export const AppraisalRating = () => {
                                 appraisalMode={appraisalMode}
                                 selfAppraisalSubmitted={appraisalData.selfAppraisalSubmitted}
                                 updateCompetency={updateCompetency}
+
+                                employeeCanEdit={employeeCanEdit}
+                                managerCanEdit={managerCanEdit}
+                                showManagerData={showManagerData}
                             />
                         )}
 
@@ -339,6 +380,10 @@ export const AppraisalRating = () => {
                                 appraisalMode={appraisalMode}
                                 selfAppraisalSubmitted={appraisalData.selfAppraisalSubmitted}
                                 updateQuestion={updateQuestion}
+
+                                employeeCanEdit={employeeCanEdit}
+                                managerCanEdit={managerCanEdit}
+                                showManagerData={showManagerData}
                             />
                         )}
                     </div>

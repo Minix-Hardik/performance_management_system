@@ -6,7 +6,6 @@ interface KRATabProps {
     expandedKRA: Record<number, boolean>;
     toggleKRA: (id: number) => void;
     appraisalMode: "self" | "manager";
-    selfAppraisalSubmitted: boolean;
 
     updateGoalRating: (
         kraId: number,
@@ -20,6 +19,10 @@ interface KRATabProps {
         field: keyof KRA,
         value: any
     ) => void;
+    employeeCanEdit: boolean;
+    managerCanEdit: boolean;
+    showManagerData: boolean;
+
 }
 
 export const KRATab = ({
@@ -27,9 +30,11 @@ export const KRATab = ({
     expandedKRA,
     toggleKRA,
     appraisalMode,
-    selfAppraisalSubmitted,
     updateGoalRating,
     updateKRARating,
+    employeeCanEdit,
+    managerCanEdit,
+    showManagerData
 }: KRATabProps) => {
     return (
         <div className="ef-space-y-4">
@@ -40,9 +45,11 @@ export const KRATab = ({
                     expanded={expandedKRA[kra.id]}
                     onToggle={() => toggleKRA(kra.id)}
                     appraisalMode={appraisalMode}
-                    selfAppraisalSubmitted={selfAppraisalSubmitted}
                     updateGoalRating={updateGoalRating}
                     updateKRARating={updateKRARating}
+                    employeeCanEdit={employeeCanEdit}
+                    managerCanEdit={managerCanEdit}
+                    showManagerData={showManagerData}
                 />
             ))}
         </div>

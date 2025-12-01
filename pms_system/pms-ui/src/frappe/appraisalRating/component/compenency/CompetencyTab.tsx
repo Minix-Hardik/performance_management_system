@@ -10,6 +10,9 @@ interface CompetencyTabProps {
         field: keyof Competency,
         value: any
     ) => void;
+    employeeCanEdit: boolean;
+    managerCanEdit: boolean;
+    showManagerData: boolean;
 }
 
 export const CompetencyTab = ({
@@ -17,6 +20,9 @@ export const CompetencyTab = ({
     appraisalMode,
     selfAppraisalSubmitted,
     updateCompetency,
+    employeeCanEdit,
+    managerCanEdit,
+    showManagerData
 }: CompetencyTabProps) => {
     return (
         <div className="ef-space-y-6">
@@ -27,6 +33,9 @@ export const CompetencyTab = ({
                     appraisalMode={appraisalMode}
                     selfAppraisalSubmitted={selfAppraisalSubmitted}
                     updateCompetency={updateCompetency}
+                    employeeCanEdit={employeeCanEdit}
+                    managerCanEdit={managerCanEdit}
+                    showManagerData={showManagerData}
                 />
             ))}
         </div>
