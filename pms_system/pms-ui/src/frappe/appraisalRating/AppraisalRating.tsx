@@ -53,52 +53,7 @@ export const AppraisalRating = () => {
                         managerComments: "Slight delay",
                     },
                 ],
-            },
-            {
-                id: 2,
-                title: "Code Quality",
-                description: "Maintain high code quality standards",
-                weightage: 25,
-                goals: [
-                    {
-                        id: 3,
-                        description: "Reduce bug count by 20%",
-                        progress: 2.00,
-                        selfRating: 9,
-                        selfComments: "Reduced bugs by 25%",
-                        managerRating: 9,
-                        managerComments: "Outstanding",
-                    },
-                ],
-            },
-            {
-                id: 3,
-                title: "Team Collaboration",
-                description: "Work effectively with team members",
-                weightage: 20,
-                selfRating: 8,
-                selfComments: "Collaborated well",
-                managerRating: 8,
-                managerComments: "Great team player",
-                goals: [],
-            },
-            {
-                id: 4,
-                title: "Innovation",
-                description: "Contribute innovative ideas",
-                weightage: 15,
-                goals: [
-                    {
-                        id: 4,
-                        description: "Propose 2 process improvements",
-                        progress: 2.00,
-                        selfRating: 8,
-                        selfComments: "Proposed automation",
-                        managerRating: 8,
-                        managerComments: "Good job",
-                    },
-                ],
-            },
+            }
         ],
         competencies: [
             {
@@ -110,17 +65,7 @@ export const AppraisalRating = () => {
                 selfComments: "Strong in React/Node",
                 managerRating: 8,
                 managerComments: "Very competent",
-            },
-            {
-                id: 2,
-                name: "Communication",
-                description: "Effective communication",
-                weightage: 15,            // <-- NEW
-                selfRating: 7,
-                selfComments: "Improving",
-                managerRating: 8,
-                managerComments: "Much better",
-            },
+            }
         ],
         questions: [
             {
@@ -128,13 +73,7 @@ export const AppraisalRating = () => {
                 question: "What are your key achievements?",
                 selfAnswer: "Led migration project",
                 managerComments: "Excellent ownership",
-            },
-            {
-                id: 2,
-                question: "What areas do you want to develop?",
-                selfAnswer: "Public speaking",
-                managerComments: "Good focus",
-            },
+            }
         ],
     });
     function transformAppraisal(frmDoc: any) {
@@ -202,6 +141,60 @@ export const AppraisalRating = () => {
             })) || [],
         };
     }
+    const saveToFrappe = () => {
+        const frm = (window as any).cur_frm;
+        if (!frm) return;
+        const doc = frm.doc;
+        doc.kra.forEach((k: any, idx: number) => {
+            const updated = appraisalData.kra.find(kra => kra.id === idx + 1);
+            if (!updated) return;
+
+            k.employee_rating_number = updated.selfRating;
+            k.employee_description = updated.selfComments;
+            k.manager_rating_number = updated.managerRating;
+            k.management_description = updated.managerComments;
+            k.weightage = updated.weightage;
+        });
+
+        doc.kra_vs_goal.forEach((g: any, idx: number) => {
+            const parentKRA = appraisalData.kra.find(k => k.title === g.kra);
+            if (!parentKRA) return;
+
+            const updatedGoal = parentKRA.goals.find(goal => goal.description === g.goal_name);
+            if (!updatedGoal) return;
+
+            g.employee_rating_number = updatedGoal.selfRating;
+            g.employee_description = updatedGoal.selfComments;
+            g.manager_rating_number = updatedGoal.managerRating;
+            g.management_description = updatedGoal.managerComments;
+            g.progress = updatedGoal.progress;
+            g.weightage = updatedGoal.weightage;
+        });
+
+        doc.competency.forEach((c: any, idx: number) => {
+            const updated = appraisalData.competencies.find(comp => comp.id === idx + 1);
+            if (!updated) return;
+
+            c.employee_rating_number = updated.selfRating;
+            c.employee_description = updated.selfComments;
+            c.manager_rating = updated.managerRating;
+            c.manager_description = updated.managerComments;
+            c.weightage = updated.weightage;
+        });
+
+        doc.answer.forEach((q: any, idx: number) => {
+            const updated = appraisalData.questions.find(x => x.id === idx + 1);
+            if (!updated) return;
+
+            q.employee_ans_in_discriptive = updated.selfAnswer;
+            q.manager_comment = updated.managerComments;
+        });
+        frm.doc.__unsaved = 1;
+        frm.dirty();
+        frm.save()
+            .catch((err: any) => console.error(err));
+
+    };
 
 
     const toggleKRA = (kraId: number) => {
@@ -349,6 +342,15 @@ export const AppraisalRating = () => {
                             />
                         )}
                     </div>
+                    <div className="ef-flex ef-justify-end ef-px-6 ef-pb-6">
+                        <button
+                            onClick={saveToFrappe}
+                            className="ef-bg-blue-600 ef-text-white ef-px-6 ef-py-2 ef-rounded-lg ef-font-semibold hover:ef-bg-blue-700 ef-transition"
+                        >
+                            Save Appraisal
+                        </button>
+                    </div>
+
                 </div>
             </div>
         </div>
