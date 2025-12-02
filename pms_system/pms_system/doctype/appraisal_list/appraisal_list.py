@@ -5,6 +5,7 @@ import frappe
 from frappe.model.document import Document
 
 class AppraisalList(Document):
+
     def before_workflow_action(self, action):
         current_user = frappe.session.user
         if action == "Submit Self Appraisal":
@@ -16,15 +17,21 @@ class AppraisalList(Document):
         elif action == "Approve":
             if current_user != self.reports_to_user_id:
                 frappe.throw("Only the reporting manager can approve this appraisal.")
-    def validate(self):
-        self.update_competency_rows()
-        self.update_kra_rows()
-        self.add_question()
-        self.check_duplicate_entry()
 
+    def validate(self):
+        # Only checks needed in every save
+        self.check_duplicate_entry()
+        self.update_kra_rows()   # KRA should sync whenever employee's KRA Tag changes
+
+    def after_insert(self):
+        self.update_competency_rows()
+        self.add_question()
+        self.save(ignore_permissions=True)
+
+    # ----------------------------
+    # COMPETENCY – Add Only Once
+    # ----------------------------
     def update_competency_rows(self):
-        if not self.competency_rating:
-            return
         existing = {d.competency for d in self.competency}
 
         competencies = frappe.get_all(
@@ -39,15 +46,19 @@ class AppraisalList(Document):
                     "competency": comp.name,
                     "weightage": comp.weightage
                 })
+
+    # ----------------------------
+    # QUESTIONS – Add Only Once
+    # ----------------------------
     def add_question(self):
-        if not self.question:
-            return
         existing = {d.title for d in self.answer}
+
         questions = frappe.get_all(
             "Question Master",
             filters={"disable": 0},
-            fields=["title","question"]
+            fields=["title", "question"]
         )
+
         for ques in questions:
             if ques.title not in existing:
                 self.append("answer", {
@@ -55,8 +66,11 @@ class AppraisalList(Document):
                     "question": ques.question,
                 })
 
+    # ----------------------------
+    # KRA – Needs dynamic update
+    # ----------------------------
     def update_kra_rows(self):
-        if not self.employee or not self.kra_rating:
+        if not self.employee:
             return
 
         try:
@@ -78,23 +92,22 @@ class AppraisalList(Document):
             if row.kra not in existing_vs_goal:
                 self.append("kra_vs_goal", {
                     "kra": row.kra,
-					"goal": row.goal,
-                    "weightage":row.weightage,
-                    "goal_name":row.goal_name,
-                    "progress":row.progress
+                    "goal": row.goal,
+                    "weightage": row.weightage,
+                    "goal_name": row.goal_name,
+                    "progress": row.progress
                 })
 
     def check_duplicate_entry(self):
         if not self.employee or not self.appraisal_cycle:
             return
 
-        # Filter for existing Appraisal List for same employee & cycle
         existing = frappe.get_all(
             "Appraisal List",
             filters={
                 "employee": self.employee,
                 "appraisal_cycle": self.appraisal_cycle,
-                "name": ("!=", self.name)   # exclude current doc
+                "name": ("!=", self.name)
             },
             fields=["name"]
         )
@@ -104,7 +117,6 @@ class AppraisalList(Document):
             employee_name = frappe.db.get_value("Employee", self.employee, "employee_name")
             frappe.throw(
                 f"<b>{docname}</b> already exists for Employee <b>{employee_name}</b> "
-                f"for this Appraisal Cycle or overlapping period",
+                f"for this Appraisal Cycle",
                 title="Duplicate Entry"
             )
-

@@ -4,20 +4,17 @@ from frappe.utils import get_url_to_form, formatdate
 
 
 def get_reports_to(employee, level):
-    """
-    level = 1  → Single Level
-    level = 2  → Second Level
-    """
     first_manager = frappe.db.get_value("Employee", employee, "reports_to")
 
     if not first_manager:
         return None
-
     if level == 1:
-        return first_manager
-
+        return [first_manager]
     second_manager = frappe.db.get_value("Employee", first_manager, "reports_to")
-    return second_manager if second_manager else first_manager
+    if second_manager:
+        return [first_manager, second_manager]
+    return [first_manager]
+
 
 
 def notify_employee_appraisal(appraisal, employee):
@@ -68,30 +65,57 @@ def create_appraisal_list(doc_name):
     employees = doc.appraisees
 
     created_appraisals = []
+    errors = []
     report_level = 1 if doc.custom_reports_to == "Single Level" else 2
 
     if employees:
         for d in employees:
-            manager = get_reports_to(d.employee, report_level)
-
-            appraisal = frappe.get_doc(
-                {
+            try:
+                manager = get_reports_to(d.employee, report_level)
+                data = {
                     "doctype": "Appraisal List",
                     "employee": d.employee,
                     "appraisal_cycle": doc.name,
                     "start_date": doc.start_date,
-                    "end_date": doc.end_date,
-                    "reports_to": manager,
+                    "end_date": doc.end_date
                 }
-            )
+                print(manager)
+                if len(manager) == 1:
+                    data["reports_to"] = manager[0]
+                if len(manager) >= 1:
+                    data["reports_to"] = manager[0]
+                if len(manager) == 2:
+                    data["reports_to_second"] = manager[1]
+                
+                appraisal = frappe.get_doc(data)
+                appraisal.insert(ignore_permissions=True)
+                created_appraisals.append(appraisal.name)
 
-            appraisal.insert(ignore_permissions=True)
-            created_appraisals.append(appraisal.name)
+                # send email
+                notify_employee_appraisal(appraisal, d.employee)
 
-            notify_employee_appraisal(appraisal, d.employee)
+            except Exception as e:
+                # log error but continue
+                error_message = f"Error creating appraisal for {d.employee}: {e}"
+                errors.append(error_message)
+                frappe.log_error(error_message, "Appraisal Creation Error")
 
-        frappe.msgprint(_("Appraisal Lists created successfully."))
+        # Final message
+        msg = _("Appraisal Lists created successfully.")
+
+        if errors:
+            msg += "<br><br><b>Some errors occurred:</b><ul>"
+            for err in errors:
+                msg += f"<li>{err}</li>"
+            msg += "</ul>"
+
+        frappe.msgprint(msg)
+
     else:
         frappe.msgprint(_("No employees found in Appraisees table."))
 
-    return created_appraisals
+    return {
+        "created": created_appraisals,
+        "errors": errors,
+    }
+

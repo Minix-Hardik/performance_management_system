@@ -13,9 +13,6 @@
     color: var(--figma-primary-mint);
 }
 
-/* Quick action END */
-
-/* colors override */
 .table-head {
     color: var(--edufund-base-blue-350) !important;
 }

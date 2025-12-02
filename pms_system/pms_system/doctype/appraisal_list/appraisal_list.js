@@ -63,6 +63,9 @@ frappe.ui.form.on('Appraisal List', {
         if (frm.doc.workflow_state === "Manager Appraisal" && user !== frm.doc.reports_to_user_id) {
             hide_all_workflow_actions(frm)
         }
+        if (frm.doc.workflow_state === "Second Manager Review" && user !== frm.doc.reports_to_second_user) {
+            hide_all_workflow_actions(frm)
+        }
     },
     refresh: function (frm) {
         frm.get_field('appraisal').$wrapper.html(

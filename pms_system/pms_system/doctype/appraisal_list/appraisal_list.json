@@ -9,6 +9,7 @@
   "employee_name",
   "department",
   "designation",
+  "reports_to_second",
   "column_break_tlcp",
   "appraisal_cycle",
   "start_date",
@@ -53,6 +54,7 @@
   "manager_review_reminder_sent",
   "employee_user_id",
   "reports_to_user_id",
+  "reports_to_second_user",
   "kra_percentage",
   "competency_percentage",
   "employee_score"
@@ -374,12 +376,26 @@
    "fieldname": "employee_score",
    "fieldtype": "Float",
    "label": "Employee Score"
+  },
+  {
+   "fieldname": "reports_to_second",
+   "fieldtype": "Link",
+   "label": "Reports To Second",
+   "options": "Employee",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "reports_to_second.user_id",
+   "fieldname": "reports_to_second_user",
+   "fieldtype": "Link",
+   "label": "Reports To Second User",
+   "options": "User"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-12-01 21:53:30.196762",
+ "modified": "2025-12-02 12:47:38.564538",
  "modified_by": "Administrator",
  "module": "Pms System",
  "name": "Appraisal List",

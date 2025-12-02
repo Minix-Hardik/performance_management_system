@@ -14,8 +14,10 @@ def get_permission_query_conditions(user):
 
     return f"""
         (`tabAppraisal List`.employee = '{employee}'
-        OR `tabAppraisal List`.reports_to = '{employee}')
+        OR `tabAppraisal List`.reports_to = '{employee}'
+        OR `tabAppraisal List`.reports_to_second = '{employee}')
     """
+
 
 
 
