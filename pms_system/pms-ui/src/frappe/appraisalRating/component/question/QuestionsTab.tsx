@@ -3,7 +3,7 @@ import { QuestionCard } from "./Questions";
 
 interface QuestionsTabProps {
     questions: Question[];
-    appraisalMode: "self" | "manager";
+    appraisalMode: "self" | "manager" | "second_manager";
     selfAppraisalSubmitted: boolean;
     updateQuestion: (
         qId: number,
@@ -13,6 +13,7 @@ interface QuestionsTabProps {
     employeeCanEdit: boolean;
     managerCanEdit: boolean;
     showManagerData: boolean;
+    secondManagerCanEdit: boolean
 }
 
 export const QuestionsTab = ({
@@ -22,7 +23,8 @@ export const QuestionsTab = ({
     updateQuestion,
     employeeCanEdit,
     managerCanEdit,
-    showManagerData
+    showManagerData,
+    secondManagerCanEdit
 }: QuestionsTabProps) => {
     return (
         <div className="ef-space-y-6">
@@ -37,6 +39,7 @@ export const QuestionsTab = ({
                     employeeCanEdit={employeeCanEdit}
                     managerCanEdit={managerCanEdit}
                     showManagerData={showManagerData}
+                    secondManagerCanEdit={secondManagerCanEdit}
                 />
             ))}
         </div>

@@ -3,7 +3,7 @@ import { CompetencyCard } from "./CompetencyCard";
 
 interface CompetencyTabProps {
     competencies: Competency[];
-    appraisalMode: "self" | "manager";
+    appraisalMode: "self" | "manager" | "second_manager";
     selfAppraisalSubmitted: boolean;
     updateCompetency: (
         compId: number,
@@ -13,6 +13,7 @@ interface CompetencyTabProps {
     employeeCanEdit: boolean;
     managerCanEdit: boolean;
     showManagerData: boolean;
+    secondManagerCanEdit: boolean
 }
 
 export const CompetencyTab = ({
@@ -22,7 +23,8 @@ export const CompetencyTab = ({
     updateCompetency,
     employeeCanEdit,
     managerCanEdit,
-    showManagerData
+    showManagerData,
+    secondManagerCanEdit
 }: CompetencyTabProps) => {
     return (
         <div className="ef-space-y-6">
@@ -36,6 +38,7 @@ export const CompetencyTab = ({
                     employeeCanEdit={employeeCanEdit}
                     managerCanEdit={managerCanEdit}
                     showManagerData={showManagerData}
+                    secondManagerCanEdit={secondManagerCanEdit}
                 />
             ))}
         </div>

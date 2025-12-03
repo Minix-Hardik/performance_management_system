@@ -15,7 +15,7 @@ import { calculateAppraisalScores } from "./utils/scoring"
 
 export const AppraisalRating = () => {
     const [activeTab, setActiveTab] = useState<"kra" | "competency" | "questions">("kra");
-    const [appraisalMode, setAppraisalMode] = useState<"self" | "manager">("self");
+    const [appraisalMode, setAppraisalMode] = useState<"self" | "manager" | "second_manager">("self");
     const [expandedKRA, setExpandedKRA] = useState<Record<number, boolean>>({});
 
     const [appraisalData, setAppraisalData] = useState<AppraisalData>({
@@ -41,6 +41,8 @@ export const AppraisalRating = () => {
                         selfComments: "Completed 3 projects successfully",
                         managerRating: 9,
                         managerComments: "Excellent delivery",
+                        secondManagerRating: 3.4,
+                        secondManagerComment: "Excellent Work"
                     },
                     {
                         id: 2,
@@ -50,6 +52,8 @@ export const AppraisalRating = () => {
                         selfComments: "Achieved 90%",
                         managerRating: 7,
                         managerComments: "Slight delay",
+                        secondManagerRating: 3.4,
+                        secondManagerComment: "Excellent Work"
                     },
                 ],
             }
@@ -64,6 +68,8 @@ export const AppraisalRating = () => {
                 selfComments: "Strong in React/Node",
                 managerRating: 8,
                 managerComments: "Very competent",
+                secondManagerRating: 3.4,
+                secondManagerComment: "Excellent Work"
             }
         ],
         questions: [
@@ -72,14 +78,18 @@ export const AppraisalRating = () => {
                 question: "What are your key achievements?",
                 selfAnswer: "Led migration project",
                 managerComments: "Excellent ownership",
+                secondManagerComment: "Excellent Work"
             }
         ],
     });
     function transformAppraisal(frmDoc: any) {
         if (frmDoc.workflow_state == "Self Appraisal") {
             setAppraisalMode("self")
-        } else {
+        } else if (frmDoc.workflow_state == "Manager Appraisal") {
             setAppraisalMode("manager")
+        }
+        else {
+            setAppraisalMode("second_manager")
         }
         const kraList = frmDoc.kra || [];
         const goalsList = frmDoc.kra_vs_goal || [];
@@ -105,7 +115,9 @@ export const AppraisalRating = () => {
                         selfRating: g.employee_rating_number,
                         selfComments: g.employee_description,
                         managerRating: g.manager_rating_number,
-                        managerComments: g.management_description
+                        managerComments: g.management_description,
+                        secondManagerRating: g.second_manager_rating,
+                        secondManagerComment: g.second_manager_description
                     }));
 
                 return {
@@ -117,6 +129,8 @@ export const AppraisalRating = () => {
                     selfComments: k.employee_description,
                     managerRating: k.manager_rating_number,
                     managerComments: k.management_description,
+                    secondManagerRating: k.second_manager_rating,
+                    secondManagerComment: k.second_manager_description,
                     goals
                 };
             }) || [],
@@ -129,81 +143,144 @@ export const AppraisalRating = () => {
                 selfRating: c.employee_rating_number,
                 selfComments: c.employee_description,
                 managerRating: c.manager_rating,
-                managerComments: c.manager_description
+                managerComments: c.manager_description,
+                secondManagerRating: c.second_manager_rating,
+                secondManagerComment: c.second_manager_description
             })) || [],
 
             questions: frmDoc.answer?.map((q: any, index: number) => ({
                 id: index + 1,
                 question: q.question,
                 selfAnswer: q.employee_ans_in_discriptive,
-                managerComments: q.manager_comment
+                managerComments: q.manager_comment,
+                secondManagerComment: q.second_manager_description
             })) || [],
         };
     }
     const saveToFrappe = () => {
         if (!validateMandatory()) return;
         const frm = (window as any).cur_frm;
-        if (!frm) return;
+        if (!frm?.doc) return;
+
         const doc = frm.doc;
 
+        // ---- SCORE CALCULATION ----
         const scores = calculateAppraisalScores(
             appraisalData,
-            frm.doc.kra_percentage,
-            frm.doc.competency_percentage,
+            doc.kra_percentage,
+            doc.competency_percentage
         );
-        console.log(scores)
+
         doc.final_score = scores.finalScore;
         doc.employee_score = scores.employeeSelfScore;
+
+        // ============================
+        //  SAVE KRA
+        // ============================
         doc.kra.forEach((k: any, idx: number) => {
-            const updated = appraisalData.kra.find(kra => kra.id === idx + 1);
+            const updated = appraisalData.kra.find(x => x.id === idx + 1);
             if (!updated) return;
 
-            k.employee_rating_number = updated.selfRating;
-            k.employee_description = updated.selfComments;
-            k.manager_rating_number = updated.managerRating;
-            k.management_description = updated.managerComments;
+            if (employeeCanEdit) {
+                k.employee_rating_number = updated.selfRating;
+                k.employee_description = updated.selfComments;
+            }
+
+            if (managerCanEdit) {
+                k.manager_rating_number = updated.managerRating;
+                k.management_description = updated.managerComments;
+            }
+
+            if (secondManagerCanEdit) {
+                k.second_manager_rating = updated.secondManagerRating;
+                k.second_manager_description = updated.secondManagerComment;
+            }
+
+            // Always save weightage
             k.weightage = updated.weightage;
         });
 
+        // ============================
+        //  SAVE KRA Goals
+        // ============================
         doc.kra_vs_goal.forEach((g: any) => {
-            const parentKRA = appraisalData.kra.find(k => k.title === g.kra);
-            if (!parentKRA) return;
+            const parent = appraisalData.kra.find(k => k.title === g.kra);
+            if (!parent) return;
 
-            const updatedGoal = parentKRA.goals.find(goal => goal.description === g.goal_name);
+            const updatedGoal = parent.goals.find(goal => goal.description === g.goal_name);
             if (!updatedGoal) return;
 
-            g.employee_rating_number = updatedGoal.selfRating;
-            g.employee_description = updatedGoal.selfComments;
-            g.manager_rating_number = updatedGoal.managerRating;
-            g.management_description = updatedGoal.managerComments;
+            if (employeeCanEdit) {
+                g.employee_rating_number = updatedGoal.selfRating;
+                g.employee_description = updatedGoal.selfComments;
+            }
+
+            if (managerCanEdit) {
+                g.manager_rating_number = updatedGoal.managerRating;
+                g.management_description = updatedGoal.managerComments;
+            }
+
+            if (secondManagerCanEdit) {
+                g.second_manager_rating = updatedGoal.secondManagerRating;
+                g.second_manager_description = updatedGoal.secondManagerComment;
+            }
+
             g.progress = updatedGoal.progress;
             g.weightage = updatedGoal.weightage;
         });
 
+        // ============================
+        //  SAVE COMPETENCY
+        // ============================
         doc.competency.forEach((c: any, idx: number) => {
-            const updated = appraisalData.competencies.find(comp => comp.id === idx + 1);
+            const updated = appraisalData.competencies.find(x => x.id === idx + 1);
             if (!updated) return;
 
-            c.employee_rating_number = updated.selfRating;
-            c.employee_description = updated.selfComments;
-            c.manager_rating = updated.managerRating;
-            c.manager_description = updated.managerComments;
+            if (employeeCanEdit) {
+                c.employee_rating_number = updated.selfRating;
+                c.employee_description = updated.selfComments;
+            }
+
+            if (managerCanEdit) {
+                c.manager_rating = updated.managerRating;
+                c.manager_description = updated.managerComments;
+            }
+
+            if (secondManagerCanEdit) {
+                c.second_manager_rating = updated.secondManagerRating;
+                c.second_manager_description = updated.secondManagerComment;
+            }
+
             c.weightage = updated.weightage;
         });
 
+        // ============================
+        //  SAVE QUESTIONS
+        // ============================
         doc.answer.forEach((q: any, idx: number) => {
             const updated = appraisalData.questions.find(x => x.id === idx + 1);
             if (!updated) return;
 
-            q.employee_ans_in_discriptive = updated.selfAnswer;
-            q.manager_comment = updated.managerComments;
+            if (employeeCanEdit) {
+                q.employee_ans_in_discriptive = updated.selfAnswer;
+            }
+
+            if (managerCanEdit) {
+                q.manager_comment = updated.managerComments;
+            }
+
+            if (secondManagerCanEdit) {
+                q.second_manager_description = updated.secondManagerComment;
+            }
         });
-        frm.doc.__unsaved = 1;
+
+        // Mark the doc as modified
+        doc.__unsaved = 1;
         frm.dirty();
         frm.save()
             .catch((err: any) => console.error(err));
-
     };
+
 
     const toggleKRA = (kraId: number) => {
         setExpandedKRA((prev) => ({
@@ -282,11 +359,13 @@ export const AppraisalRating = () => {
     const currentUser = frappe.session.user;
     const employeeUserId = frm.doc.employee_user_id;
     const reportsToUserId = frm.doc.reports_to_user_id;
+    const reportsToSecondUserId = frm.doc.reports_to_second_user;
     const workflowStatus = frm.doc.workflow_state;
 
     // --- Identify user type ---
     const isEmployee = currentUser === employeeUserId;
     const isManager = currentUser === reportsToUserId;
+    const isSecondManager = currentUser === reportsToSecondUserId;
 
     const roles = frappe.user_roles || [];
     const isHR = roles.includes("HR Manager");
@@ -299,17 +378,14 @@ export const AppraisalRating = () => {
     const employeeCanEdit =
         isEmployee &&
         workflowStatus === "Self Appraisal" &&
-        !isAuditUser;  // HR/Admin cannot edit
+        !isAuditUser;
 
     // Managers can edit only during Manager Review
-    const managerCanEdit =
-        isManager &&
-        workflowStatus === "Manager Appraisal" &&
-        !isAuditUser;  // HR/Admin cannot edit
-
-    // Who can see manager data? (employee must not)
-    const showManagerData =
-        isManager || isAuditUser;  // HR & Admin can see everything
+    const managerCanEdit = isManager && workflowStatus === "Manager Appraisal";  // HR/Admin cannot edit
+    const secondManagerCanEdit = isSecondManager && workflowStatus === "Second Manager Review";
+    const showManagerData = isManager || isSecondManager || isAuditUser;
+    // console.log("@@@@####@@@@####", isManager, workflowStatus === "Manager Appraisal")
+    console.log("@@@@####@@@@####", isSecondManager, workflowStatus === "Second Manager Review")
     const validateMandatory = () => {
         const doc = window?.cur_frm?.doc;
         const errors: string[] = [];
@@ -363,9 +439,6 @@ export const AppraisalRating = () => {
                 });
             }
 
-            // -----------------------------
-            // COMPETENCY COMMENT (Employee)
-            // -----------------------------
             if (doc.competency_comment_mandatory) {
                 appraisalData.competencies.forEach(c => {
                     if (!c.selfComments) {
@@ -374,9 +447,6 @@ export const AppraisalRating = () => {
                 });
             }
 
-            // -----------------------------
-            // QUESTION ANSWER (Employee)
-            // -----------------------------
             if (doc.question_answer_mandatory) {
                 appraisalData.questions.forEach(q => {
                     if (!q.selfAnswer) {
@@ -385,24 +455,12 @@ export const AppraisalRating = () => {
                 });
             }
         }
-
-        // ============================================================
-        // MANAGER VALIDATION
-        // ============================================================
         if (managerCanEdit) {
-
-            // -----------------------------
-            // MANAGER KRA RATING MANDATORY
-            // -----------------------------
             if (doc.manager_kra_rating_mandatory) {
                 appraisalData.kra.forEach(k => {
-
-                    // ❌ Skip KRA rating if goals exist
                     if (!k.goals.length && !k.managerRating) {
                         errors.push(`Manager Rating missing in KRA: ${k.title}`);
                     }
-
-                    // ✔ Goal rating always required
                     k.goals.forEach(g => {
                         if (!g.managerRating) {
                             errors.push(`Manager Rating missing in Goal: ${g.description}`);
@@ -455,11 +513,10 @@ export const AppraisalRating = () => {
 
         return true;
     };
-    const canShowSaveButton = employeeCanEdit || managerCanEdit;
+    const canShowSaveButton = employeeCanEdit || managerCanEdit || secondManagerCanEdit;
     return (
         <div className="ef-min-h-screen ef-bg-gray-50 ef-p-6">
             <div className="ef-max-w-7xl ef-mx-auto">
-                {/* TABS */}
                 <div className="ef-bg-white ef-rounded-lg ef-shadow-sm">
                     <div className="ef-border-b">
                         <div className="ef-flex">
@@ -505,7 +562,7 @@ export const AppraisalRating = () => {
                                 appraisalMode={appraisalMode}
                                 updateGoalRating={updateGoalRating}
                                 updateKRARating={updateKRARating}
-
+                                secondManagerCanEdit={secondManagerCanEdit}
                                 employeeCanEdit={employeeCanEdit}
                                 managerCanEdit={managerCanEdit}
                                 showManagerData={showManagerData}
@@ -518,7 +575,7 @@ export const AppraisalRating = () => {
                                 appraisalMode={appraisalMode}
                                 selfAppraisalSubmitted={appraisalData.selfAppraisalSubmitted}
                                 updateCompetency={updateCompetency}
-
+                                secondManagerCanEdit={secondManagerCanEdit}
                                 employeeCanEdit={employeeCanEdit}
                                 managerCanEdit={managerCanEdit}
                                 showManagerData={showManagerData}
@@ -531,7 +588,7 @@ export const AppraisalRating = () => {
                                 appraisalMode={appraisalMode}
                                 selfAppraisalSubmitted={appraisalData.selfAppraisalSubmitted}
                                 updateQuestion={updateQuestion}
-
+                                secondManagerCanEdit={secondManagerCanEdit}
                                 employeeCanEdit={employeeCanEdit}
                                 managerCanEdit={managerCanEdit}
                                 showManagerData={showManagerData}

@@ -7,7 +7,7 @@ interface KRACardProps {
     kra: KRA;
     expanded: boolean;
     onToggle: () => void;
-    appraisalMode: "self" | "manager";
+    appraisalMode: "self" | "manager" | "second_manager";
     updateGoalRating: (
         kraId: number,
         goalId: number,
@@ -22,6 +22,7 @@ interface KRACardProps {
     employeeCanEdit: boolean;
     managerCanEdit: boolean;
     showManagerData: boolean;
+    secondManagerCanEdit: boolean
 }
 
 export const KRACard = ({
@@ -33,7 +34,8 @@ export const KRACard = ({
     updateKRARating,
     employeeCanEdit,
     managerCanEdit,
-    showManagerData
+    showManagerData,
+    secondManagerCanEdit
 }: KRACardProps) => {
     return (
         <div className="ef-border ef-rounded-lg">
@@ -97,7 +99,7 @@ export const KRACard = ({
                                     goal={goal}
                                     appraisalMode={appraisalMode}
                                     updateGoalRating={updateGoalRating}
-
+                                    secondManagerCanEdit={secondManagerCanEdit}
                                     employeeCanEdit={employeeCanEdit}
                                     managerCanEdit={managerCanEdit}
                                     showManagerData={showManagerData}
@@ -110,6 +112,7 @@ export const KRACard = ({
                             appraisalMode={appraisalMode}
                             updateKRARating={updateKRARating}
                             employeeCanEdit={employeeCanEdit}
+                            secondManagerCanEdit={secondManagerCanEdit}
                             managerCanEdit={managerCanEdit}
                             showManagerData={showManagerData}
                         />

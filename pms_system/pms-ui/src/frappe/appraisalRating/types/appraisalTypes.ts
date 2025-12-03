@@ -6,6 +6,8 @@ export interface Goal {
     selfComments?: string;
     managerRating?: number;
     managerComments?: string;
+    secondManagerRating?: number;
+    secondManagerComment?: string;
     weightage?: number;
 }
 
@@ -19,6 +21,8 @@ export interface KRA {
     selfComments?: string;
     managerRating?: number;
     managerComments?: string;
+    secondManagerRating?: number;
+    secondManagerComment?: string;
 }
 
 export interface Competency {
@@ -30,6 +34,8 @@ export interface Competency {
     selfComments?: string;
     managerRating?: number;
     managerComments?: string;
+    secondManagerRating?: number;
+    secondManagerComment?: string;
 }
 
 export interface Question {
@@ -37,6 +43,7 @@ export interface Question {
     question: string;
     selfAnswer?: string;
     managerComments?: string;
+    secondManagerComment?: string;
 }
 
 export interface EmployeeInfo {
