@@ -9,7 +9,8 @@
   "title",
   "question",
   "employee_ans_in_discriptive",
-  "manager_comment"
+  "manager_comment",
+  "second_manager_description"
  ],
  "fields": [
   {
@@ -37,13 +38,18 @@
    "fieldname": "manager_comment",
    "fieldtype": "Small Text",
    "label": "Manager Comment"
+  },
+  {
+   "fieldname": "second_manager_description",
+   "fieldtype": "Small Text",
+   "label": "Second Manager Description"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2025-11-30 21:15:51.244008",
+ "modified": "2025-12-03 12:12:16.254146",
  "modified_by": "Administrator",
  "module": "Pms System",
  "name": "Question Child Table",

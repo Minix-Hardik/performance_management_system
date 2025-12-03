@@ -164,19 +164,16 @@ export const AppraisalRating = () => {
 
         const doc = frm.doc;
 
-        // ---- SCORE CALCULATION ----
         const scores = calculateAppraisalScores(
             appraisalData,
             doc.kra_percentage,
-            doc.competency_percentage
+            doc.competency_percentage,
+            doc.reports_to_second_user ? true : false
         );
 
         doc.final_score = scores.finalScore;
         doc.employee_score = scores.employeeSelfScore;
 
-        // ============================
-        //  SAVE KRA
-        // ============================
         doc.kra.forEach((k: any, idx: number) => {
             const updated = appraisalData.kra.find(x => x.id === idx + 1);
             if (!updated) return;
@@ -195,14 +192,9 @@ export const AppraisalRating = () => {
                 k.second_manager_rating = updated.secondManagerRating;
                 k.second_manager_description = updated.secondManagerComment;
             }
-
-            // Always save weightage
             k.weightage = updated.weightage;
         });
 
-        // ============================
-        //  SAVE KRA Goals
-        // ============================
         doc.kra_vs_goal.forEach((g: any) => {
             const parent = appraisalData.kra.find(k => k.title === g.kra);
             if (!parent) return;
@@ -229,9 +221,6 @@ export const AppraisalRating = () => {
             g.weightage = updatedGoal.weightage;
         });
 
-        // ============================
-        //  SAVE COMPETENCY
-        // ============================
         doc.competency.forEach((c: any, idx: number) => {
             const updated = appraisalData.competencies.find(x => x.id === idx + 1);
             if (!updated) return;
@@ -254,9 +243,6 @@ export const AppraisalRating = () => {
             c.weightage = updated.weightage;
         });
 
-        // ============================
-        //  SAVE QUESTIONS
-        // ============================
         doc.answer.forEach((q: any, idx: number) => {
             const updated = appraisalData.questions.find(x => x.id === idx + 1);
             if (!updated) return;
@@ -274,7 +260,6 @@ export const AppraisalRating = () => {
             }
         });
 
-        // Mark the doc as modified
         doc.__unsaved = 1;
         frm.dirty();
         frm.save()
@@ -370,21 +355,14 @@ export const AppraisalRating = () => {
     const roles = frappe.user_roles || [];
     const isHR = roles.includes("HR Manager");
     const isAdmin = currentUser === "Administrator";
-
-    // HR + Administrator → read-only view with full visibility
     const isAuditUser = isHR || isAdmin;
-
-    // Employees can edit only during Self Appraisal
     const employeeCanEdit =
         isEmployee &&
         workflowStatus === "Self Appraisal" &&
         !isAuditUser;
-
-    // Managers can edit only during Manager Review
     const managerCanEdit = isManager && workflowStatus === "Manager Appraisal";  // HR/Admin cannot edit
     const secondManagerCanEdit = isSecondManager && workflowStatus === "Second Manager Review";
     const showManagerData = isManager || isSecondManager || isAuditUser;
-    // console.log("@@@@####@@@@####", isManager, workflowStatus === "Manager Appraisal")
     console.log("@@@@####@@@@####", isSecondManager, workflowStatus === "Second Manager Review")
     const validateMandatory = () => {
         const doc = window?.cur_frm?.doc;
