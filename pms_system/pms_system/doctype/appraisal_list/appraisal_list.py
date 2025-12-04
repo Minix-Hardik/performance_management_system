@@ -80,7 +80,9 @@ class AppraisalList(Document):
 
         existing_kra = {row.kra for row in self.kra}
         existing_vs_goal = {row.kra for row in self.kra_vs_goal}
-
+        existing_goal_task = {
+        (row.goal, row.task) for row in self.goal_vs_task
+    }
         for row in employee_kra.kra_and_goal_add:
             if row.kra not in existing_kra:
                 self.append("kra", {
@@ -96,6 +98,15 @@ class AppraisalList(Document):
                     "weightage": row.weightage,
                     "goal_name": row.goal_name,
                     "progress": row.progress
+                })
+
+        for row in employee_kra.goal_vs_task:
+            key = (row.goal, row.task)
+            if key not in existing_goal_task:
+                self.append("goal_vs_task", {
+                    "goal": row.goal,
+                    "task": row.task,
+                    "completed_percentage": row.completed_percentage
                 })
 
     def check_duplicate_entry(self):

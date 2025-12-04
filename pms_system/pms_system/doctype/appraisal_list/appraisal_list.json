@@ -28,6 +28,7 @@
   "kra_rating_mandatory",
   "kra_comment",
   "kra_comment_mandatory",
+  "goal_vs_task",
   "competency_section_section",
   "competency",
   "competency_rating",
@@ -227,7 +228,7 @@
    "fieldname": "kra_vs_goal",
    "fieldtype": "Table",
    "label": "KRA VS Goal",
-   "options": "KRA Goal Map"
+   "options": "Kra VS Goal Score Collect"
   },
   {
    "fieldname": "section_break_efaz",
@@ -390,12 +391,18 @@
    "fieldtype": "Link",
    "label": "Reports To Second User",
    "options": "User"
+  },
+  {
+   "fieldname": "goal_vs_task",
+   "fieldtype": "Table",
+   "label": "Goal Vs Task",
+   "options": "Goal Task Table"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-12-02 12:47:38.564538",
+ "modified": "2025-12-04 12:37:37.703844",
  "modified_by": "Administrator",
  "module": "Pms System",
  "name": "Appraisal List",
