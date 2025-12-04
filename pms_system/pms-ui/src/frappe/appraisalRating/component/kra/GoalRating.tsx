@@ -1,3 +1,4 @@
+import React, { useEffect, useMemo } from "react";
 import type { KRA, Goal } from "../../types/appraisalTypes";
 import { RatingInput } from "../RatingInput";
 import { Lock } from "lucide-react";
@@ -34,10 +35,47 @@ export const GoalRating = ({
         </div>
     );
 
-    // ===========================================================
-    // SELF MODE
-    // ===========================================================
+    // ------------------ Helper: compute selfRating from tasks ------------------
+    // Expected task shape: { id: number|string, title: string, progress?: number (0-100), completed?: boolean }
+    const computedSelfRating = useMemo(() => {
+        const tasks = (goal as any).tasks as Array<any> | undefined;
+        if (!tasks || tasks.length === 0) return null;
+
+        // compute per-task completion percent
+        const percents = tasks.map((t) => {
+            if (typeof t.completed_percentage === "number") return Math.max(0, Math.min(100, t.completed_percentage));
+            return 0;
+        });
+
+        const avgPercent = percents.reduce((s, p) => s + p, 0) / percents.length;
+        // scale to 0-10 and round to 1 decimal place
+        const rating = Math.round((avgPercent / 10) * 10) / 10; // e.g. 75% -> 7.5
+        return {
+            avgPercent,
+            rating
+        };
+    }, [goal]);
+
+    // Persist computed selfRating when in self mode and tasks exist
+    useEffect(() => {
+        if (appraisalMode === "self") {
+            const tasks = (goal as any).tasks as Array<any> | undefined;
+            if (tasks && tasks.length > 0 && computedSelfRating) {
+                // update only if different to avoid infinite loops
+                const current = goal.selfRating;
+                const newRating = computedSelfRating.rating;
+                if (current !== newRating) {
+                    // updateGoalRating may be sync/async depending on parent, we call it to persist
+                    updateGoalRating(kra.id, goal.id, "selfRating", newRating);
+                }
+            }
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [computedSelfRating, appraisalMode, goal]);
+
     if (appraisalMode === "self") {
+        const tasks = (goal as any).tasks as Array<any> | undefined;
+
         return (
             <div className="ef-bg-white ef-rounded-lg ef-border ef-border-gray-200 ef-shadow-sm">
                 {/* Header */}
@@ -56,39 +94,101 @@ export const GoalRating = ({
                         {!employeeCanEdit && <LockIcon />}
                     </div>
 
-                    {/* Rating */}
-                    <label className="ef-block ef-text-xs ef-font-medium ef-text-gray-500 ef-mb-1">
-                        Rating
-                    </label>
+                    {/* CASE A: No tasks -> Allow manual rating + comments (existing behaviour) */}
+                    {(!tasks || tasks.length === 0) && (
+                        <>
+                            <label className="ef-block ef-text-xs ef-font-medium ef-text-gray-500 ef-mb-1">
+                                Rating
+                            </label>
 
-                    <RatingInput
-                        rating={goal.selfRating}
-                        onChange={(rating) =>
-                            employeeCanEdit &&
-                            updateGoalRating(kra.id, goal.id, "selfRating", rating)
-                        }
-                        disabled={!employeeCanEdit}
-                    />
+                            <RatingInput
+                                rating={goal.selfRating}
+                                onChange={(rating) =>
+                                    employeeCanEdit &&
+                                    updateGoalRating(kra.id, goal.id, "selfRating", rating)
+                                }
+                                disabled={!employeeCanEdit}
+                            />
 
-                    {/* Comments */}
-                    <label className="ef-block ef-text-xs ef-font-medium ef-text-gray-500 ef-mt-2 ef-mb-1">
-                        Comments
-                    </label>
+                            {/* Comments */}
+                            <label className="ef-block ef-text-xs ef-font-medium ef-text-gray-500 ef-mt-2 ef-mb-1">
+                                Comments
+                            </label>
 
-                    <textarea
-                        value={goal.selfComments}
-                        onChange={(e) =>
-                            employeeCanEdit &&
-                            updateGoalRating(kra.id, goal.id, "selfComments", e.target.value)
-                        }
-                        disabled={!employeeCanEdit}
-                        className={`ef-w-full ef-p-2 ef-rounded ef-text-xs ef-resize-none ef-border ${employeeCanEdit
-                                ? "ef-bg-white ef-border-blue-200 focus:ef-ring-1 focus:ef-ring-blue-400"
-                                : "ef-bg-gray-50 ef-text-gray-500 ef-border-gray-200 ef-cursor-not-allowed"
-                            }`}
-                        rows={2}
-                        placeholder="Share your thoughts..."
-                    />
+                            <textarea
+                                value={goal.selfComments}
+                                onChange={(e) =>
+                                    employeeCanEdit &&
+                                    updateGoalRating(kra.id, goal.id, "selfComments", e.target.value)
+                                }
+                                disabled={!employeeCanEdit}
+                                className={`ef-w-full ef-p-2 ef-rounded ef-text-xs ef-resize-none ef-border ${employeeCanEdit
+                                    ? "ef-bg-white ef-border-blue-200 focus:ef-ring-1 focus:ef-ring-blue-400"
+                                    : "ef-bg-gray-50 ef-text-gray-500 ef-border-gray-200 ef-cursor-not-allowed"
+                                    }`}
+                                rows={2}
+                                placeholder="Share your thoughts..."
+                            />
+                        </>
+                    )}
+
+                    {/* CASE B: Tasks present -> show task list, per-task progress and computed rating (read-only) */}
+                    {tasks && tasks.length > 0 && computedSelfRating && (
+                        <>
+                            <div className="ef-mb-3">
+                                <label className="ef-block ef-text-xs ef-font-medium ef-text-gray-500 ef-mb-2">Tasks</label>
+                                <div className="ef-space-y-2">
+                                    {tasks.map((t: any) => {
+                                        console.log(tasks)
+                                        const percent = typeof t.completed_percentage === "number" ? Math.max(0, Math.min(100, t.completed_percentage)) : (t.completed_percentage ? 100 : 0);
+                                        return (
+                                            <div key={t.id || t.subject} className="ef-bg-white ef-border ef-border-gray-100 ef-p-2 ef-rounded ef-text-xs">
+                                                <div className="ef-flex ef-items-center ef-justify-between ef-mb-1">
+                                                    <div className="ef-font-medium ef-text-sm">{t.subject}</div>
+                                                    <div className="ef-text-xs ef-text-gray-600">{Math.round(percent)}%</div>
+                                                </div>
+
+                                                {/* Simple progress bar */}
+                                                <div className="ef-w-full ef-bg-gray-100 ef-rounded ef-overflow-hidden ef-h-2">
+                                                    <div style={{ width: `${percent}%` }} className="ef-h-full ef-bg-gradient-to-r ef-from-blue-400 ef-to-blue-600"></div>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+
+                            {/* Computed rating display (read-only) */}
+                            <div>
+                                <label className="ef-block ef-text-xs ef-font-medium ef-text-gray-500 ef-mb-1">Computed Self Rating</label>
+                                <div className="ef-flex ef-items-center ef-gap-2 ef-bg-blue-100 ef-border ef-border-blue-200 ef-px-2 ef-py-1 ef-rounded">
+                                    <span className="ef-text-lg ef-font-bold ef-text-blue-700">{computedSelfRating.rating}</span>
+                                    <span className="ef-text-xs ef-text-gray-600">/10</span>
+                                    <span className="ef-text-xs ef-text-gray-500 ef-ml-2">(based on {Math.round(computedSelfRating.avgPercent)}% average completion)</span>
+                                </div>
+
+                                {/* comments still editable by employee */}
+                                <label className="ef-block ef-text-xs ef-font-medium ef-text-gray-500 ef-mt-2 ef-mb-1">
+                                    Comments
+                                </label>
+
+                                <textarea
+                                    value={goal.selfComments}
+                                    onChange={(e) =>
+                                        employeeCanEdit &&
+                                        updateGoalRating(kra.id, goal.id, "selfComments", e.target.value)
+                                    }
+                                    disabled={!employeeCanEdit}
+                                    className={`ef-w-full ef-p-2 ef-rounded ef-text-xs ef-resize-none ef-border ${employeeCanEdit
+                                        ? "ef-bg-white ef-border-blue-200 focus:ef-ring-1 focus:ef-ring-blue-400"
+                                        : "ef-bg-gray-50 ef-text-gray-500 ef-border-gray-200 ef-cursor-not-allowed"
+                                        }`}
+                                    rows={2}
+                                    placeholder="Share your thoughts..."
+                                />
+                            </div>
+                        </>
+                    )}
                 </div>
             </div>
         );
@@ -177,8 +277,8 @@ export const GoalRating = ({
                             }
                             disabled={!managerCanEdit}
                             className={`ef-w-full ef-p-2 ef-rounded ef-text-xs ef-resize-none ef-border ${managerCanEdit
-                                    ? "ef-bg-white ef-border-purple-200 focus:ef-ring-1 focus:ef-ring-purple-400"
-                                    : "ef-bg-gray-50 ef-text-gray-500 ef-border-gray-200 ef-cursor-not-allowed"
+                                ? "ef-bg-white ef-border-purple-200 focus:ef-ring-1 focus:ef-ring-purple-400"
+                                : "ef-bg-gray-50 ef-text-gray-500 ef-border-gray-200 ef-cursor-not-allowed"
                                 }`}
                             rows={2}
                             placeholder="Add your review..."
@@ -303,8 +403,8 @@ export const GoalRating = ({
                         }
                         disabled={!secondManagerCanEdit}
                         className={`ef-w-full ef-p-2 ef-rounded ef-text-xs ef-resize-none ef-border ${secondManagerCanEdit
-                                ? "ef-bg-white ef-border-green-200 focus:ef-ring-1 focus:ef-ring-green-400"
-                                : "ef-bg-gray-50 ef-text-gray-500 ef-border-gray-200 ef-cursor-not-allowed"
+                            ? "ef-bg-white ef-border-green-200 focus:ef-ring-1 focus:ef-ring-green-400"
+                            : "ef-bg-gray-50 ef-text-gray-500 ef-border-gray-200 ef-cursor-not-allowed"
                             }`}
                         rows={2}
                         placeholder="Add your review..."

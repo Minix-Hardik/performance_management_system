@@ -93,6 +93,8 @@ export const AppraisalRating = () => {
         }
         const kraList = frmDoc.kra || [];
         const goalsList = frmDoc.kra_vs_goal || [];
+        const tasksList = frmDoc.goal_vs_task || [];
+
         return {
             employee: {
                 name: frmDoc.employee_name,
@@ -106,19 +108,40 @@ export const AppraisalRating = () => {
             kra: kraList.map((k: any, index: number) => {
                 // Filter goals matching the kra name/value
                 const goals = goalsList
-                    .filter((g: any) => g.kra === k.kra) // 👈 match by KRA name
-                    .map((g: any, idx: number) => ({
-                        id: idx + 1,
-                        description: g.goal_name,
-                        progress: g.progress || "",
-                        weightage: g.weightage,
-                        selfRating: g.employee_rating_number,
-                        selfComments: g.employee_description,
-                        managerRating: g.manager_rating_number,
-                        managerComments: g.management_description,
-                        secondManagerRating: g.second_manager_rating,
-                        secondManagerComment: g.second_manager_description
-                    }));
+                    .filter((g: any) => g.kra === k.kra)   // match KRA
+                    .map((g: any, idx: number) => {
+                        const tasks = tasksList
+                            .filter((t: any) => t.goal === g.goal)
+                            .map((t: any, tidx: number) => ({
+                                id: tidx + 1,
+                                task_name: t.task,
+                                completed_percentage: t.completed_percentage,
+                                selfComments: t.employee_description,
+                                managerScore: t.manager_score,
+                                managerComments: t.manager_description,
+                                secondManagerScore: t.second_manager_score,
+                                secondManagerComment: t.second_manager_description,
+                            }));
+
+                        return {
+                            id: idx + 1,
+                            description: g.goal_name,
+                            progress: g.progress,
+                            weightage: g.weightage,
+
+                            selfRating: g.employee_rating_number,
+                            selfComments: g.employee_description,
+
+                            managerRating: g.manager_rating_number,
+                            managerComments: g.management_description,
+
+                            secondManagerRating: g.second_manager_rating,
+                            secondManagerComment: g.second_manager_description,
+
+                            // 🔥 Add tasks array to goal
+                            tasks
+                        };
+                    });
 
                 return {
                     id: index + 1,
@@ -363,7 +386,6 @@ export const AppraisalRating = () => {
     const managerCanEdit = isManager && workflowStatus === "Manager Appraisal";  // HR/Admin cannot edit
     const secondManagerCanEdit = isSecondManager && workflowStatus === "Second Manager Review";
     const showManagerData = isManager || isSecondManager || isAuditUser;
-    console.log("@@@@####@@@@####", isSecondManager, workflowStatus === "Second Manager Review")
     const validateMandatory = () => {
         const doc = window?.cur_frm?.doc;
         const errors: string[] = [];

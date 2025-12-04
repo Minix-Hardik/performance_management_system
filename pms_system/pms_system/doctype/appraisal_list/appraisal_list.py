@@ -106,6 +106,7 @@ class AppraisalList(Document):
                 self.append("goal_vs_task", {
                     "goal": row.goal,
                     "task": row.task,
+                    "subject":row.subject,
                     "completed_percentage": row.completed_percentage
                 })
 

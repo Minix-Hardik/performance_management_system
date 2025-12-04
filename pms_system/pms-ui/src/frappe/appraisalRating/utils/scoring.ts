@@ -102,13 +102,6 @@ export function calculateAppraisalScores(
         kraFinal * (kra_percentage / 100) +
         competencyFinal * (competency_percentage / 100);
 
-    console.log({
-        kraBlockScore: Number(kraFinal.toFixed(2)),
-        competencyScore: Number(competencyFinal.toFixed(2)),
-        finalScore: Number(finalScore.toFixed(2)),
-        employeeSelfScore: Number(employeeSelfScore.toFixed(2))
-    })
-
     return {
         kraBlockScore: Number(kraFinal.toFixed(2)),
         competencyScore: Number(competencyFinal.toFixed(2)),
