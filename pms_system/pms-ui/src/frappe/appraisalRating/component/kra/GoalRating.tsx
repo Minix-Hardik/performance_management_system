@@ -35,8 +35,6 @@ export const GoalRating = ({
         </div>
     );
 
-    // ------------------ Helper: compute selfRating from tasks ------------------
-    // Expected task shape: { id: number|string, title: string, progress?: number (0-100), completed?: boolean }
     const computedSelfRating = useMemo(() => {
         const tasks = (goal as any).tasks as Array<any> | undefined;
         if (!tasks || tasks.length === 0) return null;
@@ -48,7 +46,6 @@ export const GoalRating = ({
         });
 
         const avgPercent = percents.reduce((s, p) => s + p, 0) / percents.length;
-        // scale to 0-10 and round to 1 decimal place
         const rating = Math.round((avgPercent / 10) * 10) / 10; // e.g. 75% -> 7.5
         return {
             avgPercent,
@@ -56,21 +53,17 @@ export const GoalRating = ({
         };
     }, [goal]);
 
-    // Persist computed selfRating when in self mode and tasks exist
     useEffect(() => {
         if (appraisalMode === "self") {
             const tasks = (goal as any).tasks as Array<any> | undefined;
             if (tasks && tasks.length > 0 && computedSelfRating) {
-                // update only if different to avoid infinite loops
                 const current = goal.selfRating;
                 const newRating = computedSelfRating.rating;
                 if (current !== newRating) {
-                    // updateGoalRating may be sync/async depending on parent, we call it to persist
                     updateGoalRating(kra.id, goal.id, "selfRating", newRating);
                 }
             }
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [computedSelfRating, appraisalMode, goal]);
 
     if (appraisalMode === "self") {

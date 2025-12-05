@@ -68,6 +68,7 @@ frappe.ui.form.on('Appraisal List', {
         }
     },
     refresh: function (frm) {
+        frm.doc._prev_workflow_state = frm.doc.workflow_state;
         frm.get_field('appraisal').$wrapper.html(
             `<appraisal-rating></appraisal-rating>`
         );
@@ -83,6 +84,55 @@ frappe.ui.form.on('Appraisal List', {
         // Condition 2: Manager Appraisal stage → only manager can see button
         if (frm.doc.workflow_state === "Manager Appraisal" && user !== frm.doc.reports_to_user_id) {
             hide_all_workflow_actions(frm);
+        }
+    },
+    before_save(frm) {
+        const old_state = frm.doc._prev_workflow_state;
+        const new_state = frm.doc.workflow_state;
+
+        if (old_state === "Self Appraisal" && new_state === "Manager Appraisal") {
+            frappe.validated = false;
+            let d = new frappe.ui.Dialog({
+                title: "Additional Information Required",
+                fields: [
+                    {
+                        fieldtype: "HTML",
+                        fieldname: "custom_section",
+                        label: "Enter Details"
+                    }
+                ],
+                primary_action_label: "Submit",
+                primary_action(values) {
+                    let name = $("#popup_name").val();
+                    let remarks = $("#popup_remarks").val();
+                    if (!name) {
+                        frappe.msgprint("Name is required");
+                        return;
+                    }
+                    if (remarks.length < 10) {
+                        frappe.msgprint("Remarks must be at least 10 characters");
+                        return;
+                    }
+                    frm.set_value("popup_name_field", name);
+                    frm.set_value("popup_remarks_field", remarks);
+
+                    frappe.validated = true;
+                    d.hide();
+                    frm.save();
+                }
+            });
+
+            d.fields_dict.custom_section.$wrapper.html(`
+                <div style="padding:10px 0">
+                    <label><b>Name</b></label>
+                    <input type="text" id="popup_name" class="form-control" placeholder="Enter name">
+
+                    <label style="margin-top:10px"><b>Remarks</b></label>
+                    <textarea id="popup_remarks" class="form-control" rows="3" placeholder="Enter remarks (min 10 characters)"></textarea>
+                </div>
+            `);
+
+            d.show();
         }
     }
 });
