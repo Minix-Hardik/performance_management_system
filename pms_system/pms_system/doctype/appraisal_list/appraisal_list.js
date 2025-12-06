@@ -71,6 +71,9 @@ frappe.ui.form.on('Appraisal List', {
         frm.get_field('appraisal').$wrapper.html(
             `<appraisal-rating></appraisal-rating>`
         );
+        frm.get_field('final_report').$wrapper.html(
+            `<appraisal-report></appraisal-report>`
+        );
         const user = frappe.session.user;
         if (frm.doc.appraisal_cycle) {
             load_appraisal_cycle_weights(frm);

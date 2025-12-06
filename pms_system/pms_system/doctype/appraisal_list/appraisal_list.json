@@ -5,21 +5,25 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
+  "appraisal_cycle",
   "employee",
   "employee_name",
   "department",
   "designation",
-  "reports_to_second",
+  "date_of_joining",
   "column_break_tlcp",
-  "appraisal_cycle",
   "start_date",
   "end_date",
   "reports_to",
+  "reports_to_name",
+  "reports_to_second",
+  "reports_to_second_name",
   "section_break_gdem",
   "final_score",
   "self_appraisal_tab",
   "appraisal",
-  "full_report_tab",
+  "final_report_tab",
+  "final_report",
   "hidden_tab",
   "kra_section",
   "kra",
@@ -61,7 +65,11 @@
   "competency_percentage",
   "employee_score",
   "as_employee_what_he_deserve",
-  "remarks"
+  "remarks",
+  "manager_rating",
+  "manager_final_comment",
+  "second_manager_rating",
+  "second_manager_comment"
  ],
  "fields": [
   {
@@ -132,11 +140,6 @@
    "fieldname": "self_appraisal_tab",
    "fieldtype": "Tab Break",
    "label": "Appraisal"
-  },
-  {
-   "fieldname": "full_report_tab",
-   "fieldtype": "Tab Break",
-   "label": "Full Report"
   },
   {
    "fieldname": "kra",
@@ -416,12 +419,63 @@
    "fieldtype": "Table",
    "label": "Appraisal Feedback Question",
    "options": "Appraisal Feedback Question Child Table"
+  },
+  {
+   "fieldname": "final_report_tab",
+   "fieldtype": "Tab Break",
+   "label": "Final Report"
+  },
+  {
+   "fieldname": "final_report",
+   "fieldtype": "HTML",
+   "label": "Final Report"
+  },
+  {
+   "fetch_from": "employee.date_of_joining",
+   "fieldname": "date_of_joining",
+   "fieldtype": "Date",
+   "label": "Date Of Joining",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "reports_to.employee_name",
+   "fieldname": "reports_to_name",
+   "fieldtype": "Data",
+   "label": "Reports To Name",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "reports_to_second.employee_name",
+   "fieldname": "reports_to_second_name",
+   "fieldtype": "Data",
+   "label": "Reports To Second Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "manager_rating",
+   "fieldtype": "Float",
+   "label": "Manager Rating"
+  },
+  {
+   "fieldname": "second_manager_rating",
+   "fieldtype": "Float",
+   "label": "Second manager Rating"
+  },
+  {
+   "fieldname": "manager_final_comment",
+   "fieldtype": "Small Text",
+   "label": "Manager Final Comment"
+  },
+  {
+   "fieldname": "second_manager_comment",
+   "fieldtype": "Small Text",
+   "label": "Second Manager Comment "
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-12-06 19:49:50.459629",
+ "modified": "2025-12-07 03:02:25.466037",
  "modified_by": "Administrator",
  "module": "Pms System",
  "name": "Appraisal List",
