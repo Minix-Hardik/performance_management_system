@@ -1,5 +1,5 @@
 import type { Question } from "../../types/appraisalTypes";
-import { Lock } from "lucide-react"; // ICON (optional)
+import { Lock } from "lucide-react";
 
 interface QuestionCardProps {
     question: Question;
@@ -9,18 +9,16 @@ interface QuestionCardProps {
     index: number;
     employeeCanEdit: boolean;
     managerCanEdit: boolean;
-    showManagerData: boolean;
     secondManagerCanEdit: boolean
 }
 
-export const QuestionCard = ({
+export const Appraisal_question = ({
     question,
     appraisalMode,
     updateQuestion,
     index,
     employeeCanEdit,
     managerCanEdit,
-    showManagerData,
     secondManagerCanEdit
 }: QuestionCardProps) => {
 
@@ -82,30 +80,28 @@ export const QuestionCard = ({
                         </div>
 
                         {/* Manager Comments Row */}
-                        {showManagerData && (
-                            <div className="ef-px-3 ef-py-2 ef-bg-purple-50">
-                                <div className="ef-flex ef-items-center ef-gap-2 ef-mb-1">
-                                    <span className="ef-text-xs ef-font-semibold ef-text-gray-600">
-                                        Manager's Comments
-                                    </span>
-                                    {!managerCanEdit && <LockIcon />}
-                                </div>
-                                <textarea
-                                    value={question.managerComments}
-                                    onChange={(e) =>
-                                        managerCanEdit &&
-                                        updateQuestion(question.id, "managerComments", e.target.value)
-                                    }
-                                    disabled={!managerCanEdit}
-                                    className={`ef-w-full ef-p-2 ef-rounded ef-text-xs ef-resize-none ef-border ${managerCanEdit
-                                        ? "ef-bg-white ef-border-purple-200 ef-focus:ring-1 focus:ring-purple-400 ef-focus:outline-none"
-                                        : "ef-bg-gray-50 ef-text-gray-500 ef-border-gray-200 ef-cursor-not-allowed"
-                                        }`}
-                                    rows={3}
-                                    placeholder="Enter your feedback..."
-                                />
+                        <div className="ef-px-3 ef-py-2 ef-bg-purple-50">
+                            <div className="ef-flex ef-items-center ef-gap-2 ef-mb-1">
+                                <span className="ef-text-xs ef-font-semibold ef-text-gray-600">
+                                    Manager's Comments
+                                </span>
+                                {!managerCanEdit && <LockIcon />}
                             </div>
-                        )}
+                            <textarea
+                                value={question.managerComments}
+                                onChange={(e) =>
+                                    managerCanEdit &&
+                                    updateQuestion(question.id, "managerComments", e.target.value)
+                                }
+                                disabled={!managerCanEdit}
+                                className={`ef-w-full ef-p-2 ef-rounded ef-text-xs ef-resize-none ef-border ${managerCanEdit
+                                    ? "ef-bg-white ef-border-purple-200 ef-focus:ring-1 focus:ring-purple-400 ef-focus:outline-none"
+                                    : "ef-bg-gray-50 ef-text-gray-500 ef-border-gray-200 ef-cursor-not-allowed"
+                                    }`}
+                                rows={3}
+                                placeholder="Enter your feedback..."
+                            />
+                        </div>
                     </>
                 )}
 
@@ -125,18 +121,16 @@ export const QuestionCard = ({
                         </div>
 
                         {/* Manager Comments Row */}
-                        {showManagerData && (
-                            <div className="ef-px-3 ef-py-2 ef-bg-purple-50">
-                                <span className="ef-text-xs ef-font-semibold ef-text-gray-600 ef-block ef-mb-1">
-                                    Manager's Comments
-                                </span>
-                                <div className="ef-bg-white ef-p-2 ef-rounded ef-text-xs ef-min-h-[60px] ef-border ef-border-purple-100">
-                                    {question.managerComments || (
-                                        <span className="ef-text-gray-400 ef-italic">No comments provided</span>
-                                    )}
-                                </div>
+                        <div className="ef-px-3 ef-py-2 ef-bg-purple-50">
+                            <span className="ef-text-xs ef-font-semibold ef-text-gray-600 ef-block ef-mb-1">
+                                Manager's Comments
+                            </span>
+                            <div className="ef-bg-white ef-p-2 ef-rounded ef-text-xs ef-min-h-[60px] ef-border ef-border-purple-100">
+                                {question.managerComments || (
+                                    <span className="ef-text-gray-400 ef-italic">No comments provided</span>
+                                )}
                             </div>
-                        )}
+                        </div>
 
                         {/* Second Manager Comments Row */}
                         <div className="ef-px-3 ef-py-2 ef-bg-green-50">

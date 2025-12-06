@@ -12,9 +12,10 @@ import { KRATab } from "./component/kra/KraTab";
 import { CompetencyTab } from "./component/compenency/CompetencyTab";
 import { QuestionsTab } from "./component/question/QuestionsTab";
 import { calculateAppraisalScores } from "./utils/scoring"
+import { AppraisalQuestionsTab } from "./component/appraisal_questions/appraisal_question_tab";
 
 export const AppraisalRating = () => {
-    const [activeTab, setActiveTab] = useState<"kra" | "competency" | "questions">("kra");
+    const [activeTab, setActiveTab] = useState<"kra" | "competency" | "questions" | "appraisal_questions">("kra");
     const [appraisalMode, setAppraisalMode] = useState<"self" | "manager" | "second_manager">("self");
     const [expandedKRA, setExpandedKRA] = useState<Record<number, boolean>>({});
 
@@ -81,6 +82,7 @@ export const AppraisalRating = () => {
                 secondManagerComment: "Excellent Work"
             }
         ],
+        AppraisalQuestions: []
     });
     function transformAppraisal(frmDoc: any) {
         if (frmDoc.workflow_state == "Self Appraisal") {
@@ -177,6 +179,13 @@ export const AppraisalRating = () => {
                 selfAnswer: q.employee_ans_in_discriptive,
                 managerComments: q.manager_comment,
                 secondManagerComment: q.second_manager_description
+            })) || [],
+            AppraisalQuestions: frmDoc.appraisal_feedback_question.map((q: any, index: number) => ({
+                id: index + 1,
+                question: q.question,
+                selfAnswer: q.employee_ans,
+                managerComments: q.manager_ans,
+                secondManagerComment: q.second_manager_ans
             })) || [],
         };
     }
@@ -549,6 +558,15 @@ export const AppraisalRating = () => {
                             >
                                 Questions
                             </button>
+                            <button
+                                onClick={() => setActiveTab("appraisal_questions")}
+                                className={`ef-px-6 ef-py-4 ef-font-semibold ${activeTab === "appraisal_questions"
+                                    ? "ef-border-b-2 ef-border-blue-600 ef-text-blue-600"
+                                    : "ef-text-gray-600"
+                                    }`}
+                            >
+                                Appraisal Questions
+                            </button>
                         </div>
                     </div>
 
@@ -592,6 +610,17 @@ export const AppraisalRating = () => {
                                 employeeCanEdit={employeeCanEdit}
                                 managerCanEdit={managerCanEdit}
                                 showManagerData={showManagerData}
+                            />
+                        )}
+                        {activeTab === "appraisal_questions" && (
+                            <AppraisalQuestionsTab
+                                questions={appraisalData.AppraisalQuestions}
+                                appraisalMode={appraisalMode}
+                                selfAppraisalSubmitted={appraisalData.selfAppraisalSubmitted}
+                                updateQuestion={updateQuestion}
+                                secondManagerCanEdit={secondManagerCanEdit}
+                                employeeCanEdit={employeeCanEdit}
+                                managerCanEdit={managerCanEdit}
                             />
                         )}
                     </div>

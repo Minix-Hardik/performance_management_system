@@ -1,0 +1,60 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-12-06 19:44:01.909583",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "title",
+  "question",
+  "employee_ans",
+  "manager_ans",
+  "second_manager_ans"
+ ],
+ "fields": [
+  {
+   "fieldname": "question",
+   "fieldtype": "Small Text",
+   "in_list_view": 1,
+   "label": "Question"
+  },
+  {
+   "fieldname": "employee_ans",
+   "fieldtype": "Small Text",
+   "in_list_view": 1,
+   "label": "Employee Ans "
+  },
+  {
+   "fieldname": "manager_ans",
+   "fieldtype": "Small Text",
+   "in_list_view": 1,
+   "label": "Manager Ans"
+  },
+  {
+   "fieldname": "second_manager_ans",
+   "fieldtype": "Small Text",
+   "in_list_view": 1,
+   "label": "Second Manager Ans"
+  },
+  {
+   "fieldname": "title",
+   "fieldtype": "Data",
+   "label": "Title"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2025-12-06 19:59:06.059159",
+ "modified_by": "Administrator",
+ "module": "Pms System",
+ "name": "Appraisal Feedback Question Child Table",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

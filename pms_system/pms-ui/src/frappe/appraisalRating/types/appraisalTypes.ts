@@ -59,4 +59,5 @@ export interface AppraisalData {
     kra: KRA[];
     competencies: Competency[];
     questions: Question[];
+    AppraisalQuestions: Question[];
 }

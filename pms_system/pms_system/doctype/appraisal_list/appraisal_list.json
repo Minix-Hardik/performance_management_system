@@ -40,6 +40,7 @@
   "question",
   "question_answer_mandatory",
   "manager_question_report_mandatory",
+  "appraisal_feedback_question",
   "section_break_efaz",
   "manager_kra_rating",
   "manager_kra_rating_mandatory",
@@ -58,7 +59,9 @@
   "reports_to_second_user",
   "kra_percentage",
   "competency_percentage",
-  "employee_score"
+  "employee_score",
+  "as_employee_what_he_deserve",
+  "remarks"
  ],
  "fields": [
   {
@@ -397,12 +400,28 @@
    "fieldtype": "Table",
    "label": "Goal Vs Task",
    "options": "Goal Task Table"
+  },
+  {
+   "fieldname": "as_employee_what_he_deserve",
+   "fieldtype": "Float",
+   "label": "As Employee What he Deserve"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks"
+  },
+  {
+   "fieldname": "appraisal_feedback_question",
+   "fieldtype": "Table",
+   "label": "Appraisal Feedback Question",
+   "options": "Appraisal Feedback Question Child Table"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-12-04 12:37:37.703844",
+ "modified": "2025-12-06 19:49:50.459629",
  "modified_by": "Administrator",
  "module": "Pms System",
  "name": "Appraisal List",

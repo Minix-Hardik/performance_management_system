@@ -68,7 +68,6 @@ frappe.ui.form.on('Appraisal List', {
         }
     },
     refresh: function (frm) {
-        frm.doc._prev_workflow_state = frm.doc.workflow_state;
         frm.get_field('appraisal').$wrapper.html(
             `<appraisal-rating></appraisal-rating>`
         );
@@ -86,55 +85,102 @@ frappe.ui.form.on('Appraisal List', {
             hide_all_workflow_actions(frm);
         }
     },
-    before_save(frm) {
-        const old_state = frm.doc._prev_workflow_state;
-        const new_state = frm.doc.workflow_state;
+    before_workflow_action: (frm) => {
 
+        const old_state = frm.doc.workflow_state;
+        const action = frm.selected_workflow_action;
+
+        const wf = frappe.workflow.workflows[frm.doctype];
+        if (!wf) {
+            console.log("No workflow found for this doctype");
+            return;
+        }
+
+        // Find transition based on selected action
+        const transition = wf.transitions.find(t => t.action === action);
+        const new_state = transition ? transition.next_state : null;
+
+        console.log("OLD:", old_state);
+        console.log("ACTION:", action);
+        console.log("NEW:", new_state);
+
+        // 🚨 Trigger popup ONLY on Self → Manager Appraisal
         if (old_state === "Self Appraisal" && new_state === "Manager Appraisal") {
+
             frappe.validated = false;
-            let d = new frappe.ui.Dialog({
+
+            const dialog = new frappe.ui.Dialog({
                 title: "Additional Information Required",
                 fields: [
-                    {
-                        fieldtype: "HTML",
-                        fieldname: "custom_section",
-                        label: "Enter Details"
-                    }
+                    { fieldtype: "HTML", fieldname: "custom_section" }
                 ],
                 primary_action_label: "Submit",
-                primary_action(values) {
-                    let name = $("#popup_name").val();
-                    let remarks = $("#popup_remarks").val();
-                    if (!name) {
-                        frappe.msgprint("Name is required");
-                        return;
-                    }
-                    if (remarks.length < 10) {
+                primary_action() {
+
+                    const name = dialog.$wrapper.find("#popup_name").val();
+                    const remarks = dialog.$wrapper.find("#popup_remarks").val();
+                    const rating = dialog.$wrapper.find("#rating_value").val();
+                    if (!remarks || remarks.length < 10) {
                         frappe.msgprint("Remarks must be at least 10 characters");
                         return;
                     }
-                    frm.set_value("popup_name_field", name);
-                    frm.set_value("popup_remarks_field", remarks);
+                    if (!rating) {
+                        frappe.msgprint("Please select a rating between 8 and 20");
+                        return;
+                    }
 
+                    frm.set_value("remarks", remarks);
+                    frm.set_value("as_employee_what_he_deserve", rating);
+
+                    dialog.hide();
                     frappe.validated = true;
-                    d.hide();
                     frm.save();
                 }
             });
 
-            d.fields_dict.custom_section.$wrapper.html(`
-                <div style="padding:10px 0">
-                    <label><b>Name</b></label>
-                    <input type="text" id="popup_name" class="form-control" placeholder="Enter name">
+            // Insert popup HTML content
+            dialog.fields_dict.custom_section.$wrapper.html(`
+            <div style="padding:10px 0">
 
-                    <label style="margin-top:10px"><b>Remarks</b></label>
-                    <textarea id="popup_remarks" class="form-control" rows="3" placeholder="Enter remarks (min 10 characters)"></textarea>
-                </div>
+                <h3>As per you, what do you deserve</h3>
+                <div id="rating_buttons" style="margin: 10px 0; display:flex; flex-wrap:wrap; gap:6px;"></div>
+                <input type="hidden" id="rating_value">
+
+                <label style="margin-top:10px"><b>Remarks</b></label>
+                <textarea id="popup_remarks" class="form-control" rows="3" placeholder="Enter remarks (min 10 characters)"></textarea>
+            </div>
+        `);
+
+            dialog.show();
+
+            // ⭐ Generate Rating Buttons 8 → 20
+            let container = dialog.$wrapper.find("#rating_buttons");
+
+            for (let i = 8; i <= 20; i++) {
+                container.append(`
+                <button type="button" 
+                    class="btn btn-sm btn-default rating-btn" 
+                    data-value="${i}"
+                    style="padding:4px 8px; font-size:12px;">
+                    ${i} %
+                </button>
             `);
+            }
 
-            d.show();
+            // ⭐ Rating button click handler
+            dialog.$wrapper.find(".rating-btn").on("click", function () {
+                dialog.$wrapper.find(".rating-btn")
+                    .removeClass("btn-primary")
+                    .addClass("btn-default");
+
+                $(this).removeClass("btn-default").addClass("btn-primary");
+
+                dialog.$wrapper.find("#rating_value").val($(this).data("value"));
+            });
+
         }
     }
+
 });
 
 function validate_rating_value(frm, row, field) {

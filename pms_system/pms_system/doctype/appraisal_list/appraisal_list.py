@@ -19,18 +19,15 @@ class AppraisalList(Document):
                 frappe.throw("Only the reporting manager can approve this appraisal.")
 
     def validate(self):
-        # Only checks needed in every save
         self.check_duplicate_entry()
-        self.update_kra_rows()   # KRA should sync whenever employee's KRA Tag changes
+        self.update_kra_rows()
 
     def after_insert(self):
         self.update_competency_rows()
         self.add_question()
+        self.add_appraisal_feedback_question()
         self.save(ignore_permissions=True)
 
-    # ----------------------------
-    # COMPETENCY – Add Only Once
-    # ----------------------------
     def update_competency_rows(self):
         existing = {d.competency for d in self.competency}
 
@@ -39,7 +36,6 @@ class AppraisalList(Document):
             filters={"disabled": 0},
             fields=["name", "weightage"]
         )
-
         for comp in competencies:
             if comp.name not in existing:
                 self.append("competency", {
@@ -47,9 +43,6 @@ class AppraisalList(Document):
                     "weightage": comp.weightage
                 })
 
-    # ----------------------------
-    # QUESTIONS – Add Only Once
-    # ----------------------------
     def add_question(self):
         existing = {d.title for d in self.answer}
 
@@ -58,7 +51,6 @@ class AppraisalList(Document):
             filters={"disable": 0},
             fields=["title", "question"]
         )
-
         for ques in questions:
             if ques.title not in existing:
                 self.append("answer", {
@@ -66,13 +58,23 @@ class AppraisalList(Document):
                     "question": ques.question,
                 })
 
-    # ----------------------------
-    # KRA – Needs dynamic update
-    # ----------------------------
+    def add_appraisal_feedback_question(self):
+        existing ={d.title for d in self.appraisal_feedback_question}
+        appraisal_questions = frappe.get_all(
+            "Appraisal Feedback Question",
+            filters = {"disable":0},
+            fields = ["title","question"]
+        )
+        for ques in appraisal_questions:
+            if ques.title not in existing:
+                self.append("appraisal_feedback_question",{
+                    'title':ques.title,
+                    'question':ques.question
+                })
+        
     def update_kra_rows(self):
         if not self.employee:
             return
-
         try:
             employee_kra = frappe.get_doc("Employee KRA Tag", self.employee)
         except frappe.DoesNotExistError:
@@ -81,15 +83,14 @@ class AppraisalList(Document):
         existing_kra = {row.kra for row in self.kra}
         existing_vs_goal = {row.kra for row in self.kra_vs_goal}
         existing_goal_task = {
-        (row.goal, row.task) for row in self.goal_vs_task
-    }
+            (row.goal, row.task) for row in self.goal_vs_task
+        }
         for row in employee_kra.kra_and_goal_add:
             if row.kra not in existing_kra:
                 self.append("kra", {
                     "kra": row.kra,
                     "weightage": row.weightage
                 })
-
         for row in employee_kra.kra_vs_goal:
             if row.kra not in existing_vs_goal:
                 self.append("kra_vs_goal", {
@@ -99,7 +100,6 @@ class AppraisalList(Document):
                     "goal_name": row.goal_name,
                     "progress": row.progress
                 })
-
         for row in employee_kra.goal_vs_task:
             key = (row.goal, row.task)
             if key not in existing_goal_task:
