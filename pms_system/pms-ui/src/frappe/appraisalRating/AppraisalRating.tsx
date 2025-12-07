@@ -291,6 +291,22 @@ export const AppraisalRating = () => {
                 q.second_manager_description = updated.secondManagerComment;
             }
         });
+        doc.appraisal_feedback_question.forEach((q: any, idx: number) => {
+            const updated = appraisalData.AppraisalQuestions.find(x => x.id === idx + 1);
+            if (!updated) return;
+
+            if (employeeCanEdit) {
+                q.employee_ans = updated.selfAnswer;
+            }
+
+            if (managerCanEdit) {
+                q.manager_ans = updated.managerComments;
+            }
+
+            if (secondManagerCanEdit) {
+                q.second_manager_ans = updated.secondManagerComment;
+            }
+        });
 
         doc.__unsaved = 1;
         frm.dirty();
@@ -365,6 +381,19 @@ export const AppraisalRating = () => {
             ),
         }));
     };
+    const updateAppraisalQuestion = (
+        qId: number,
+        field: keyof Question,
+        value: any
+    ) => {
+        setAppraisalData((prev) => ({
+            ...prev,
+            AppraisalQuestions: prev.AppraisalQuestions.map((q) =>
+                q.id === qId ? { ...q, [field]: value } : q
+            ),
+        }));
+    };
+
     const frm = (window as any).cur_frm;
 
     if (!frm?.doc) return "Loading...";
@@ -617,7 +646,7 @@ export const AppraisalRating = () => {
                                 questions={appraisalData.AppraisalQuestions}
                                 appraisalMode={appraisalMode}
                                 selfAppraisalSubmitted={appraisalData.selfAppraisalSubmitted}
-                                updateQuestion={updateQuestion}
+                                updateQuestion={updateAppraisalQuestion}
                                 secondManagerCanEdit={secondManagerCanEdit}
                                 employeeCanEdit={employeeCanEdit}
                                 managerCanEdit={managerCanEdit}
