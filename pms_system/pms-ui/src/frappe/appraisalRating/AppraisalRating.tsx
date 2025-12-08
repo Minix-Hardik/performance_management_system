@@ -205,7 +205,8 @@ export const AppraisalRating = () => {
 
         doc.final_score = scores.finalScore;
         doc.employee_score = scores.employeeSelfScore;
-
+        doc.manager_rating = scores.manager1Score;
+        doc.second_manager_rating = scores.manager2Score;
         doc.kra.forEach((k: any, idx: number) => {
             const updated = appraisalData.kra.find(x => x.id === idx + 1);
             if (!updated) return;

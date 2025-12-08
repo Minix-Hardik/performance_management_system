@@ -227,42 +227,44 @@ export const CompetencyCard = ({
                         )}
 
                         {/* Second Manager Review */}
-                        <div className="ef-px-3 ef-py-2 ef-bg-green-50">
-                            <div className="ef-flex ef-items-center ef-justify-between ef-mb-2">
-                                <span className="ef-text-xs ef-font-semibold ef-text-gray-600">Second Manager Review</span>
-                                {!secondManagerCanEdit && <LockIcon />}
+                        {showManagerData && (
+                            <div className="ef-px-3 ef-py-2 ef-bg-green-50">
+                                <div className="ef-flex ef-items-center ef-justify-between ef-mb-2">
+                                    <span className="ef-text-xs ef-font-semibold ef-text-gray-600">Second Manager Review</span>
+                                    {!secondManagerCanEdit && <LockIcon />}
+                                </div>
+
+                                <label className="ef-block ef-text-xs ef-font-medium ef-text-gray-500 ef-mb-1">
+                                    Rating
+                                </label>
+                                <RatingInput
+                                    rating={comp.secondManagerRating}
+                                    onChange={(rating) =>
+                                        secondManagerCanEdit &&
+                                        updateCompetency(comp.id, "secondManagerRating", rating)
+                                    }
+                                    disabled={!secondManagerCanEdit}
+                                />
+
+                                <label className="ef-block ef-text-xs ef-font-medium ef-text-gray-500 ef-mt-2 ef-mb-1">
+                                    Comments
+                                </label>
+                                <textarea
+                                    value={comp.secondManagerComment}
+                                    onChange={(e) =>
+                                        secondManagerCanEdit &&
+                                        updateCompetency(comp.id, "secondManagerComment", e.target.value)
+                                    }
+                                    disabled={!secondManagerCanEdit}
+                                    className={`ef-w-full ef-p-2 ef-rounded ef-text-xs ef-resize-none ef-border ${secondManagerCanEdit
+                                        ? "ef-bg-white ef-border-green-200 focus:ef-ring-1 focus:ef-ring-green-400 focus:ef-outline-none"
+                                        : "ef-bg-gray-50 ef-text-gray-500 ef-border-gray-200 ef-cursor-not-allowed"
+                                        }`}
+                                    rows={2}
+                                    placeholder="Add your review..."
+                                />
                             </div>
-
-                            <label className="ef-block ef-text-xs ef-font-medium ef-text-gray-500 ef-mb-1">
-                                Rating
-                            </label>
-                            <RatingInput
-                                rating={comp.secondManagerRating}
-                                onChange={(rating) =>
-                                    secondManagerCanEdit &&
-                                    updateCompetency(comp.id, "secondManagerRating", rating)
-                                }
-                                disabled={!secondManagerCanEdit}
-                            />
-
-                            <label className="ef-block ef-text-xs ef-font-medium ef-text-gray-500 ef-mt-2 ef-mb-1">
-                                Comments
-                            </label>
-                            <textarea
-                                value={comp.secondManagerComment}
-                                onChange={(e) =>
-                                    secondManagerCanEdit &&
-                                    updateCompetency(comp.id, "secondManagerComment", e.target.value)
-                                }
-                                disabled={!secondManagerCanEdit}
-                                className={`ef-w-full ef-p-2 ef-rounded ef-text-xs ef-resize-none ef-border ${secondManagerCanEdit
-                                    ? "ef-bg-white ef-border-green-200 focus:ef-ring-1 focus:ef-ring-green-400 focus:ef-outline-none"
-                                    : "ef-bg-gray-50 ef-text-gray-500 ef-border-gray-200 ef-cursor-not-allowed"
-                                    }`}
-                                rows={2}
-                                placeholder="Add your review..."
-                            />
-                        </div>
+                        )}
                     </>
                 )}
             </div>

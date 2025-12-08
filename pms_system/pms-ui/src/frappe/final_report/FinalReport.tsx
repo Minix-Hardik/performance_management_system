@@ -2,6 +2,10 @@ import { Calendar, Award, TrendingUp } from 'lucide-react';
 
 export const EmployeeAppraisalReport = () => {
     const frappe_doc = window?.cur_frm?.doc
+    const reportsToSecondUserId = frappe_doc.reports_to_second_user;
+    const workflowStatus = frappe_doc.workflow_state;
+    const isSecondManager = reportsToSecondUserId;
+    const isSecondManagerReview = workflowStatus === "Second Manager Review";
     const employee =
     {
         code: frappe_doc.employee,
@@ -14,13 +18,18 @@ export const EmployeeAppraisalReport = () => {
         manager1: frappe_doc.reports_to_name,
         manager1Rating: frappe_doc.manager_rating,
         manager1Comment: frappe_doc.manager_final_comment,
-        manager1Promotion: 'Yes',
-        manager1Increment: '15%',
+        manager1Increment: frappe_doc.as_manager_increment_percentage,
+        manager1PromotionDesignation: frappe_doc.manager_updated_designation,
+        manager1PromotionDepartment: frappe_doc.manager_updated_department,
+        manager1Promotion: frappe_doc.is_first_manager_promotion == 1 ? 'Yes' : 'No',
+
         manager2: frappe_doc.reports_to_second_name,
         manager2Rating: frappe_doc.second_manager_rating,
         manager2Comment: frappe_doc.second_manager_comment,
-        manager2Increment: '12%',
-        manager2Promotion: "Yes"
+        manager2Increment: frappe_doc.as_second_manager_increment_percentage_copy,
+        manager2PromotionDesignation: frappe_doc.second_manager_updated_designation,
+        manager2PromotionDepartment: frappe_doc.second_manager_updated_department,
+        manager2Promotion: frappe_doc.is_second_manager_promotion == 1 ? 'Yes' : 'No',
     }
 
     const getRatingColor = (rating: any) => {
@@ -104,7 +113,7 @@ export const EmployeeAppraisalReport = () => {
                     </div>
 
                     {/* Manager Reviews */}
-                    <div className="ef-p-8 ef-space-y-6 ef-transition-all ef-duration-300 ef-ease-in-out">
+                    <div className="ef-p-8 ef-space-y-4 ef-transition-all ef-duration-300 ef-ease-in-out">
 
                         <div className="ef-flex ef-items-center ef-gap-2 ef-mb-4">
                             <TrendingUp className="ef-w-5 ef-h-5 ef-text-blue-600 ef-hover:scale-125 ef-hover:-translate-y-[2px] ef-transition-all" />
@@ -117,28 +126,28 @@ export const EmployeeAppraisalReport = () => {
                             <div className="ef-flex ef-items-start ef-justify-between ef-mb-4">
                                 <div>
                                     <div className="ef-text-xs ef-text-gray-500 ef-uppercase ef-font-semibold ef-mb-1">Reporting Manager - 1</div>
-                                    <div className="ef-text-xl ef-font-bold ef-text-gray-900 ef-hover:text-blue-700">{employee.manager1}</div>
+                                    <div className="ef-text-xl ef-font-bold ef-text-gray-900 ef-hover:text-blue-700 ef-text-black">{employee.manager1}</div>
                                 </div>
 
                                 <div className="ef-text-center">
                                     <div className="ef-text-xs ef-text-gray-600 ef-mb-1">Rating</div>
                                     <div className={`ef-w-16 ef-h-16 ef-rounded-full ef-flex ef-items-center ef-justify-center ${getRatingColor(employee.manager1Rating)} ef-text-white ef-transition-all ef-hover:scale-110 ef-hover:shadow-lg ef-transform ef-hover:rotate-6`}>
-                                        <span className="ef-text-2xl ef-font-bold">{employee.manager1Rating}</span>
+                                        <span className="ef-text-2xl ef-font-bold ef-text-black">{employee.manager1Rating}</span>
                                     </div>
                                 </div>
                             </div>
 
-                            <div className="ef-space-y-4">
+                            <div className="ef-space-y-3">
                                 <div>
                                     <div className="ef-text-sm ef-font-semibold ef-text-gray-700 ef-mb-2">Overall Comment:</div>
-                                    <div className="ef-text-gray-900 ef-leading-relaxed">{employee.manager1Comment}</div>
+                                    <div className="ef-text-gray-900 ef-leading-relaxed ef-text-black">{employee.manager1Comment}</div>
                                 </div>
 
-                                <div className="ef-grid ef-grid-cols-2 ef-gap-4 ef-pt-4 ef-border-t ef-border-gray-200">
+                                <div className="ef-grid ef-grid-cols-3 ef-gap-3 ef-pt-4 ef-border-t ef-border-gray-200">
 
                                     <div>
-                                        <div className="ef-text-sm ef-text-gray-600 ef-mb-1">Promotion Recommended</div>
-                                        <div className={`ef-inline-flex ef-items-center ef-px-4 ef-py-2 ef-rounded-lg ef-font-semibold ef-transition-all ef-hover:scale-105 ${employee.manager1Promotion === 'Yes'
+                                        <div className="ef-text-sm ef-text-gray-600 ef-mb-1">Promotion</div>
+                                        <div className={`ef-inline-flex ef-items-center ef-px-3 ef-py-1.5 ef-rounded-lg ef-font-semibold ef-transition-all ef-hover:scale-105 ${employee.manager1Promotion === 'Yes'
                                             ? 'ef-bg-green-100 ef-text-green-800 ef-border-2 ef-border-green-300 ef-hover:bg-green-200'
                                             : 'ef-bg-gray-100 ef-text-gray-700 ef-border-2 ef-border-gray-300 ef-hover:bg-gray-200'
                                             }`}>
@@ -147,61 +156,91 @@ export const EmployeeAppraisalReport = () => {
                                     </div>
 
                                     <div>
-                                        <div className="ef-text-sm ef-text-gray-600 ef-mb-1">Special Increment</div>
-                                        <div className="ef-text-2xl ef-font-bold ef-text-gray-900 ef-hover:scale-110 ef-hover:text-green-600">
-                                            {employee.manager1Increment}
+                                        <div className="ef-text-sm ef-text-gray-600 ef-mb-1">Designation</div>
+                                        <div className="ef-text-base ef-font-semibold ef-text-gray-900">
+                                            {employee.manager1PromotionDesignation || '-'}
                                         </div>
                                     </div>
 
+                                    <div>
+                                        <div className="ef-text-sm ef-text-gray-600 ef-mb-1">Department</div>
+                                        <div className="ef-text-base ef-font-semibold ef-text-gray-900">
+                                            {employee.manager1PromotionDepartment || '-'}
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                                <div className="ef-pt-3 ef-border-t ef-border-gray-200">
+                                    <div className="ef-text-sm ef-text-gray-600 ef-mb-1">Special Increment</div>
+                                    <div className="ef-text-2xl ef-font-bold ef-text-gray-900 ef-hover:scale-110 ef-hover:text-green-600">
+                                        {employee.manager1Increment}
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
                         {/* Manager 2 */}
-                        <div className={`ef-border-2 ef-rounded-xl ef-p-6 ${getRatingBgColor(employee.manager2Rating)} ef-transition-all ef-duration-500 ef-ease-in-out ef-hover:shadow-lg ef-transform ef-hover:scale-[1.02] ef-hover:-translate-y-1`}>
+                        {(isSecondManager && (isSecondManagerReview || workflowStatus == "Approved")) && (
+                            <div className={`ef-border-2 ef-rounded-xl ef-p-6 ${getRatingBgColor(employee.manager2Rating)} ef-transition-all ef-duration-500 ef-ease-in-out ef-hover:shadow-lg ef-transform ef-hover:scale-[1.02] ef-hover:-translate-y-1`}>
 
-                            <div className="ef-flex ef-items-start ef-justify-between ef-mb-4">
-                                <div>
-                                    <div className="ef-text-xs ef-text-gray-500 ef-uppercase ef-font-semibold ef-mb-1">Reporting Manager - 2</div>
-                                    <div className="ef-text-xl ef-font-bold ef-text-gray-900 ef-hover:text-blue-700">{employee.manager2}</div>
-                                </div>
-
-                                <div className="ef-text-center">
-                                    <div className="ef-text-xs ef-text-gray-600 ef-mb-1">Rating</div>
-                                    <div className={`ef-w-16 ef-h-16 ef-rounded-full ef-flex ef-items-center ef-justify-center ${getRatingColor(employee.manager2Rating)} ef-text-white ef-transition-all ef-hover:scale-110 ef-hover:shadow-lg ef-transform ef-hover:rotate-6`}>
-                                        <span className="ef-text-2xl ef-font-bold">{employee.manager2Rating}</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="ef-space-y-4">
-                                <div>
-                                    <div className="ef-text-sm ef-font-semibold ef-text-gray-700 ef-mb-2">Overall Comment:</div>
-                                    <div className="ef-text-gray-900 ef-leading-relaxed">{employee.manager2Comment}</div>
-                                </div>
-
-                                <div className="ef-grid ef-grid-cols-2 ef-gap-4 ef-pt-4 ef-border-t ef-border-gray-200">
-
+                                <div className="ef-flex ef-items-start ef-justify-between ef-mb-4">
                                     <div>
-                                        <div className="ef-text-sm ef-text-gray-600 ef-mb-1">Promotion Recommended</div>
-                                        <div className={`ef-inline-flex ef-items-center ef-px-4 ef-py-2 ef-rounded-lg ef-font-semibold ef-hover:scale-105 ${employee.manager2Promotion === 'Yes'
-                                            ? 'ef-bg-green-100 ef-text-green-800 ef-border-2 ef-border-green-300 ef-hover:bg-green-200'
-                                            : 'ef-bg-gray-100 ef-text-gray-700 ef-border-2 ef-border-gray-300 ef-hover:bg-gray-200'
-                                            }`}>
-                                            {employee.manager2Promotion}
+                                        <div className="ef-text-xs ef-text-gray-500 ef-uppercase ef-font-semibold ef-mb-1">Reporting Manager - 2</div>
+                                        <div className="ef-text-xl ef-font-bold ef-text-gray-900 ef-hover:text-blue-700 ">{employee.manager2}</div>
+                                    </div>
+
+                                    <div className="ef-text-center">
+                                        <div className="ef-text-xs ef-text-gray-600 ef-mb-1">Rating</div>
+                                        <div className={`ef-w-16 ef-h-16 ef-rounded-full ef-flex ef-items-center ef-justify-center ${getRatingColor(employee.manager2Rating)} ef-text-white ef-transition-all ef-hover:scale-110 ef-hover:shadow-lg ef-transform ef-hover:rotate-6`}>
+                                            <span className="ef-text-2xl ef-font-bold ef-text-black">{employee.manager2Rating}</span>
                                         </div>
                                     </div>
+                                </div>
 
+                                <div className="ef-space-y-3">
                                     <div>
+                                        <div className="ef-text-sm ef-font-semibold ef-text-gray-700 ef-mb-2">Overall Comment:</div>
+                                        <div className="ef-text-gray-900 ef-leading-relaxed ef-text-black">{employee.manager2Comment}</div>
+                                    </div>
+
+                                    <div className="ef-grid ef-grid-cols-3 ef-gap-3 ef-pt-4 ef-border-t ef-border-gray-200">
+
+                                        <div>
+                                            <div className="ef-text-sm ef-text-gray-600 ef-mb-1">Promotion</div>
+                                            <div className={`ef-inline-flex ef-items-center ef-px-3 ef-py-1.5 ef-rounded-lg ef-font-semibold ef-hover:scale-105 ${employee.manager2Promotion === 'Yes'
+                                                ? 'ef-bg-green-100 ef-text-green-800 ef-border-2 ef-border-green-300 ef-hover:bg-green-200'
+                                                : 'ef-bg-gray-100 ef-text-gray-700 ef-border-2 ef-border-gray-300 ef-hover:bg-gray-200'
+                                                }`}>
+                                                {employee.manager2Promotion}
+                                            </div>
+                                        </div>
+
+                                        <div>
+                                            <div className="ef-text-sm ef-text-gray-600 ef-mb-1">Designation</div>
+                                            <div className="ef-text-base ef-font-semibold ef-text-gray-900">
+                                                {employee.manager2PromotionDesignation || '-'}
+                                            </div>
+                                        </div>
+
+                                        <div>
+                                            <div className="ef-text-sm ef-text-gray-600 ef-mb-1">Department</div>
+                                            <div className="ef-text-base ef-font-semibold ef-text-gray-900">
+                                                {employee.manager2PromotionDepartment || '-'}
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+                                    <div className="ef-pt-3 ef-border-t ef-border-gray-200">
                                         <div className="ef-text-sm ef-text-gray-600 ef-mb-1">Special Increment</div>
                                         <div className="ef-text-2xl ef-font-bold ef-text-gray-900 ef-hover:scale-110 ef-hover:text-green-600">
                                             {employee.manager2Increment}
                                         </div>
                                     </div>
-
                                 </div>
                             </div>
-                        </div>
+                        )}
 
                     </div>
 
@@ -213,4 +252,3 @@ export const EmployeeAppraisalReport = () => {
 
 
 EmployeeAppraisalReport.component = "appraisal-report";
-

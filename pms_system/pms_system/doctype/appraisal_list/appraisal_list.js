@@ -68,6 +68,15 @@ frappe.ui.form.on('Appraisal List', {
         }
     },
     refresh: function (frm) {
+
+        const tab_field = "final_report_tab";
+        const allowed_roles = ["HR Manager"];
+        let has_role = allowed_roles.some(role => frappe.user_roles.includes(role));
+        if (frappe.session.user === "Administrator") {
+            has_role = true;
+        }
+        frm.toggle_display(tab_field, has_role);
+
         frm.get_field('appraisal').$wrapper.html(
             `<appraisal-rating></appraisal-rating>`
         );
@@ -82,9 +91,10 @@ frappe.ui.form.on('Appraisal List', {
         if (frm.doc.workflow_state === "Self Appraisal" && user !== frm.doc.employee_user_id) {
             hide_all_workflow_actions(frm);
         }
-
-        // Condition 2: Manager Appraisal stage → only manager can see button
         if (frm.doc.workflow_state === "Manager Appraisal" && user !== frm.doc.reports_to_user_id) {
+            hide_all_workflow_actions(frm);
+        }
+        if (frm.doc.workflow_state === "Second Manager Review" && user !== frm.doc.reports_to_second_user) {
             hide_all_workflow_actions(frm);
         }
     },
@@ -102,10 +112,6 @@ frappe.ui.form.on('Appraisal List', {
         // Find transition based on selected action
         const transition = wf.transitions.find(t => t.action === action);
         const new_state = transition ? transition.next_state : null;
-
-        console.log("OLD:", old_state);
-        console.log("ACTION:", action);
-        console.log("NEW:", new_state);
 
         // 🚨 Trigger popup ONLY on Self → Manager Appraisal
         if (old_state === "Self Appraisal" && new_state === "Manager Appraisal") {
@@ -152,7 +158,7 @@ frappe.ui.form.on('Appraisal List', {
                 <label style="margin-top:10px"><b>Remarks</b></label>
                 <textarea id="popup_remarks" class="form-control" rows="3" placeholder="Enter remarks (min 10 characters)"></textarea>
             </div>
-        `);
+            `);
 
             dialog.show();
 
@@ -182,6 +188,270 @@ frappe.ui.form.on('Appraisal List', {
             });
 
         }
+        if (
+            old_state === "Manager Appraisal" &&
+            (new_state === "Approved" || new_state === "Second Manager Review")
+        ) {
+            frappe.validated = false;
+
+            const employee_rating = frm.doc.as_employee_what_he_deserve || "Not Submitted";
+            const employee_remarks = frm.doc.remarks || "No Remarks Provided";
+
+            const dialog = new frappe.ui.Dialog({
+                title: "Promotion & Review Details",
+                fields: [
+                    {
+                        fieldtype: "Section Break",
+                        label: "Employee Submitted Details"
+                    },
+                    {
+                        fieldtype: "HTML",
+                        fieldname: "employee_info_html",
+                    },
+
+                    {
+                        fieldtype: "Section Break"
+                    },
+
+                    // 🔹 Step 1 → Decide if employee is eligible
+                    {
+                        fieldtype: "Check",
+                        label: "Is Employee Eligible for Promotion",
+                        fieldname: "is_promote"
+                    },
+
+                    // 🔹 Step 2 → If eligible, manager chooses whether to promote
+                    {
+                        fieldtype: "Check",
+                        label: "Promote to New Designation & Department",
+                        fieldname: "enable_promotion",
+                        depends_on: "eval:doc.is_promote == 1"
+                    },
+
+                    // 🔹 Step 3 → New Designation (only if both checkboxes TRUE)
+                    {
+                        fieldtype: "Link",
+                        label: "New Designation",
+                        fieldname: "new_designation",
+                        options: "Designation",
+                        depends_on: "eval:doc.is_promote == 1 && doc.enable_promotion == 1"
+                    },
+
+                    // 🔹 Step 3 → New Department (same logic)
+                    {
+                        fieldtype: "Link",
+                        label: "Promote To New Department",
+                        fieldname: "new_department",
+                        options: "Department",
+                        depends_on: "eval:doc.is_promote == 1 && doc.enable_promotion == 1"
+                    },
+
+                    // 🔹 Increment % only if employee is eligible (promotion optional)
+                    {
+                        fieldtype: "Float",
+                        label: "Percentage Increment (%)",
+                        fieldname: "increment_percentage",
+                        description: "Enter increment like 10, 12.5, 20 etc.",
+                        depends_on: "eval:doc.is_promote == 1"
+                    },
+
+                    // 🔹 Mandatory remarks
+                    {
+                        fieldtype: "Small Text",
+                        label: "Remarks",
+                        fieldname: "remarks",
+                        reqd: 1
+                    }
+                ],
+                primary_action_label: "Submit",
+                primary_action(values) {
+
+                    if (values.remarks.length < 10) {
+                        frappe.msgprint("Remarks must be at least 10 characters.");
+                        return;
+                    }
+
+                    frm.set_value("manager_updated_designation", values.new_designation);
+                    frm.set_value("manager_updated_department", values.new_department);
+                    frm.set_value("as_manager_increment_percentage", values.increment_percentage);
+                    frm.set_value("manager_final_comment", values.remarks);
+                    frm.set_value("is_first_manager_promotion", values.is_promote ? 1 : 0);
+
+                    dialog.hide();
+                    frappe.validated = true;
+                    frm.save();
+                }
+            });
+
+            // 🔥 Inject banner content
+            dialog.fields_dict.employee_info_html.$wrapper.html(`
+        <div style="
+            background:#f8f9fa;
+            padding:12px 15px;
+            border-radius:6px;
+            border-left:5px solid #5e64ff;
+            margin-bottom:15px;
+        ">
+            <h4 style="margin:0 0 8px 0;">Employee Asked Increment</h4>
+
+            <p style="margin:0;">
+                <b>Self Rating:</b> ${employee_rating}%
+            </p>
+            <p style="margin:4px 0 0 0; white-space:pre-wrap;">
+                <b>Employee Remarks:</b><br> ${employee_remarks}
+            </p>
+        </div>
+    `);
+
+            dialog.show();
+        }
+        if (old_state === "Second Manager Review" && new_state === "Approved") {
+            frappe.validated = false;
+
+            const employee_rating = frm.doc.as_employee_what_he_deserve || "Not Submitted";
+            const employee_remarks = frm.doc.remarks || "No Remarks Provided";
+
+            // Manager submitted data
+            const manager_rating = frm.doc.as_first_manager_what_he_deserve || "Not Submitted";
+            const manager_remarks = frm.doc.as_manager_remarks || "No Remarks Provided";
+            const manager_increment = frm.doc.as_manager_increment_percentage || "0";
+            const manager_designation = frm.doc.manager_updated_designation || "No Change";
+            const manager_department = frm.doc.manager_updated_department || "No Change";
+
+            const dialog = new frappe.ui.Dialog({
+                title: "Promotion & Review Details",
+                fields: [
+                    {
+                        fieldtype: "Section Break",
+                        label: "Employee Submitted Details"
+                    },
+                    {
+                        fieldtype: "HTML",
+                        fieldname: "employee_info_html",
+                    },
+
+                    {
+                        fieldtype: "Section Break"
+                    },
+
+                    // 🔹 Step 1 → Decide if employee is eligible
+                    {
+                        fieldtype: "Check",
+                        label: "Is Employee Eligible for Promotion",
+                        fieldname: "is_promote"
+                    },
+
+                    // 🔹 Step 2 → If eligible, manager chooses whether to promote
+                    {
+                        fieldtype: "Check",
+                        label: "Promote to New Designation & Department",
+                        fieldname: "enable_promotion",
+                        depends_on: "eval:doc.is_promote == 1"
+                    },
+
+                    // 🔹 Step 3 → New Designation (only if both checkboxes TRUE)
+                    {
+                        fieldtype: "Link",
+                        label: "New Designation",
+                        fieldname: "new_designation",
+                        options: "Designation",
+                        depends_on: "eval:doc.is_promote == 1 && doc.enable_promotion == 1"
+                    },
+
+                    // 🔹 Step 3 → New Department (same logic)
+                    {
+                        fieldtype: "Link",
+                        label: "Promote To New Department",
+                        fieldname: "new_department",
+                        options: "Department",
+                        depends_on: "eval:doc.is_promote == 1 && doc.enable_promotion == 1"
+                    },
+
+                    // 🔹 Increment % only if employee is eligible (promotion optional)
+                    {
+                        fieldtype: "Float",
+                        label: "Percentage Increment (%)",
+                        fieldname: "increment_percentage",
+                        description: "Enter increment like 10, 12.5, 20 etc.",
+                        depends_on: "eval:doc.is_promote == 1"
+                    },
+
+                    // 🔹 Mandatory remarks
+                    {
+                        fieldtype: "Small Text",
+                        label: "Remarks",
+                        fieldname: "remarks",
+                        reqd: 1
+                    }
+                ],
+                primary_action_label: "Submit",
+                primary_action(values) {
+
+                    if (values.remarks.length < 10) {
+                        frappe.msgprint("Remarks must be at least 10 characters.");
+                        return;
+                    }
+                    frm.set_value("is_second_manager_promotion", values.is_promote ? 1 : 0);
+                    frm.set_value("second_manager_updated_designation", values.new_designation);
+                    frm.set_value("second_manager_updated_department", values.new_department);
+                    frm.set_value("as_second_manager_increment_percentage_copy", values.increment_percentage);
+                    frm.set_value("second_manager_comment", values.remarks);
+
+                    dialog.hide();
+                    frappe.validated = true;
+                    frm.save();
+                }
+            });
+
+            // 🔥 Inject banner content
+            dialog.fields_dict.employee_info_html.$wrapper.html(`
+        <div style="
+    background:#f8f9fa;
+    padding:12px 15px;
+    border-radius:6px;
+    border-left:5px solid #5e64ff;
+    margin-bottom:15px;
+">
+    <h4 style="margin:0 0 8px 0;">Employee Self Appraisal</h4>
+
+    <p style="margin:0;">
+        <b>Self Rating:</b> ${employee_rating}%
+    </p>
+    <p style="margin:4px 0 0 0; white-space:pre-wrap;">
+        <b>Employee Remarks:</b><br> ${employee_remarks}
+    </p>
+</div>
+
+<div style="
+    background:#eef4ff;
+    padding:12px 15px;
+    border-radius:6px;
+    border-left:5px solid #2490ef;
+    margin-bottom:15px;
+">
+    <h4 style="margin:0 0 8px 0;">Manager Appraisal</h4>
+
+    <p style="margin:0;">
+        <b>Manager Rating:</b> ${manager_rating}%
+    </p>
+    <p style="margin:4px 0;">
+        <b>Increment Percentage:</b> ${manager_increment}%
+    </p>
+    <p style="margin:4px 0;">
+        <b>Updated Designation:</b> ${manager_designation}
+    </p>
+    <p style="margin:4px 0;">
+        <b>Updated Department:</b> ${manager_department}
+    </p>
+    <p style="margin:4px 0 0 0; white-space:pre-wrap;">
+        <b>Manager Remarks:</b><br> ${manager_remarks}
+    </p>
+</div>
+    `);
+
+            dialog.show();
+        }
+
     }
 
 });

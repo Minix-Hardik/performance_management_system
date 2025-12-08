@@ -69,7 +69,15 @@
   "manager_rating",
   "manager_final_comment",
   "second_manager_rating",
-  "second_manager_comment"
+  "second_manager_comment",
+  "manager_updated_designation",
+  "manager_updated_department",
+  "as_manager_increment_percentage",
+  "second_manager_updated_designation",
+  "second_manager_updated_department",
+  "as_second_manager_increment_percentage_copy",
+  "is_first_manager_promotion",
+  "is_second_manager_promotion"
  ],
  "fields": [
   {
@@ -470,12 +478,54 @@
    "fieldname": "second_manager_comment",
    "fieldtype": "Small Text",
    "label": "Second Manager Comment "
+  },
+  {
+   "fieldname": "manager_updated_designation",
+   "fieldtype": "Data",
+   "label": "Manager_updated_designation"
+  },
+  {
+   "fieldname": "manager_updated_department",
+   "fieldtype": "Data",
+   "label": "Manager_updated_department"
+  },
+  {
+   "fieldname": "as_manager_increment_percentage",
+   "fieldtype": "Float",
+   "label": "as_Manager_Increment_percentage"
+  },
+  {
+   "fieldname": "second_manager_updated_designation",
+   "fieldtype": "Data",
+   "label": "Second_Manager_updated_designation"
+  },
+  {
+   "fieldname": "second_manager_updated_department",
+   "fieldtype": "Data",
+   "label": "Second_Manager_updated_department"
+  },
+  {
+   "fieldname": "as_second_manager_increment_percentage_copy",
+   "fieldtype": "Float",
+   "label": "as_Second_Manager_Increment_percentage Copy"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_first_manager_promotion",
+   "fieldtype": "Check",
+   "label": "Is First Manager Promotion"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_second_manager_promotion",
+   "fieldtype": "Check",
+   "label": "Is Second Manager Promotion"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-12-07 03:02:25.466037",
+ "modified": "2025-12-08 11:42:05.111391",
  "modified_by": "Administrator",
  "module": "Pms System",
  "name": "Appraisal List",

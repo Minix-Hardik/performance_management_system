@@ -62,8 +62,8 @@ export const KRARating = ({
                         }
                         disabled={!employeeCanEdit}
                         className={`ef-w-full ef-p-2 ef-rounded ef-text-xs ef-resize-none ef-border ${employeeCanEdit
-                                ? "ef-bg-white ef-border-blue-200 focus:ef-ring-1 focus:ef-ring-blue-400"
-                                : "ef-bg-gray-50 ef-text-gray-500 ef-border-gray-200 ef-cursor-not-allowed"
+                            ? "ef-bg-white ef-border-blue-200 focus:ef-ring-1 focus:ef-ring-blue-400"
+                            : "ef-bg-gray-50 ef-text-gray-500 ef-border-gray-200 ef-cursor-not-allowed"
                             }`}
                         rows={2}
                         placeholder="Add your comments..."
@@ -144,8 +144,8 @@ export const KRARating = ({
                             }
                             disabled={!managerCanEdit}
                             className={`ef-w-full ef-p-2 ef-rounded ef-text-xs ef-resize-none ef-border ${managerCanEdit
-                                    ? "ef-bg-white ef-border-purple-200 focus:ef-ring-1 focus:ef-ring-purple-400"
-                                    : "ef-bg-gray-50 ef-text-gray-500 ef-border-gray-200 ef-cursor-not-allowed"
+                                ? "ef-bg-white ef-border-purple-200 focus:ef-ring-1 focus:ef-ring-purple-400"
+                                : "ef-bg-gray-50 ef-text-gray-500 ef-border-gray-200 ef-cursor-not-allowed"
                                 }`}
                             rows={2}
                             placeholder="Add your review..."
@@ -233,44 +233,46 @@ export const KRARating = ({
                 )}
 
                 {/* Second Manager Review */}
-                <div className="ef-px-3 ef-py-2 ef-bg-green-50">
-                    <div className="ef-flex ef-items-center ef-justify-between ef-mb-2">
-                        <span className="ef-text-xs ef-font-semibold ef-text-gray-600">
-                            Second Manager Review
-                        </span>
-                        {!secondManagerCanEdit && <LockIcon />}
-                    </div>
+                {showManagerData && (
+                    <div className="ef-px-3 ef-py-2 ef-bg-green-50">
+                        <div className="ef-flex ef-items-center ef-justify-between ef-mb-2">
+                            <span className="ef-text-xs ef-font-semibold ef-text-gray-600">
+                                Second Manager Review
+                            </span>
+                            {!secondManagerCanEdit && <LockIcon />}
+                        </div>
 
-                    <label className="ef-block ef-text-xs ef-font-medium ef-text-gray-500 ef-mb-1">
-                        Rating
-                    </label>
-                    <RatingInput
-                        rating={kra.secondManagerRating}
-                        onChange={(rating) =>
-                            secondManagerCanEdit &&
-                            updateKRARating(kra.id, "secondManagerRating", rating)
-                        }
-                        disabled={!secondManagerCanEdit}
-                    />
+                        <label className="ef-block ef-text-xs ef-font-medium ef-text-gray-500 ef-mb-1">
+                            Rating
+                        </label>
+                        <RatingInput
+                            rating={kra.secondManagerRating}
+                            onChange={(rating) =>
+                                secondManagerCanEdit &&
+                                updateKRARating(kra.id, "secondManagerRating", rating)
+                            }
+                            disabled={!secondManagerCanEdit}
+                        />
 
-                    <label className="ef-block ef-text-xs ef-font-medium ef-text-gray-500 ef-mt-2 ef-mb-1">
-                        Comments
-                    </label>
-                    <textarea
-                        value={kra.secondManagerComment}
-                        onChange={(e) =>
-                            secondManagerCanEdit &&
-                            updateKRARating(kra.id, "secondManagerComment", e.target.value)
-                        }
-                        disabled={!secondManagerCanEdit}
-                        className={`ef-w-full ef-p-2 ef-rounded ef-text-xs ef-resize-none ef-border ${secondManagerCanEdit
+                        <label className="ef-block ef-text-xs ef-font-medium ef-text-gray-500 ef-mt-2 ef-mb-1">
+                            Comments
+                        </label>
+                        <textarea
+                            value={kra.secondManagerComment}
+                            onChange={(e) =>
+                                secondManagerCanEdit &&
+                                updateKRARating(kra.id, "secondManagerComment", e.target.value)
+                            }
+                            disabled={!secondManagerCanEdit}
+                            className={`ef-w-full ef-p-2 ef-rounded ef-text-xs ef-resize-none ef-border ${secondManagerCanEdit
                                 ? "ef-bg-white ef-border-green-200 focus:ef-ring-1 focus:ef-ring-green-400"
                                 : "ef-bg-gray-50 ef-text-gray-500 ef-border-gray-200 ef-cursor-not-allowed"
-                            }`}
-                        rows={2}
-                        placeholder="Add your review..."
-                    />
-                </div>
+                                }`}
+                            rows={2}
+                            placeholder="Add your review..."
+                        />
+                    </div>
+                )}
             </div>
         );
     }

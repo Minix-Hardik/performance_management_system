@@ -18,6 +18,7 @@ export function calculateAppraisalScores(
         }
     };
 
+    // Employee Self Score
     const kraSelf = appraisalData.kra
         .map((kra: any) => {
             const kraWeightNorm = (kra.weightage || 0) / totalKRAWeight;
@@ -52,6 +53,80 @@ export function calculateAppraisalScores(
         kraSelf * (kra_percentage / 100) +
         competencySelf * (competency_percentage / 100);
 
+    // Manager 1 Score
+    const kraManager1 = appraisalData.kra
+        .map((kra: any) => {
+            const kraWeightNorm = (kra.weightage || 0) / totalKRAWeight;
+            let kraManager1Score = 0;
+
+            if (kra.goals?.length > 0) {
+                const totalGoalWeight =
+                    kra.goals.reduce((s: number, g: any) => s + Number(g.weightage || 0), 0) || 1;
+
+                kraManager1Score = kra.goals.reduce((sum: number, goal: any) => {
+                    const rating = Number(goal.managerRating || 0);
+                    const goalWeightNorm = (goal.weightage || 0) / totalGoalWeight;
+                    return sum + goalWeightNorm * rating;
+                }, 0);
+            } else {
+                kraManager1Score = Number(kra.managerRating || 0);
+            }
+
+            return kraWeightNorm * kraManager1Score;
+        })
+        .reduce((a: number, b: number) => a + b, 0);
+
+    const competencyManager1 = appraisalData.competencies.reduce(
+        (sum: number, comp: any) => {
+            const compWeightNorm = (comp.weightage || 0) / totalCompWeight;
+            return sum + compWeightNorm * Number(comp.managerRating || 0);
+        },
+        0
+    );
+
+    const manager1Score =
+        kraManager1 * (kra_percentage / 100) +
+        competencyManager1 * (competency_percentage / 100);
+
+    // Manager 2 Score (if applicable)
+    let manager2Score = 0;
+    if (hasSecondManager) {
+        const kraManager2 = appraisalData.kra
+            .map((kra: any) => {
+                const kraWeightNorm = (kra.weightage || 0) / totalKRAWeight;
+                let kraManager2Score = 0;
+
+                if (kra.goals?.length > 0) {
+                    const totalGoalWeight =
+                        kra.goals.reduce((s: number, g: any) => s + Number(g.weightage || 0), 0) || 1;
+
+                    kraManager2Score = kra.goals.reduce((sum: number, goal: any) => {
+                        const rating = Number(goal.secondManagerRating || 0);
+                        const goalWeightNorm = (goal.weightage || 0) / totalGoalWeight;
+                        return sum + goalWeightNorm * rating;
+                    }, 0);
+                } else {
+                    kraManager2Score = Number(kra.secondManagerRating || 0);
+                }
+
+                return kraWeightNorm * kraManager2Score;
+            })
+            .reduce((a: number, b: number) => a + b, 0);
+
+        const competencyManager2 = appraisalData.competencies.reduce(
+            (sum: number, comp: any) => {
+                const compWeightNorm = (comp.weightage || 0) / totalCompWeight;
+                return sum + compWeightNorm * Number(comp.secondManagerRating || 0);
+            },
+            0
+        );
+
+        manager2Score =
+            kraManager2 * (kra_percentage / 100) +
+            competencyManager2 * (competency_percentage / 100);
+    }
+
+    // Final Score (Average)
     const kraFinal = appraisalData.kra
         .map((kra: any) => {
             const kraWeightNorm = (kra.weightage || 0) / totalKRAWeight;
@@ -101,11 +176,13 @@ export function calculateAppraisalScores(
     const finalScore =
         kraFinal * (kra_percentage / 100) +
         competencyFinal * (competency_percentage / 100);
-
+    console.log({ manager1Score: Number(manager1Score.toFixed(2)), manager2Score: hasSecondManager ? Number(manager2Score.toFixed(2)) : null })
     return {
         kraBlockScore: Number(kraFinal.toFixed(2)),
         competencyScore: Number(competencyFinal.toFixed(2)),
         finalScore: Number(finalScore.toFixed(2)),
-        employeeSelfScore: Number(employeeSelfScore.toFixed(2))
+        employeeSelfScore: Number(employeeSelfScore.toFixed(2)),
+        manager1Score: Number(manager1Score.toFixed(2)),
+        manager2Score: hasSecondManager ? Number(manager2Score.toFixed(2)) : null
     };
 }
