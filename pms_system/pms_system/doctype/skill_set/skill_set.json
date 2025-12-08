@@ -8,7 +8,12 @@
  "field_order": [
   "employee",
   "skill_level",
-  "reporting_manager"
+  "reporting_manager",
+  "skill_level_change_log",
+  "remarks",
+  "hidden_tab_break",
+  "employee_user_id",
+  "reporting_manager_user_id"
  ],
  "fields": [
   {
@@ -33,12 +38,41 @@
    "label": "Reporting manager ",
    "options": "Employee",
    "read_only": 1
+  },
+  {
+   "fetch_from": "employee.user_id",
+   "fieldname": "employee_user_id",
+   "fieldtype": "Data",
+   "label": "Employee User ID"
+  },
+  {
+   "fetch_from": "reporting_manager.user_id",
+   "fieldname": "reporting_manager_user_id",
+   "fieldtype": "Data",
+   "label": "Reporting Manager User Id"
+  },
+  {
+   "fieldname": "hidden_tab_break",
+   "fieldtype": "Tab Break",
+   "label": "Hidden",
+   "read_only": 1
+  },
+  {
+   "fieldname": "skill_level_change_log",
+   "fieldtype": "Table",
+   "label": "Skill Level Change Log",
+   "options": "Skill Change Log"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-12-08 15:33:47.612995",
+ "modified": "2025-12-08 16:58:37.464008",
  "modified_by": "Administrator",
  "module": "Pms System",
  "name": "Skill Set",
@@ -54,6 +88,18 @@
    "read": 1,
    "report": 1,
    "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Employee",
    "share": 1,
    "write": 1
   }
