@@ -8,9 +8,6 @@ def execute(filters=None):
     return columns, data
 
 
-# -----------------------------------------
-#   COLUMNS
-# -----------------------------------------
 def get_columns():
     return [
         {"label": "Employee ID", "fieldname": "employee", "fieldtype": "Link", "options": "Employee", "width": 120},
@@ -39,12 +36,7 @@ def get_columns():
         {"label": "2nd Manager Promotion?", "fieldname": "manager2Promotion", "fieldtype": "Data", "width": 120},
     ]
 
-
-# -----------------------------------------
-#   DATA
-# -----------------------------------------
 def get_data(filters):
-    # If no filter selected → do not show any data
     if not filters.get("appraisal_cycle"):
         frappe.msgprint("Please select an Appraisal Cycle to view the report.")
         return []
@@ -86,7 +78,6 @@ def get_data(filters):
 
     records = frappe.db.sql(query, values, as_dict=True)
 
-    # Convert promotion to Yes/No
     for row in records:
         row["manager2Promotion"] = "Yes" if row.get("is_second_manager_promotion") else "No"
 
