@@ -6,3 +6,4 @@ tags
 node_modules
 __pycache__
 pms_system/public/pms-ui
+pms_system/pms-ui/dist

@@ -17,6 +17,7 @@ function load_appraisal_cycle_weights(frm) {
             };
         });
 }
+
 function make_all_readonly(frm) {
     Object.keys(frm.fields_dict).forEach(f => {
         frm.set_df_property(f, "read_only", 1);
@@ -148,44 +149,36 @@ frappe.ui.form.on('Appraisal List', {
             });
 
             // Insert popup HTML content
+            // Insert popup HTML content
             dialog.fields_dict.custom_section.$wrapper.html(`
-            <div style="padding:10px 0">
+                <div style="padding:10px 0">
 
-                <h3>As per you, what do you deserve</h3>
-                <div id="rating_buttons" style="margin: 10px 0; display:flex; flex-wrap:wrap; gap:6px;"></div>
-                <input type="hidden" id="rating_value">
+                    <h3>As per you, what do you deserve</h3>
 
-                <label style="margin-top:10px"><b>Remarks</b></label>
-                <textarea id="popup_remarks" class="form-control" rows="3" placeholder="Enter remarks (min 10 characters)"></textarea>
-            </div>
-            `);
+                    <label><b>Rating (10% to 20%)</b></label>
+                    <input type="range" id="rating_slider" min="10" max="20" value="10" step="1"
+                        style="width:100%; cursor:pointer;">
 
+                    <div style="margin-top:5px;">
+                        <span>Selected: </span>
+                        <span id="rating_display" style="font-weight:bold;">10%</span>
+                    </div>
+
+                    <input type="hidden" id="rating_value" value="10">
+
+                    <label style="margin-top:10px"><b>Remarks</b></label>
+                    <textarea id="popup_remarks" class="form-control" rows="3" placeholder="Enter remarks (min 10 characters)"></textarea>
+                </div>
+                `);
             dialog.show();
 
-            // ⭐ Generate Rating Buttons 8 → 20
-            let container = dialog.$wrapper.find("#rating_buttons");
-
-            for (let i = 8; i <= 20; i++) {
-                container.append(`
-                <button type="button" 
-                    class="btn btn-sm btn-default rating-btn" 
-                    data-value="${i}"
-                    style="padding:4px 8px; font-size:12px;">
-                    ${i} %
-                </button>
-            `);
-            }
-
-            // ⭐ Rating button click handler
-            dialog.$wrapper.find(".rating-btn").on("click", function () {
-                dialog.$wrapper.find(".rating-btn")
-                    .removeClass("btn-primary")
-                    .addClass("btn-default");
-
-                $(this).removeClass("btn-default").addClass("btn-primary");
-
-                dialog.$wrapper.find("#rating_value").val($(this).data("value"));
+            // ⭐ Slider change handler
+            dialog.$wrapper.find("#rating_slider").on("input", function () {
+                let value = $(this).val();
+                dialog.$wrapper.find("#rating_display").text(value + "%");
+                dialog.$wrapper.find("#rating_value").val(value);
             });
+
 
         }
         if (
@@ -223,7 +216,7 @@ frappe.ui.form.on('Appraisal List', {
                     // 🔹 Step 2 → If eligible, manager chooses whether to promote
                     {
                         fieldtype: "Check",
-                        label: "Promote to New Designation & Department",
+                        label: "Promote to New Designation",
                         fieldname: "enable_promotion",
                         depends_on: "eval:doc.is_promote == 1"
                     },
@@ -234,15 +227,6 @@ frappe.ui.form.on('Appraisal List', {
                         label: "New Designation",
                         fieldname: "new_designation",
                         options: "Designation",
-                        depends_on: "eval:doc.is_promote == 1 && doc.enable_promotion == 1"
-                    },
-
-                    // 🔹 Step 3 → New Department (same logic)
-                    {
-                        fieldtype: "Link",
-                        label: "Promote To New Department",
-                        fieldname: "new_department",
-                        options: "Department",
                         depends_on: "eval:doc.is_promote == 1 && doc.enable_promotion == 1"
                     },
 
@@ -272,7 +256,6 @@ frappe.ui.form.on('Appraisal List', {
                     }
 
                     frm.set_value("manager_updated_designation", values.new_designation);
-                    frm.set_value("manager_updated_department", values.new_department);
                     frm.set_value("as_manager_increment_percentage", values.increment_percentage);
                     frm.set_value("manager_final_comment", values.remarks);
                     frm.set_value("is_first_manager_promotion", values.is_promote ? 1 : 0);
@@ -316,7 +299,6 @@ frappe.ui.form.on('Appraisal List', {
             const manager_remarks = frm.doc.as_manager_remarks || "No Remarks Provided";
             const manager_increment = frm.doc.as_manager_increment_percentage || "0";
             const manager_designation = frm.doc.manager_updated_designation || "No Change";
-            const manager_department = frm.doc.manager_updated_department || "No Change";
 
             const dialog = new frappe.ui.Dialog({
                 title: "Promotion & Review Details",
@@ -357,16 +339,6 @@ frappe.ui.form.on('Appraisal List', {
                         options: "Designation",
                         depends_on: "eval:doc.is_promote == 1 && doc.enable_promotion == 1"
                     },
-
-                    // 🔹 Step 3 → New Department (same logic)
-                    {
-                        fieldtype: "Link",
-                        label: "Promote To New Department",
-                        fieldname: "new_department",
-                        options: "Department",
-                        depends_on: "eval:doc.is_promote == 1 && doc.enable_promotion == 1"
-                    },
-
                     // 🔹 Increment % only if employee is eligible (promotion optional)
                     {
                         fieldtype: "Float",
@@ -393,7 +365,6 @@ frappe.ui.form.on('Appraisal List', {
                     }
                     frm.set_value("is_second_manager_promotion", values.is_promote ? 1 : 0);
                     frm.set_value("second_manager_updated_designation", values.new_designation);
-                    frm.set_value("second_manager_updated_department", values.new_department);
                     frm.set_value("as_second_manager_increment_percentage_copy", values.increment_percentage);
                     frm.set_value("second_manager_comment", values.remarks);
 
@@ -439,9 +410,6 @@ frappe.ui.form.on('Appraisal List', {
     </p>
     <p style="margin:4px 0;">
         <b>Updated Designation:</b> ${manager_designation}
-    </p>
-    <p style="margin:4px 0;">
-        <b>Updated Department:</b> ${manager_department}
     </p>
     <p style="margin:4px 0 0 0; white-space:pre-wrap;">
         <b>Manager Remarks:</b><br> ${manager_remarks}
