@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../../apps/pms_system/pms_system/public/js/load-reactapp.bundle.js"],
+  "sourcesContent": ["const script = document.createElement('script')\nscript.src = '/assets/pms_system/pms-ui/index.bundle.js'\nscript.type = 'module'\ndocument.head.appendChild(script)"],
+  "mappings": ";;;;;;;AAAA;AAAA;AAAA,UAAM,SAAS,SAAS,cAAc,QAAQ;AAC9C,aAAO,MAAM;AACb,aAAO,OAAO;AACd,eAAS,KAAK,YAAY,MAAM;AAAA;AAAA;",
+  "names": []
+}
