@@ -42,8 +42,8 @@ fixtures = [
 # ------------------
 
 # include js, css files in header of desk.html
-# app_include_css = ["/assets/pms_system/pms-ui/index.css"]
-# app_include_js = ["/assets/pms_system/pms-ui/index.bundle.js"]
+app_include_css = ["/assets/pms_system/pms-ui/index.css"]
+app_include_js = ["/assets/pms_system/pms-ui/index.bundle.js"]
 
 # include js, css files in header of web template
 # web_include_css = "/assets/pms_system/css/pms_system.css"
