@@ -7,12 +7,18 @@
   // ../pms_system/pms_system/public/js/load-reactapp.bundle.js
   var require_load_reactapp_bundle = __commonJS({
     "../pms_system/pms_system/public/js/load-reactapp.bundle.js"() {
-      var script = document.createElement("script");
-      script.src = "/assets/pms_system/pms-ui/index.bundle.js";
-      script.type = "module";
-      document.head.appendChild(script);
+      (function waitForFrappe() {
+        if (window.frappe && frappe.boot) {
+          const script = document.createElement("script");
+          script.src = "/assets/pms_system/pms-ui/index.bundle.js";
+          script.type = "text/javascript";
+          document.head.appendChild(script);
+        } else {
+          setTimeout(waitForFrappe, 50);
+        }
+      })();
     }
   });
   require_load_reactapp_bundle();
 })();
-//# sourceMappingURL=load-reactapp.bundle.OEYN3DAD.js.map
+//# sourceMappingURL=load-reactapp.bundle.AM5SXRNQ.js.map

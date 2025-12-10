@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../../apps/pms_system/pms_system/public/js/load-reactapp.bundle.js"],
+  "sourcesContent": ["(function waitForFrappe() {\n    if (window.frappe && frappe.boot) {\n        const script = document.createElement(\"script\");\n        script.src = \"/assets/pms_system/pms-ui/index.bundle.js\";\n        script.type = \"text/javascript\";\n        document.head.appendChild(script);\n    } else {\n        setTimeout(waitForFrappe, 50);\n    }\n})();\n"],
+  "mappings": ";;;;;;;AAAA;AAAA;AAAA,OAAC,SAAS,gBAAgB;AACtB,YAAI,OAAO,UAAU,OAAO,MAAM;AAC9B,gBAAM,SAAS,SAAS,cAAc,QAAQ;AAC9C,iBAAO,MAAM;AACb,iBAAO,OAAO;AACd,mBAAS,KAAK,YAAY,MAAM;AAAA,QACpC,OAAO;AACH,qBAAW,eAAe,EAAE;AAAA,QAChC;AAAA,MACJ,GAAG;AAAA;AAAA;",
+  "names": []
+}
