@@ -47,7 +47,7 @@ app_include_js = ["/assets/pms_system/js/load-reactapp.bundle.js"]
 
 # include js, css files in header of web template
 # web_include_css = "/assets/pms_system/css/pms_system.css"
-# web_include_js = "/assets/pms_system/js/pms_system.js"
+# web_include_js = ["/assets/pms_system/js/load-reactapp.bundle.js"]
 
 # include custom scss in every website theme (without file extension ".scss")
 # website_theme_scss = "pms_system/public/scss/website"

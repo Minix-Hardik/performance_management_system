@@ -8,6 +8,7 @@ export default defineConfig({
         outDir: "../../public/pms-ui",
         rollupOptions: {
             output: {
+                format: 'iife',
                 inlineDynamicImports: true, // bundle EVERYTHING into a single file
                 manualChunks: undefined,    // no chunk splitting
                 entryFileNames: "index.bundle.js",
