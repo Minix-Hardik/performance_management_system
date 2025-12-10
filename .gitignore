@@ -7,3 +7,4 @@ node_modules
 __pycache__
 pms_system/public/pms-ui
 pms_system/public/dist
+pms_system/public/dist/js

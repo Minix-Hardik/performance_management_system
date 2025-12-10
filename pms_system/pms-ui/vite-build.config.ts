@@ -1,20 +1,22 @@
-import defaultConfig from './vite.config'
+import defaultConfig from "./vite.config";
 import { defineConfig } from "vite";
-
 
 export default defineConfig({
     ...defaultConfig,
-    root: 'build-root',
+    root: "build-root",
     build: {
-        outDir: '../../public/pms-ui',
+        outDir: "../../public/pms-ui",
         rollupOptions: {
             output: {
-                entryFileNames: '[name].bundle.js',
-                chunkFileNames: '[name]-[hash].js',
-                assetFileNames: '[name].[ext]',
+                inlineDynamicImports: true, // bundle EVERYTHING into a single file
+                manualChunks: undefined,    // no chunk splitting
+                entryFileNames: "index.bundle.js",
+                assetFileNames: "[name][extname]",
             },
         },
+
         emptyOutDir: true,
-        target: 'es2015',
+        target: "es2017", // better compatibility for Frappe Cloud
+        minify: true,     // reduces size, prevents 502
     },
-})
+});
