@@ -30,6 +30,8 @@ export const EmployeeAppraisalReport = () => {
         manager2PromotionDesignation: frappe_doc.second_manager_updated_designation,
         manager2PromotionDepartment: frappe_doc.second_manager_updated_department,
         manager2Promotion: frappe_doc.is_second_manager_promotion == 1 ? 'Yes' : 'No',
+
+        final_score: frappe_doc.final_score,
     }
 
     const getRatingColor = (rating: any) => {
