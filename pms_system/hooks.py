@@ -43,11 +43,11 @@ fixtures = [
 
 # include js, css files in header of desk.html
 app_include_css = ["/assets/pms_system/pms-ui/index.css"]
-app_include_js = ["/assets/pms_system/js/load-reactapp.bundle.js"]
+# app_include_js = ["/assets/pms_system/js/load-reactapp.bundle.js"]
 
 # include js, css files in header of web template
 # web_include_css = "/assets/pms_system/css/pms_system.css"
-# web_include_js = ["/assets/pms_system/js/load-reactapp.bundle.js"]
+# web_include_js = "/assets/pms_system/js/pms_system.js"
 
 # include custom scss in every website theme (without file extension ".scss")
 # website_theme_scss = "pms_system/public/scss/website"
@@ -70,7 +70,7 @@ override_doctype_class = {
 permission_query_conditions = {
     "Appraisal List": "pms_system.api.get_appraisal_list_permission.get_permission_query_conditions"
 }
-# doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
+doctype_list_js = {"Task": "public/js/task_listview.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
 # doctype_calendar_js = {"doctype" : "public/js/doctype_calendar.js"}
 
