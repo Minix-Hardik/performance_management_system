@@ -35,7 +35,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-12-07 01:31:36.460002",
+ "modified": "2025-12-18 15:15:48.523374",
  "modified_by": "Administrator",
  "module": "Pms System",
  "name": "Appraisal Feedback Question",
@@ -53,6 +53,18 @@
    "role": "System Manager",
    "share": 1,
    "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "read": 1,
+   "role": "HR Manager",
+   "select": 1,
+   "write": 1
+  },
+  {
+   "read": 1,
+   "role": "Employee"
   }
  ],
  "row_format": "Dynamic",

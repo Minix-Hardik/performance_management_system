@@ -429,6 +429,7 @@
    "options": "Appraisal Feedback Question Child Table"
   },
   {
+   "depends_on": "eval:doc.workflow_state == \"Approved\"",
    "fieldname": "final_report_tab",
    "fieldtype": "Tab Break",
    "label": "Final Report"
@@ -525,7 +526,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-12-08 11:42:05.111391",
+ "modified": "2025-12-15 16:03:04.708738",
  "modified_by": "Administrator",
  "module": "Pms System",
  "name": "Appraisal List",
