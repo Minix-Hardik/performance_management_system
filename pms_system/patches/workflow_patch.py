@@ -14,10 +14,10 @@
 #         {"workflow_action_name": "Approve"}
 #     ]
 #     for state in states:
-# 		if not frappe.db.exists("Workflow State", state["name"]):
-# 			frappe.get_doc(
-# 				{"doctype": "Workflow State", "workflow_state_name": state["name"]}
-# 			).insert()
+#         if not frappe.db.exists("Workflow State", state["name"]):
+#             frappe.get_doc(
+#                 {"doctype": "Workflow State", "workflow_state_name": state["name"]}
+#             ).insert()
 #     for act in action:
 #         if not frappe.db.exists("Workflow Action Master", act["workflow_action_name"]):
 #             frappe.get_doc(
