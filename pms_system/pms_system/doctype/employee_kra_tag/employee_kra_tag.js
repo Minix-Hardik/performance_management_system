@@ -13,28 +13,49 @@ frappe.ui.form.on("Employee KRA Tag", {
 			};
 		};
 	},
+
 	employee: function (frm) {
 		if (!frm.doc.employee) {
 			return;
 		}
-		frm.set_query("kra", "kra_and_goal_add", function () {
-			return {
-				query: "pms_system.pms_system.doctype.employee_kra_tag.employee_kra_tag.get_kra_list",
-				filters: {
-					employee: frm.doc.employee,
-				},
-			};
-		});
+		frappe.db.get_value(
+			"Employee",
+			frm.doc.employee,
+			["department", "designation"],
+			function (r) {
+				if (!r) return;
+
+				frm.set_query("kra", "kra_and_goal_add", function (doc, cdt, cdn) {
+					return {
+						filters: {
+							// employee: frm.doc.employee,
+							custom_department: r.department,
+							// custom_designation: r.designation
+						}
+					};
+				});
+			}
+		);
 	},
 	refresh(frm) {
-		frm.set_query("kra", "kra_vs_goal", function () {
-			// get all KRA from first child table
-			let kra_list = (frm.doc.kra_and_goal_add || []).map((row) => row.kra);
+		frappe.db.get_value(
+			"Employee",
+			frm.doc.employee,
+			["department", "designation"],
+			function (r) {
+				if (!r) return;
 
-			return {
-				filters: [["KRA", "name", "in", kra_list]],
-			};
-		});
+				frm.set_query("kra", "kra_and_goal_add", function (doc, cdt, cdn) {
+					return {
+						filters: {
+							// employee: frm.doc.employee,
+							custom_department: r.department,
+							// custom_designation: r.designation
+						}
+					};
+				});
+			}
+		);
 	},
 	validate(frm) {
 		let total = 0;
@@ -55,3 +76,5 @@ frappe.ui.form.on("Employee KRA Tag", {
 		}
 	},
 });
+
+

@@ -329,6 +329,7 @@
   {
    "fieldname": "reports_to",
    "fieldtype": "Link",
+   "ignore_user_permissions": 1,
    "label": "Reports To",
    "options": "Employee",
    "reqd": 1
@@ -395,6 +396,7 @@
   {
    "fieldname": "reports_to_second",
    "fieldtype": "Link",
+   "ignore_user_permissions": 1,
    "label": "Reports To Second",
    "options": "Employee",
    "read_only": 1
@@ -526,7 +528,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-12-15 16:03:04.708738",
+ "modified": "2025-12-29 10:28:20.151745",
  "modified_by": "Administrator",
  "module": "Pms System",
  "name": "Appraisal List",
