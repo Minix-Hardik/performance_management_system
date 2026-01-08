@@ -30,5 +30,21 @@
   "property_type": "Check",
   "row_name": null,
   "value": "1"
+ },
+ {
+  "default_value": null,
+  "doc_type": "KRA",
+  "docstatus": 0,
+  "doctype": "Property Setter",
+  "doctype_or_field": "DocType",
+  "field_name": null,
+  "is_system_generated": 0,
+  "modified": "2026-01-08 13:22:15.175085",
+  "module": "Pms System",
+  "name": "KRA-main-allow_import",
+  "property": "allow_import",
+  "property_type": "Check",
+  "row_name": null,
+  "value": "1"
  }
 ]
