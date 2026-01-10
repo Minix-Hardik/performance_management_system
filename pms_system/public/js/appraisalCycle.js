@@ -4,13 +4,9 @@ frappe.ui.form.on("Appraisal Cycle", {
     },
 
     override_create_appraisal_button(frm) {
-        const CORE_BTN = __("Create Appraisals");
         const CUSTOM_BTN = __("Create Appraisal");
 
-        // Remove secondary buttons
-        frm.remove_custom_button(CORE_BTN);
-
-        // Remove primary action
+        // Safely remove core primary action
         frm.page.clear_primary_action();
         frm.page.btn_primary?.hide();
 
