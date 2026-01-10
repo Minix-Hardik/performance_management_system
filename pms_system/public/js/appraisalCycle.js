@@ -13,11 +13,11 @@ frappe.ui.form.on("Appraisal Cycle", {
 
         if (frm.doc.docstatus !== 2) {
             if (appraisals_created) {
-                frm.add_custom_button(BTN_LABEL, () => {
+                frm.add_custom_button("Create Appraisal", () => {
                     frm.trigger("my_custom_create_appraisals");
                 });
             } else {
-                frm.page.set_primary_action(BTN_LABEL, () => {
+                frm.page.set_primary_action("Create Appraisal", () => {
                     frm.trigger("my_custom_create_appraisals");
                 });
             }
