@@ -1,28 +1,39 @@
 frappe.ui.form.on("Appraisal Cycle", {
     refresh(frm) {
-        // run standard refresh first
-        this._super && this._super(frm);
-
-        // override the button after standard buttons are created
         frm.trigger("override_create_appraisal_button");
     },
 
     override_create_appraisal_button(frm) {
-        frm.remove_custom_button("Create Appraisals");
+        const BTN_LABEL = __("Create Appraisals");
+
+        frm.remove_custom_button(BTN_LABEL);
         frm.page.clear_primary_action();
 
-        let appraisals_created = frm.doc.__onload?.appraisals_created;
-        if (frm.doc.status !== "Completed") {
+        const appraisals_created = !!frm.doc.__onload?.appraisals_created;
+
+        if (frm.doc.docstatus !== 2) {
             if (appraisals_created) {
-                frm.add_custom_button(__("Create Appraisals"), () => {
+                frm.add_custom_button(BTN_LABEL, () => {
                     frm.trigger("my_custom_create_appraisals");
                 });
             } else {
-                frm.page.set_primary_action(__("Create Appraisals"), () => {
+                frm.page.set_primary_action(BTN_LABEL, () => {
                     frm.trigger("my_custom_create_appraisals");
                 });
             }
         }
+    },
+
+    my_custom_create_appraisals(frm) {
+        frappe.call({
+            method: "pms_system.api.create_appraisal_list.create_appraisal_list",
+            args: { doc_name: frm.doc.name },
+            freeze: true,
+            freeze_message: __("Running Custom Appraisal Creation"),
+            callback() {
+                frm.reload_doc();
+            }
+        });
     },
     custom_get_employee(frm) {
         frappe.call({
@@ -55,16 +66,4 @@ frappe.ui.form.on("Appraisal Cycle", {
             },
         });
     },
-
-    my_custom_create_appraisals(frm) {
-        frappe.call({
-            method: "pms_system.api.create_appraisal_list.create_appraisal_list",
-            args: { doc_name: frm.doc.name },
-            freeze: true,
-            freeze_message: __("Running Custom Appraisal Creation"),
-            callback() {
-                frm.reload_doc();
-            }
-        });
-    }
 })
