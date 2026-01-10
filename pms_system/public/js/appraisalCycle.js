@@ -4,23 +4,20 @@ frappe.ui.form.on("Appraisal Cycle", {
     },
 
     override_create_appraisal_button(frm) {
-        const BTN_LABEL = __("Create Appraisals");
+        const CORE_BTN = __("Create Appraisals");
+        const CUSTOM_BTN = __("Create Appraisal");
 
-        frm.remove_custom_button(BTN_LABEL);
+        // Remove secondary buttons
+        frm.remove_custom_button(CORE_BTN);
+
+        // Remove primary action
         frm.page.clear_primary_action();
-
-        const appraisals_created = !!frm.doc.__onload?.appraisals_created;
+        frm.page.btn_primary?.hide();
 
         if (frm.doc.docstatus !== 2) {
-            if (appraisals_created) {
-                frm.add_custom_button("Create Appraisal", () => {
-                    frm.trigger("my_custom_create_appraisals");
-                });
-            } else {
-                frm.page.set_primary_action("Create Appraisal", () => {
-                    frm.trigger("my_custom_create_appraisals");
-                });
-            }
+            frm.add_custom_button(CUSTOM_BTN, () => {
+                frm.trigger("my_custom_create_appraisals");
+            });
         }
     },
 
@@ -35,6 +32,7 @@ frappe.ui.form.on("Appraisal Cycle", {
             }
         });
     },
+
     custom_get_employee(frm) {
         frappe.call({
             method: "pms_system.api.get_employees_list.get_employees_list",
