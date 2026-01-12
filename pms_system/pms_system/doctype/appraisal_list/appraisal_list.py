@@ -80,7 +80,8 @@ class AppraisalList(Document):
 
         try:
             employee_kra = frappe.get_doc("Employee KRA Tag", self.employee)
-        except frappe.DoesNotExistError:
+        except Exception:
+            # If KRA Tag doesn't exist or any other error, skip KRA update
             return
 
         existing_kra = {row.kra for row in self.kra}

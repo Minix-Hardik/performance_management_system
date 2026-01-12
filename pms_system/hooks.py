@@ -17,7 +17,7 @@ fixtures = [
     {
         "doctype": "Property Setter",
         "filters": [
-            ["name", "in", ["Goal-section_break_cycle-hidden","Appraisee-appraisal_template-hidden","KRA-main-allow_import"]]
+            ["name", "in", ["Goal-section_break_cycle-hidden","Appraisee-appraisal_template-hidden","KRA-main-allow_import","Appraisee-employee-ignore_user_permissions"]]
         ]
     }
 ]

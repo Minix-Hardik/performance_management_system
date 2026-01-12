@@ -127,6 +127,7 @@
    "description": "Average of Goal Score, Feedback Score, and Self Appraisal Score (out of 10)",
    "fieldname": "final_score",
    "fieldtype": "Float",
+   "hidden": 1,
    "label": "Final Score",
    "read_only": 1
   },
@@ -170,6 +171,7 @@
   {
    "fieldname": "hidden_tab",
    "fieldtype": "Tab Break",
+   "hidden": 1,
    "label": "Hidden"
   },
   {
@@ -528,7 +530,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-12-29 10:28:20.151745",
+ "modified": "2026-01-12 11:10:11.753607",
  "modified_by": "Administrator",
  "module": "Pms System",
  "name": "Appraisal List",

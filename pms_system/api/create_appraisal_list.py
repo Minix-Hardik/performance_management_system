@@ -87,6 +87,13 @@ def create_appraisal_list(doc_name):
                 if len(manager) == 2:
                     data["reports_to_second"] = manager[1]
                 
+                # Check if already exists to avoid duplicate error
+                if frappe.db.exists("Appraisal List", {
+                    "employee": d.employee,
+                    "appraisal_cycle": doc.name
+                }):
+                    continue
+
                 appraisal = frappe.get_doc(data)
                 appraisal.insert(ignore_permissions=True)
                 created_appraisals.append(appraisal.name)

@@ -6,9 +6,10 @@ frappe.ui.form.on("Appraisal Cycle", {
     override_create_appraisal_button(frm) {
         const CUSTOM_BTN = __("Create Appraisal");
 
-        // Safely remove core primary action
-        frm.page.clear_primary_action();
-        frm.page.btn_primary?.hide();
+        // Hide the specific unwanted 'Create Appraisals' button (keeping Save visible)
+        setTimeout(() => {
+            frm.page.wrapper.find('button[data-label="Create%20Appraisals"]').hide();
+        }, 500);
 
         if (frm.doc.docstatus !== 2) {
             frm.add_custom_button(CUSTOM_BTN, () => {
@@ -18,6 +19,13 @@ frappe.ui.form.on("Appraisal Cycle", {
     },
 
     my_custom_create_appraisals(frm) {
+        if (frm.is_dirty()) {
+            frm.save(null, () => {
+                frm.trigger("my_custom_create_appraisals");
+            });
+            return;
+        }
+
         frappe.call({
             method: "pms_system.api.create_appraisal_list.create_appraisal_list",
             args: { doc_name: frm.doc.name },
