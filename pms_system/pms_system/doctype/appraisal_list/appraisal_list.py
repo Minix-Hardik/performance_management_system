@@ -20,7 +20,9 @@ class AppraisalList(Document):
 
     def validate(self):
         self.check_duplicate_entry()
-        self.update_kra_rows()
+        # Skip update_kra_rows if being saved from Employee KRA Tag sync
+        if not getattr(self.flags, 'skip_kra_sync', False):
+            self.update_kra_rows()
 
     def after_insert(self):
         self.update_competency_rows()
