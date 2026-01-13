@@ -1,6 +1,7 @@
 {
  "actions": [],
  "allow_rename": 1,
+ "autoname": "format:{appraisal_cycle}-{employee}",
  "creation": "2025-11-21 16:03:41.214316",
  "doctype": "DocType",
  "engine": "InnoDB",
@@ -530,10 +531,11 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-01-12 11:10:11.753607",
+ "modified": "2026-01-13 15:49:01.823255",
  "modified_by": "Administrator",
  "module": "Pms System",
  "name": "Appraisal List",
+ "naming_rule": "Expression",
  "owner": "Administrator",
  "permissions": [
   {
