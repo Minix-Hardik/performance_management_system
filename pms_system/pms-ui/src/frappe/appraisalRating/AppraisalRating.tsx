@@ -420,8 +420,7 @@ export const AppraisalRating = () => {
     const isAuditUser = isHR || isAdmin;
     const employeeCanEdit =
         isEmployee &&
-        workflowStatus === "Self Appraisal" &&
-        !isAuditUser;
+        workflowStatus === "Self Appraisal";
     const managerCanEdit = isManager && workflowStatus === "Manager Appraisal";  // HR/Admin cannot edit
     const secondManagerCanEdit = isSecondManager && workflowStatus === "Second Manager Review";
     const showManagerData = isManager || isSecondManager || isAuditUser;
