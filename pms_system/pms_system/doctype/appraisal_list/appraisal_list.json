@@ -1,558 +1,559 @@
 {
- "actions": [],
- "allow_rename": 1,
- "autoname": "format:{appraisal_cycle}-{employee}",
- "creation": "2025-11-21 16:03:41.214316",
- "doctype": "DocType",
- "engine": "InnoDB",
- "field_order": [
-  "appraisal_cycle",
-  "employee",
-  "employee_name",
-  "department",
-  "designation",
-  "date_of_joining",
-  "column_break_tlcp",
-  "start_date",
-  "end_date",
-  "reports_to",
-  "reports_to_name",
-  "reports_to_second",
-  "reports_to_second_name",
-  "section_break_gdem",
-  "final_score",
-  "self_appraisal_tab",
-  "appraisal",
-  "final_report_tab",
-  "final_report",
-  "hidden_tab",
-  "kra_section",
-  "kra",
-  "kra_vs_goal",
-  "kra_rating",
-  "kra_rating_mandatory",
-  "kra_comment",
-  "kra_comment_mandatory",
-  "goal_vs_task",
-  "competency_section_section",
-  "competency",
-  "competency_rating",
-  "competency_rating_mandatory",
-  "competency_comment",
-  "competency_comment_mandatory",
-  "section_break_expy",
-  "answer",
-  "question",
-  "question_answer_mandatory",
-  "manager_question_report_mandatory",
-  "appraisal_feedback_question",
-  "section_break_efaz",
-  "manager_kra_rating",
-  "manager_kra_rating_mandatory",
-  "manager_kra_comment",
-  "manager_kra_comment_mandatory",
-  "section_break_dywm",
-  "manager_competency_rating",
-  "manager_competency_rating_mandatory",
-  "manger_competency_comment",
-  "manager_competency_comment_mandatory",
-  "section_break_xjna",
-  "self_appraisal_reminder_send",
-  "manager_review_reminder_sent",
-  "employee_user_id",
-  "reports_to_user_id",
-  "reports_to_second_user",
-  "kra_percentage",
-  "competency_percentage",
-  "employee_score",
-  "as_employee_what_he_deserve",
-  "remarks",
-  "manager_rating",
-  "manager_final_comment",
-  "second_manager_rating",
-  "second_manager_comment",
-  "manager_updated_designation",
-  "manager_updated_department",
-  "as_manager_increment_percentage",
-  "second_manager_updated_designation",
-  "second_manager_updated_department",
-  "as_second_manager_increment_percentage_copy",
-  "is_first_manager_promotion",
-  "is_second_manager_promotion"
- ],
- "fields": [
-  {
-   "fieldname": "employee",
-   "fieldtype": "Link",
-   "label": "Employee",
-   "options": "Employee",
-   "reqd": 1
-  },
-  {
-   "fetch_from": "employee.employee_name",
-   "fieldname": "employee_name",
-   "fieldtype": "Data",
-   "label": "Employee Name",
-   "read_only": 1
-  },
-  {
-   "fieldname": "column_break_tlcp",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "appraisal_cycle",
-   "fieldtype": "Link",
-   "label": "Appraisal Cycle",
-   "options": "Appraisal Cycle",
-   "reqd": 1
-  },
-  {
-   "fetch_from": "employee.department",
-   "fieldname": "department",
-   "fieldtype": "Data",
-   "label": "Department",
-   "read_only": 1
-  },
-  {
-   "fetch_from": "employee.designation",
-   "fieldname": "designation",
-   "fieldtype": "Data",
-   "label": "Designation",
-   "read_only": 1
-  },
-  {
-   "fieldname": "section_break_gdem",
-   "fieldtype": "Section Break"
-  },
-  {
-   "description": "Average of Goal Score, Feedback Score, and Self Appraisal Score (out of 10)",
-   "fieldname": "final_score",
-   "fieldtype": "Float",
-   "hidden": 1,
-   "label": "Final Score",
-   "read_only": 1
-  },
-  {
-   "fieldname": "start_date",
-   "fieldtype": "Date",
-   "in_list_view": 1,
-   "label": "Start Date",
-   "reqd": 1
-  },
-  {
-   "fieldname": "end_date",
-   "fieldtype": "Date",
-   "in_list_view": 1,
-   "label": "End Date",
-   "reqd": 1
-  },
-  {
-   "fieldname": "self_appraisal_tab",
-   "fieldtype": "Tab Break",
-   "label": "Appraisal"
-  },
-  {
-   "fieldname": "kra",
-   "fieldtype": "Table",
-   "label": "KRA ",
-   "options": "KRA Vs Goal"
-  },
-  {
-   "fieldname": "competency",
-   "fieldtype": "Table",
-   "label": "Competency",
-   "options": "Competency Calculation"
-  },
-  {
-   "fieldname": "answer",
-   "fieldtype": "Table",
-   "label": "Questions",
-   "options": "Question Child Table"
-  },
-  {
-   "fieldname": "hidden_tab",
-   "fieldtype": "Tab Break",
-   "hidden": 1,
-   "label": "Hidden"
-  },
-  {
-   "fieldname": "kra_section",
-   "fieldtype": "Section Break",
-   "label": "KRA Section"
-  },
-  {
-   "default": "0",
-   "fetch_from": "appraisal_cycle.custom_kra_ratings",
-   "fieldname": "kra_rating",
-   "fieldtype": "Check",
-   "label": "KRA Rating"
-  },
-  {
-   "default": "0",
-   "fetch_from": "appraisal_cycle.custom_kra_mandatory",
-   "fieldname": "kra_rating_mandatory",
-   "fieldtype": "Check",
-   "label": "KRA Rating Mandatory"
-  },
-  {
-   "default": "0",
-   "fetch_from": "appraisal_cycle.custom_kra_comment",
-   "fieldname": "kra_comment",
-   "fieldtype": "Check",
-   "label": "KRA Comment"
-  },
-  {
-   "default": "0",
-   "fetch_from": "appraisal_cycle.custom_kra_comment_mandtory",
-   "fieldname": "kra_comment_mandatory",
-   "fieldtype": "Check",
-   "label": "KRA Comment Mandatory"
-  },
-  {
-   "fieldname": "competency_section_section",
-   "fieldtype": "Section Break",
-   "label": "Competency Section"
-  },
-  {
-   "default": "0",
-   "fetch_from": "appraisal_cycle.custom_competency_ratings",
-   "fieldname": "competency_rating",
-   "fieldtype": "Check",
-   "label": "Competency Rating"
-  },
-  {
-   "default": "0",
-   "fetch_from": "appraisal_cycle.custom_competency_mandatory",
-   "fieldname": "competency_rating_mandatory",
-   "fieldtype": "Check",
-   "label": "Competency Rating Mandatory"
-  },
-  {
-   "default": "0",
-   "fetch_from": "appraisal_cycle.custom_competency_comment",
-   "fieldname": "competency_comment",
-   "fieldtype": "Check",
-   "label": "Competency Comment"
-  },
-  {
-   "default": "0",
-   "fetch_from": "appraisal_cycle.custom_competency_comment_mandtory",
-   "fieldname": "competency_comment_mandatory",
-   "fieldtype": "Check",
-   "label": "Competency Comment Mandatory"
-  },
-  {
-   "fieldname": "kra_vs_goal",
-   "fieldtype": "Table",
-   "label": "KRA VS Goal",
-   "options": "Kra VS Goal Score Collect"
-  },
-  {
-   "fieldname": "section_break_efaz",
-   "fieldtype": "Section Break"
-  },
-  {
-   "default": "0",
-   "fetch_from": "appraisal_cycle.custom_manager_kra_rating",
-   "fieldname": "manager_kra_rating",
-   "fieldtype": "Check",
-   "label": "Manager KRA Rating"
-  },
-  {
-   "default": "0",
-   "fetch_from": "appraisal_cycle.custom_kra_rating_mandatory",
-   "fieldname": "manager_kra_rating_mandatory",
-   "fieldtype": "Check",
-   "label": "Manager KRA Rating Mandatory"
-  },
-  {
-   "default": "0",
-   "fetch_from": "appraisal_cycle.custom_manager_kra_comment",
-   "fieldname": "manager_kra_comment",
-   "fieldtype": "Check",
-   "label": "Manager KRA Comment"
-  },
-  {
-   "default": "0",
-   "fetch_from": "appraisal_cycle.custom_manager_kra_comment_mandatory",
-   "fieldname": "manager_kra_comment_mandatory",
-   "fieldtype": "Check",
-   "label": "Manager KRA Comment Mandatory"
-  },
-  {
-   "fieldname": "section_break_dywm",
-   "fieldtype": "Section Break"
-  },
-  {
-   "default": "0",
-   "fetch_from": "appraisal_cycle.custom_manager_competency_rating",
-   "fieldname": "manager_competency_rating",
-   "fieldtype": "Check",
-   "label": "Manager Competency Rating"
-  },
-  {
-   "default": "0",
-   "fetch_from": "appraisal_cycle.custom_manager_competency_rating_mandatory",
-   "fieldname": "manager_competency_rating_mandatory",
-   "fieldtype": "Check",
-   "label": "Manager Competency Rating Mandatory"
-  },
-  {
-   "default": "0",
-   "fetch_from": "appraisal_cycle.custom_manager_competency_comment",
-   "fieldname": "manger_competency_comment",
-   "fieldtype": "Check",
-   "label": "Manger Competency Comment"
-  },
-  {
-   "default": "0",
-   "fetch_from": "appraisal_cycle.custom_manager_competency_comment_mandatory",
-   "fieldname": "manager_competency_comment_mandatory",
-   "fieldtype": "Check",
-   "label": "Manager Competency Comment Mandatory"
-  },
-  {
-   "fieldname": "section_break_expy",
-   "fieldtype": "Section Break"
-  },
-  {
-   "default": "0",
-   "fetch_from": "appraisal_cycle.custom_question",
-   "fieldname": "question",
-   "fieldtype": "Check",
-   "label": "Question"
-  },
-  {
-   "default": "0",
-   "fetch_from": "appraisal_cycle.custom_question_answer_mandatory",
-   "fieldname": "question_answer_mandatory",
-   "fieldtype": "Check",
-   "label": "Question Answer Mandatory"
-  },
-  {
-   "fieldname": "reports_to",
-   "fieldtype": "Link",
-   "ignore_user_permissions": 1,
-   "label": "Reports To",
-   "options": "Employee",
-   "reqd": 1
-  },
-  {
-   "fieldname": "section_break_xjna",
-   "fieldtype": "Section Break"
-  },
-  {
-   "default": "0",
-   "fieldname": "self_appraisal_reminder_send",
-   "fieldtype": "Check",
-   "label": "Self Appraisal Reminder Send"
-  },
-  {
-   "default": "0",
-   "fieldname": "manager_review_reminder_sent",
-   "fieldtype": "Check",
-   "label": "Manager Review Reminder sent"
-  },
-  {
-   "fetch_from": "employee.user_id",
-   "fieldname": "employee_user_id",
-   "fieldtype": "Data",
-   "label": "Employee User Id"
-  },
-  {
-   "fetch_from": "reports_to.user_id",
-   "fieldname": "reports_to_user_id",
-   "fieldtype": "Link",
-   "label": "Reports to user Id",
-   "options": "User"
-  },
-  {
-   "fieldname": "appraisal",
-   "fieldtype": "HTML",
-   "label": "Appraisal",
-   "options": "\n"
-  },
-  {
-   "default": "0",
-   "fetch_from": "appraisal_cycle.custom_question_comment_mandatory",
-   "fieldname": "manager_question_report_mandatory",
-   "fieldtype": "Check",
-   "label": "Manager Question Report Mandatory"
-  },
-  {
-   "fetch_from": "appraisal_cycle.custom_kra_weight",
-   "fieldname": "kra_percentage",
-   "fieldtype": "Percent",
-   "label": "Kra Percentage"
-  },
-  {
-   "fetch_from": "appraisal_cycle.custom_competency_weight",
-   "fieldname": "competency_percentage",
-   "fieldtype": "Percent",
-   "label": "Competency Percentage"
-  },
-  {
-   "fieldname": "employee_score",
-   "fieldtype": "Float",
-   "label": "Employee Score"
-  },
-  {
-   "fieldname": "reports_to_second",
-   "fieldtype": "Link",
-   "ignore_user_permissions": 1,
-   "label": "Reports To Second",
-   "options": "Employee",
-   "read_only": 1
-  },
-  {
-   "fetch_from": "reports_to_second.user_id",
-   "fieldname": "reports_to_second_user",
-   "fieldtype": "Link",
-   "label": "Reports To Second User",
-   "options": "User"
-  },
-  {
-   "fieldname": "goal_vs_task",
-   "fieldtype": "Table",
-   "label": "Goal Vs Task",
-   "options": "Goal Task Table"
-  },
-  {
-   "fieldname": "as_employee_what_he_deserve",
-   "fieldtype": "Float",
-   "label": "As Employee What he Deserve"
-  },
-  {
-   "fieldname": "remarks",
-   "fieldtype": "Small Text",
-   "label": "Remarks"
-  },
-  {
-   "fieldname": "appraisal_feedback_question",
-   "fieldtype": "Table",
-   "label": "Appraisal Feedback Question",
-   "options": "Appraisal Feedback Question Child Table"
-  },
-  {
-   "depends_on": "eval:doc.workflow_state == \"Approved\"",
-   "fieldname": "final_report_tab",
-   "fieldtype": "Tab Break",
-   "label": "Final Report"
-  },
-  {
-   "fieldname": "final_report",
-   "fieldtype": "HTML",
-   "label": "Final Report"
-  },
-  {
-   "fetch_from": "employee.date_of_joining",
-   "fieldname": "date_of_joining",
-   "fieldtype": "Date",
-   "label": "Date Of Joining",
-   "read_only": 1
-  },
-  {
-   "fetch_from": "reports_to.employee_name",
-   "fieldname": "reports_to_name",
-   "fieldtype": "Data",
-   "label": "Reports To Name",
-   "read_only": 1
-  },
-  {
-   "fetch_from": "reports_to_second.employee_name",
-   "fieldname": "reports_to_second_name",
-   "fieldtype": "Data",
-   "label": "Reports To Second Name",
-   "read_only": 1
-  },
-  {
-   "fieldname": "manager_rating",
-   "fieldtype": "Float",
-   "label": "Manager Rating"
-  },
-  {
-   "fieldname": "second_manager_rating",
-   "fieldtype": "Float",
-   "label": "Second manager Rating"
-  },
-  {
-   "fieldname": "manager_final_comment",
-   "fieldtype": "Small Text",
-   "label": "Manager Final Comment"
-  },
-  {
-   "fieldname": "second_manager_comment",
-   "fieldtype": "Small Text",
-   "label": "Second Manager Comment "
-  },
-  {
-   "fieldname": "manager_updated_designation",
-   "fieldtype": "Data",
-   "label": "Manager_updated_designation"
-  },
-  {
-   "fieldname": "manager_updated_department",
-   "fieldtype": "Data",
-   "label": "Manager_updated_department"
-  },
-  {
-   "fieldname": "as_manager_increment_percentage",
-   "fieldtype": "Float",
-   "label": "as_Manager_Increment_percentage"
-  },
-  {
-   "fieldname": "second_manager_updated_designation",
-   "fieldtype": "Data",
-   "label": "Second_Manager_updated_designation"
-  },
-  {
-   "fieldname": "second_manager_updated_department",
-   "fieldtype": "Data",
-   "label": "Second_Manager_updated_department"
-  },
-  {
-   "fieldname": "as_second_manager_increment_percentage_copy",
-   "fieldtype": "Float",
-   "label": "as_Second_Manager_Increment_percentage Copy"
-  },
-  {
-   "default": "0",
-   "fieldname": "is_first_manager_promotion",
-   "fieldtype": "Check",
-   "label": "Is First Manager Promotion"
-  },
-  {
-   "default": "0",
-   "fieldname": "is_second_manager_promotion",
-   "fieldtype": "Check",
-   "label": "Is Second Manager Promotion"
-  }
- ],
- "grid_page_length": 50,
- "index_web_pages_for_search": 1,
- "links": [],
- "modified": "2026-01-13 15:49:01.823255",
- "modified_by": "Administrator",
- "module": "Pms System",
- "name": "Appraisal List",
- "naming_rule": "Expression",
- "owner": "Administrator",
- "permissions": [
-  {
-   "create": 1,
-   "delete": 1,
-   "email": 1,
-   "export": 1,
-   "print": 1,
-   "read": 1,
-   "report": 1,
-   "role": "System Manager",
-   "share": 1,
-   "write": 1
-  }
- ],
- "row_format": "Dynamic",
- "sort_field": "modified",
- "sort_order": "DESC",
- "states": []
+    "actions": [],
+    "allow_rename": 1,
+    "autoname": "format:{appraisal_cycle}-{employee}",
+    "creation": "2025-11-21 16:03:41.214316",
+    "default_print_format": "PMS Form",
+    "doctype": "DocType",
+    "engine": "InnoDB",
+    "field_order": [
+        "appraisal_cycle",
+        "employee",
+        "employee_name",
+        "department",
+        "designation",
+        "date_of_joining",
+        "column_break_tlcp",
+        "start_date",
+        "end_date",
+        "reports_to",
+        "reports_to_name",
+        "reports_to_second",
+        "reports_to_second_name",
+        "section_break_gdem",
+        "final_score",
+        "self_appraisal_tab",
+        "appraisal",
+        "final_report_tab",
+        "final_report",
+        "hidden_tab",
+        "kra_section",
+        "kra",
+        "kra_vs_goal",
+        "kra_rating",
+        "kra_rating_mandatory",
+        "kra_comment",
+        "kra_comment_mandatory",
+        "goal_vs_task",
+        "competency_section_section",
+        "competency",
+        "competency_rating",
+        "competency_rating_mandatory",
+        "competency_comment",
+        "competency_comment_mandatory",
+        "section_break_expy",
+        "answer",
+        "question",
+        "question_answer_mandatory",
+        "manager_question_report_mandatory",
+        "appraisal_feedback_question",
+        "section_break_efaz",
+        "manager_kra_rating",
+        "manager_kra_rating_mandatory",
+        "manager_kra_comment",
+        "manager_kra_comment_mandatory",
+        "section_break_dywm",
+        "manager_competency_rating",
+        "manager_competency_rating_mandatory",
+        "manger_competency_comment",
+        "manager_competency_comment_mandatory",
+        "section_break_xjna",
+        "self_appraisal_reminder_send",
+        "manager_review_reminder_sent",
+        "employee_user_id",
+        "reports_to_user_id",
+        "reports_to_second_user",
+        "kra_percentage",
+        "competency_percentage",
+        "employee_score",
+        "as_employee_what_he_deserve",
+        "remarks",
+        "manager_rating",
+        "manager_final_comment",
+        "second_manager_rating",
+        "second_manager_comment",
+        "manager_updated_designation",
+        "manager_updated_department",
+        "as_manager_increment_percentage",
+        "second_manager_updated_designation",
+        "second_manager_updated_department",
+        "as_second_manager_increment_percentage_copy",
+        "is_first_manager_promotion",
+        "is_second_manager_promotion"
+    ],
+    "fields": [
+        {
+            "fieldname": "employee",
+            "fieldtype": "Link",
+            "label": "Employee",
+            "options": "Employee",
+            "reqd": 1
+        },
+        {
+            "fetch_from": "employee.employee_name",
+            "fieldname": "employee_name",
+            "fieldtype": "Data",
+            "label": "Employee Name",
+            "read_only": 1
+        },
+        {
+            "fieldname": "column_break_tlcp",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "appraisal_cycle",
+            "fieldtype": "Link",
+            "label": "Appraisal Cycle",
+            "options": "Appraisal Cycle",
+            "reqd": 1
+        },
+        {
+            "fetch_from": "employee.department",
+            "fieldname": "department",
+            "fieldtype": "Data",
+            "label": "Department",
+            "read_only": 1
+        },
+        {
+            "fetch_from": "employee.designation",
+            "fieldname": "designation",
+            "fieldtype": "Data",
+            "label": "Designation",
+            "read_only": 1
+        },
+        {
+            "fieldname": "section_break_gdem",
+            "fieldtype": "Section Break"
+        },
+        {
+            "description": "Average of Goal Score, Feedback Score, and Self Appraisal Score (out of 10)",
+            "fieldname": "final_score",
+            "fieldtype": "Float",
+            "hidden": 1,
+            "label": "Final Score",
+            "read_only": 1
+        },
+        {
+            "fieldname": "start_date",
+            "fieldtype": "Date",
+            "in_list_view": 1,
+            "label": "Start Date",
+            "reqd": 1
+        },
+        {
+            "fieldname": "end_date",
+            "fieldtype": "Date",
+            "in_list_view": 1,
+            "label": "End Date",
+            "reqd": 1
+        },
+        {
+            "fieldname": "self_appraisal_tab",
+            "fieldtype": "Tab Break",
+            "label": "Appraisal"
+        },
+        {
+            "fieldname": "kra",
+            "fieldtype": "Table",
+            "label": "KRA ",
+            "options": "KRA Vs Goal"
+        },
+        {
+            "fieldname": "competency",
+            "fieldtype": "Table",
+            "label": "Competency",
+            "options": "Competency Calculation"
+        },
+        {
+            "fieldname": "answer",
+            "fieldtype": "Table",
+            "label": "Questions",
+            "options": "Question Child Table"
+        },
+        {
+            "fieldname": "hidden_tab",
+            "fieldtype": "Tab Break",
+            "hidden": 1,
+            "label": "Hidden"
+        },
+        {
+            "fieldname": "kra_section",
+            "fieldtype": "Section Break",
+            "label": "KRA Section"
+        },
+        {
+            "default": "0",
+            "fetch_from": "appraisal_cycle.custom_kra_ratings",
+            "fieldname": "kra_rating",
+            "fieldtype": "Check",
+            "label": "KRA Rating"
+        },
+        {
+            "default": "0",
+            "fetch_from": "appraisal_cycle.custom_kra_mandatory",
+            "fieldname": "kra_rating_mandatory",
+            "fieldtype": "Check",
+            "label": "KRA Rating Mandatory"
+        },
+        {
+            "default": "0",
+            "fetch_from": "appraisal_cycle.custom_kra_comment",
+            "fieldname": "kra_comment",
+            "fieldtype": "Check",
+            "label": "KRA Comment"
+        },
+        {
+            "default": "0",
+            "fetch_from": "appraisal_cycle.custom_kra_comment_mandtory",
+            "fieldname": "kra_comment_mandatory",
+            "fieldtype": "Check",
+            "label": "KRA Comment Mandatory"
+        },
+        {
+            "fieldname": "competency_section_section",
+            "fieldtype": "Section Break",
+            "label": "Competency Section"
+        },
+        {
+            "default": "0",
+            "fetch_from": "appraisal_cycle.custom_competency_ratings",
+            "fieldname": "competency_rating",
+            "fieldtype": "Check",
+            "label": "Competency Rating"
+        },
+        {
+            "default": "0",
+            "fetch_from": "appraisal_cycle.custom_competency_mandatory",
+            "fieldname": "competency_rating_mandatory",
+            "fieldtype": "Check",
+            "label": "Competency Rating Mandatory"
+        },
+        {
+            "default": "0",
+            "fetch_from": "appraisal_cycle.custom_competency_comment",
+            "fieldname": "competency_comment",
+            "fieldtype": "Check",
+            "label": "Competency Comment"
+        },
+        {
+            "default": "0",
+            "fetch_from": "appraisal_cycle.custom_competency_comment_mandtory",
+            "fieldname": "competency_comment_mandatory",
+            "fieldtype": "Check",
+            "label": "Competency Comment Mandatory"
+        },
+        {
+            "fieldname": "kra_vs_goal",
+            "fieldtype": "Table",
+            "label": "KRA VS Goal",
+            "options": "Kra VS Goal Score Collect"
+        },
+        {
+            "fieldname": "section_break_efaz",
+            "fieldtype": "Section Break"
+        },
+        {
+            "default": "0",
+            "fetch_from": "appraisal_cycle.custom_manager_kra_rating",
+            "fieldname": "manager_kra_rating",
+            "fieldtype": "Check",
+            "label": "Manager KRA Rating"
+        },
+        {
+            "default": "0",
+            "fetch_from": "appraisal_cycle.custom_kra_rating_mandatory",
+            "fieldname": "manager_kra_rating_mandatory",
+            "fieldtype": "Check",
+            "label": "Manager KRA Rating Mandatory"
+        },
+        {
+            "default": "0",
+            "fetch_from": "appraisal_cycle.custom_manager_kra_comment",
+            "fieldname": "manager_kra_comment",
+            "fieldtype": "Check",
+            "label": "Manager KRA Comment"
+        },
+        {
+            "default": "0",
+            "fetch_from": "appraisal_cycle.custom_manager_kra_comment_mandatory",
+            "fieldname": "manager_kra_comment_mandatory",
+            "fieldtype": "Check",
+            "label": "Manager KRA Comment Mandatory"
+        },
+        {
+            "fieldname": "section_break_dywm",
+            "fieldtype": "Section Break"
+        },
+        {
+            "default": "0",
+            "fetch_from": "appraisal_cycle.custom_manager_competency_rating",
+            "fieldname": "manager_competency_rating",
+            "fieldtype": "Check",
+            "label": "Manager Competency Rating"
+        },
+        {
+            "default": "0",
+            "fetch_from": "appraisal_cycle.custom_manager_competency_rating_mandatory",
+            "fieldname": "manager_competency_rating_mandatory",
+            "fieldtype": "Check",
+            "label": "Manager Competency Rating Mandatory"
+        },
+        {
+            "default": "0",
+            "fetch_from": "appraisal_cycle.custom_manager_competency_comment",
+            "fieldname": "manger_competency_comment",
+            "fieldtype": "Check",
+            "label": "Manger Competency Comment"
+        },
+        {
+            "default": "0",
+            "fetch_from": "appraisal_cycle.custom_manager_competency_comment_mandatory",
+            "fieldname": "manager_competency_comment_mandatory",
+            "fieldtype": "Check",
+            "label": "Manager Competency Comment Mandatory"
+        },
+        {
+            "fieldname": "section_break_expy",
+            "fieldtype": "Section Break"
+        },
+        {
+            "default": "0",
+            "fetch_from": "appraisal_cycle.custom_question",
+            "fieldname": "question",
+            "fieldtype": "Check",
+            "label": "Question"
+        },
+        {
+            "default": "0",
+            "fetch_from": "appraisal_cycle.custom_question_answer_mandatory",
+            "fieldname": "question_answer_mandatory",
+            "fieldtype": "Check",
+            "label": "Question Answer Mandatory"
+        },
+        {
+            "fieldname": "reports_to",
+            "fieldtype": "Link",
+            "ignore_user_permissions": 1,
+            "label": "Reports To",
+            "options": "Employee",
+            "reqd": 1
+        },
+        {
+            "fieldname": "section_break_xjna",
+            "fieldtype": "Section Break"
+        },
+        {
+            "default": "0",
+            "fieldname": "self_appraisal_reminder_send",
+            "fieldtype": "Check",
+            "label": "Self Appraisal Reminder Send"
+        },
+        {
+            "default": "0",
+            "fieldname": "manager_review_reminder_sent",
+            "fieldtype": "Check",
+            "label": "Manager Review Reminder sent"
+        },
+        {
+            "fetch_from": "employee.user_id",
+            "fieldname": "employee_user_id",
+            "fieldtype": "Data",
+            "label": "Employee User Id"
+        },
+        {
+            "fetch_from": "reports_to.user_id",
+            "fieldname": "reports_to_user_id",
+            "fieldtype": "Link",
+            "label": "Reports to user Id",
+            "options": "User"
+        },
+        {
+            "fieldname": "appraisal",
+            "fieldtype": "HTML",
+            "label": "Appraisal",
+            "options": "\n"
+        },
+        {
+            "default": "0",
+            "fetch_from": "appraisal_cycle.custom_question_comment_mandatory",
+            "fieldname": "manager_question_report_mandatory",
+            "fieldtype": "Check",
+            "label": "Manager Question Report Mandatory"
+        },
+        {
+            "fetch_from": "appraisal_cycle.custom_kra_weight",
+            "fieldname": "kra_percentage",
+            "fieldtype": "Percent",
+            "label": "Kra Percentage"
+        },
+        {
+            "fetch_from": "appraisal_cycle.custom_competency_weight",
+            "fieldname": "competency_percentage",
+            "fieldtype": "Percent",
+            "label": "Competency Percentage"
+        },
+        {
+            "fieldname": "employee_score",
+            "fieldtype": "Float",
+            "label": "Employee Score"
+        },
+        {
+            "fieldname": "reports_to_second",
+            "fieldtype": "Link",
+            "ignore_user_permissions": 1,
+            "label": "Reports To Second",
+            "options": "Employee",
+            "read_only": 1
+        },
+        {
+            "fetch_from": "reports_to_second.user_id",
+            "fieldname": "reports_to_second_user",
+            "fieldtype": "Link",
+            "label": "Reports To Second User",
+            "options": "User"
+        },
+        {
+            "fieldname": "goal_vs_task",
+            "fieldtype": "Table",
+            "label": "Goal Vs Task",
+            "options": "Goal Task Table"
+        },
+        {
+            "fieldname": "as_employee_what_he_deserve",
+            "fieldtype": "Float",
+            "label": "As Employee What he Deserve"
+        },
+        {
+            "fieldname": "remarks",
+            "fieldtype": "Small Text",
+            "label": "Remarks"
+        },
+        {
+            "fieldname": "appraisal_feedback_question",
+            "fieldtype": "Table",
+            "label": "Appraisal Feedback Question",
+            "options": "Appraisal Feedback Question Child Table"
+        },
+        {
+            "depends_on": "eval:doc.workflow_state == \"Approved\"",
+            "fieldname": "final_report_tab",
+            "fieldtype": "Tab Break",
+            "label": "Final Report"
+        },
+        {
+            "fieldname": "final_report",
+            "fieldtype": "HTML",
+            "label": "Final Report"
+        },
+        {
+            "fetch_from": "employee.date_of_joining",
+            "fieldname": "date_of_joining",
+            "fieldtype": "Date",
+            "label": "Date Of Joining",
+            "read_only": 1
+        },
+        {
+            "fetch_from": "reports_to.employee_name",
+            "fieldname": "reports_to_name",
+            "fieldtype": "Data",
+            "label": "Reports To Name",
+            "read_only": 1
+        },
+        {
+            "fetch_from": "reports_to_second.employee_name",
+            "fieldname": "reports_to_second_name",
+            "fieldtype": "Data",
+            "label": "Reports To Second Name",
+            "read_only": 1
+        },
+        {
+            "fieldname": "manager_rating",
+            "fieldtype": "Float",
+            "label": "Manager Rating"
+        },
+        {
+            "fieldname": "second_manager_rating",
+            "fieldtype": "Float",
+            "label": "Second manager Rating"
+        },
+        {
+            "fieldname": "manager_final_comment",
+            "fieldtype": "Small Text",
+            "label": "Manager Final Comment"
+        },
+        {
+            "fieldname": "second_manager_comment",
+            "fieldtype": "Small Text",
+            "label": "Second Manager Comment "
+        },
+        {
+            "fieldname": "manager_updated_designation",
+            "fieldtype": "Data",
+            "label": "Manager_updated_designation"
+        },
+        {
+            "fieldname": "manager_updated_department",
+            "fieldtype": "Data",
+            "label": "Manager_updated_department"
+        },
+        {
+            "fieldname": "as_manager_increment_percentage",
+            "fieldtype": "Float",
+            "label": "as_Manager_Increment_percentage"
+        },
+        {
+            "fieldname": "second_manager_updated_designation",
+            "fieldtype": "Data",
+            "label": "Second_Manager_updated_designation"
+        },
+        {
+            "fieldname": "second_manager_updated_department",
+            "fieldtype": "Data",
+            "label": "Second_Manager_updated_department"
+        },
+        {
+            "fieldname": "as_second_manager_increment_percentage_copy",
+            "fieldtype": "Float",
+            "label": "as_Second_Manager_Increment_percentage Copy"
+        },
+        {
+            "default": "0",
+            "fieldname": "is_first_manager_promotion",
+            "fieldtype": "Check",
+            "label": "Is First Manager Promotion"
+        },
+        {
+            "default": "0",
+            "fieldname": "is_second_manager_promotion",
+            "fieldtype": "Check",
+            "label": "Is Second Manager Promotion"
+        }
+    ],
+    "grid_page_length": 50,
+    "index_web_pages_for_search": 1,
+    "links": [],
+    "modified": "2026-01-13 15:49:01.823255",
+    "modified_by": "Administrator",
+    "module": "Pms System",
+    "name": "Appraisal List",
+    "naming_rule": "Expression",
+    "owner": "Administrator",
+    "permissions": [
+        {
+            "create": 1,
+            "delete": 1,
+            "email": 1,
+            "export": 1,
+            "print": 1,
+            "read": 1,
+            "report": 1,
+            "role": "System Manager",
+            "share": 1,
+            "write": 1
+        }
+    ],
+    "row_format": "Dynamic",
+    "sort_field": "modified",
+    "sort_order": "DESC",
+    "states": []
 }

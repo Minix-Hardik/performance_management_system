@@ -11,7 +11,7 @@ fixtures = [
     {
         "doctype": "Custom Field",
         "filters": [
-            ["dt", "in", ["KRA", "Goal","Appraisal Cycle"]]
+            ["dt", "in", ["KRA", "Goal", "Appraisal Cycle"]]
         ]
     },
     {

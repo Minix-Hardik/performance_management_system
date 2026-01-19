@@ -1,0 +1,182 @@
+{%- macro calculate_service(start_date, end_date) -%}
+{%- set years = 0 -%}
+{%- set months = 0 -%}
+{%- if start_date -%}
+{%- set end_dt = frappe.utils.get_datetime(end_date) if end_date else frappe.utils.now_datetime() -%}
+{%- set start_dt = frappe.utils.get_datetime(start_date) -%}
+{%- set diff = frappe.utils.date_diff(end_dt, start_dt) -%}
+{%- set total_days = diff | int -%}
+{%- if total_days > 0 -%}
+{%- set years = (total_days / 365) | int -%}
+{%- set months = ((total_days % 365) / 30) | int -%}
+{%- endif -%}
+{%- endif -%}
+{{ years }}Y {{ months }}M
+{%- endmacro -%}
+
+{%- set employee = frappe.get_doc("Employee", doc.employee) -%}
+
+{%- set minix_start = None -%}
+{%- set fintech_start = None -%}
+
+{%- if doc.company == "Minix Fintech Private Limited" -%}
+{%- set minix_start = employee.custom_minix_holding_join_date -%}
+{%- set fintech_start = employee.date_of_joining -%}
+{%- elif doc.company == "Minix Holdings Private Limited" -%}
+{%- set minix_start = employee.date_of_joining -%}
+{%- set fintech_start = None -%}
+{%- else -%}
+{%- set minix_start = employee.custom_minix_holding_join_date -%}
+{%- set fintech_start = employee.date_of_joining -%}
+{%- endif -%}
+
+{%- set minix_service = calculate_service(minix_start, doc.end_date) -%}
+{%- set fintech_service = calculate_service(fintech_start, doc.end_date) -%}
+
+<style>
+    .pms-container {
+        font-family: 'Inter', sans-serif;
+        color: #000;
+        background-color: #fff;
+        padding: 20px;
+        border: 1px solid #000;
+        line-height: 1.5;
+    }
+
+    .pms-table {
+        width: 100%;
+        border-collapse: collapse;
+        table-layout: fixed;
+        margin-bottom: 20px;
+    }
+
+    .pms-table td {
+        vertical-align: top;
+        padding: 5px;
+        font-size: 13px;
+    }
+
+    .spacer-row {
+        height: 20px;
+    }
+
+    .rating-box {
+        border: 2px solid #000;
+        padding: 10px;
+        min-height: 120px;
+    }
+</style>
+
+<div class="print-format-gutter pms-container">
+    <!-- Header with Logo -->
+    <div style="text-align: center; margin-bottom: 30px;">
+        <img src="{{ frappe.utils.get_url('/files/fintech%20logo.png') }}" alt="Minix Fintech"
+            style="max-height: 80px;">
+    </div>
+
+    <!-- Employee Information Grid -->
+    <table class="pms-table">
+        <tr>
+            <td style="width: 33%;">
+                <strong>Employee Code :</strong> {{ doc.employee }}
+            </td>
+            <td style="width: 33%;">
+                <strong>Department :</strong> {{ doc.department }}
+            </td>
+            <td style="width: 34%;">
+                <table style="width: 100%; border-collapse: collapse;">
+                    <tr>
+                        <td style="padding: 0; vertical-align: top;"><strong>Total no of year of Service In Minix
+                                :</strong></td>
+                        <td
+                            style="padding: 0; vertical-align: top; text-align: right; width: 60px; white-space: nowrap;">
+                            {{ minix_service }}</td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        <tr class="spacer-row"></tr>
+        <tr>
+            <td>
+                <strong>Employee Name :</strong> {{ doc.employee_name }}
+            </td>
+            <td>
+                <strong>Designation :</strong> {{ doc.designation }}
+            </td>
+            <td>
+                <table style="width: 100%; border-collapse: collapse;">
+                    <tr>
+                        <td style="padding: 0; vertical-align: top;"><strong>Total no of year of Service In Fintech
+                                :</strong></td>
+                        <td
+                            style="padding: 0; vertical-align: top; text-align: right; width: 60px; white-space: nowrap;">
+                            {{ fintech_service }}</td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+
+    <div class="spacer-row"></div>
+
+    <!-- Ratings Grid -->
+    <table class="pms-table">
+        <tr>
+            <td style="width: 33%;">
+                <strong>Self Rating :</strong> {{ "%.2f"|format(doc.employee_score or doc.final_score or 0) }}
+            </td>
+            <td style="width: 33%;">
+                <strong>Manager Rating :</strong> {{ "%.2f"|format(doc.manager_rating or 0) }}
+            </td>
+            <td style="width: 34%;">
+                <strong>Business HOD Rating :</strong> {{ "%.2f"|format(doc.second_manager_rating or 0) }}
+            </td>
+        </tr>
+    </table>
+
+    <!-- Comments Section -->
+    <table class="pms-table" style="margin-bottom: 40px;">
+        <tr>
+            <td style="width: 33%;"></td>
+            <td style="width: 33%;">
+                <strong>Comment :</strong>
+                <div style="margin-top: 5px;">
+                    {{ doc.manager_final_comment or '' }}
+                </div>
+            </td>
+            <td style="width: 34%;">
+                <strong>Comment :</strong>
+                <div style="margin-top: 5px;">
+                    {{ doc.second_manager_comment or '' }}
+                </div>
+            </td>
+        </tr>
+    </table>
+
+    <hr style="border-top: 1px dashed #000; margin-bottom: 30px;">
+
+    <!-- Bottom Section -->
+    <table class="pms-table">
+        <tr>
+            <td style="width: 40%;">
+                <div style="margin-bottom: 15px;"><strong>Current Salary (p.a)</strong></div>
+
+                <div style="margin-bottom: 15px;">
+                    <strong>Fixed :</strong>
+                </div>
+
+                <div>
+                    <strong>Variable :</strong>
+                </div>
+            </td>
+            <td style="width: 60%;">
+                <div class="rating-box">
+                    <strong>* Management Rating & Review</strong>
+                    <div style="margin-top: 10px;">
+                        {{ doc.final_report or '' }}
+                    </div>
+                </div>
+            </td>
+        </tr>
+    </table>
+</div>
