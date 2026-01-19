@@ -16,6 +16,16 @@
 
 {%- set employee = frappe.get_doc("Employee", doc.employee) -%}
 
+{# Fetch latest 2 Salary Structure Assignment records to get Current and Previous CTC #}
+{%- set ssa_list = frappe.get_all("Salary Structure Assignment",
+filters={"employee": doc.employee, "docstatus": 1},
+fields=["base", "variable"],
+order_by="from_date desc",
+limit=2) -%}
+
+{%- set current_ssa = ssa_list[0] if ssa_list|length > 0 else None -%}
+{%- set previous_ssa = ssa_list[1] if ssa_list|length > 1 else None -%}
+
 {%- set minix_start = None -%}
 {%- set fintech_start = None -%}
 
@@ -33,26 +43,30 @@
 {%- set minix_service = calculate_service(minix_start, doc.end_date) -%}
 {%- set fintech_service = calculate_service(fintech_start, doc.end_date) -%}
 
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
 <style>
     .pms-container {
-        font-family: 'Inter', sans-serif;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         color: #000;
         background-color: #fff;
-        padding: 20px;
-        border: 1px solid #000;
-        line-height: 1.5;
+        padding: 40px;
+        border: 2px solid #000;
+        line-height: 1.6;
     }
 
     .pms-table {
         width: 100%;
         border-collapse: collapse;
         table-layout: fixed;
-        margin-bottom: 20px;
+        margin-bottom: 25px;
     }
 
     .pms-table td {
         vertical-align: top;
-        padding: 5px;
+        padding: 8px 5px;
         font-size: 13px;
     }
 
@@ -61,18 +75,35 @@
     }
 
     .rating-box {
-        border: 2px solid #000;
+        border: 2.5px solid #000;
         padding: 10px;
         min-height: 120px;
+    }
+
+    h2 {
+        font-family: 'Inter', sans-serif;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+    }
+
+    strong {
+        font-weight: 600;
     }
 </style>
 
 <div class="print-format-gutter pms-container">
-    <!-- Header with Logo -->
-    <div style="text-align: center; margin-bottom: 30px;">
-        <img src="{{ frappe.utils.get_url('/files/fintech%20logo.png') }}" alt="Minix Fintech"
-            style="max-height: 80px;">
-    </div>
+    <!-- Header -->
+    <table class="pms-table" style="margin-bottom: 60px;">
+        <tr>
+            <td style="width: 50%; vertical-align: middle;">
+                <h2 style="margin: 0; font-size: 28px; font-weight: 700;">APPRAISAL</h2>
+            </td>
+            <td style="width: 50%; text-align: right; vertical-align: middle;">
+                <img src="{{ frappe.utils.get_url('/files/fintech%20logo.png') }}" alt="Minix Fintech"
+                    style="max-height: 85px;">
+            </td>
+        </tr>
+    </table>
 
     <!-- Employee Information Grid -->
     <table class="pms-table">
@@ -86,7 +117,7 @@
             <td style="width: 34%;">
                 <table style="width: 100%; border-collapse: collapse;">
                     <tr>
-                        <td style="padding: 0; vertical-align: top;"><strong>Total no of year of Service In Minix
+                        <td style="padding: 0; vertical-align: top;"><strong>Total no of year of Service in Minix
                                 :</strong></td>
                         <td
                             style="padding: 0; vertical-align: top; text-align: right; width: 60px; white-space: nowrap;">
@@ -95,7 +126,6 @@
                 </table>
             </td>
         </tr>
-        <tr class="spacer-row"></tr>
         <tr>
             <td>
                 <strong>Employee Name :</strong> {{ doc.employee_name }}
@@ -106,7 +136,7 @@
             <td>
                 <table style="width: 100%; border-collapse: collapse;">
                     <tr>
-                        <td style="padding: 0; vertical-align: top;"><strong>Total no of year of Service In Fintech
+                        <td style="padding: 0; vertical-align: top;"><strong>Total no of year of Service in Fintech
                                 :</strong></td>
                         <td
                             style="padding: 0; vertical-align: top; text-align: right; width: 60px; white-space: nowrap;">
@@ -115,12 +145,19 @@
                 </table>
             </td>
         </tr>
+        <tr>
+            <td></td>
+            <td>
+                <strong>Grade :</strong> {{ employee.grade or '' }}
+            </td>
+            <td></td>
+        </tr>
     </table>
 
-    <div class="spacer-row"></div>
+    <div style="height: 50px;"></div>
 
     <!-- Ratings Grid -->
-    <table class="pms-table">
+    <table class="pms-table" style="margin-bottom: 0;">
         <tr>
             <td style="width: 33%;">
                 <strong>Self Rating :</strong> {{ "%.2f"|format(doc.employee_score or doc.final_score or 0) }}
@@ -132,47 +169,56 @@
                 <strong>Business HOD Rating :</strong> {{ "%.2f"|format(doc.second_manager_rating or 0) }}
             </td>
         </tr>
-    </table>
-
-    <!-- Comments Section -->
-    <table class="pms-table" style="margin-bottom: 40px;">
         <tr>
-            <td style="width: 33%;"></td>
-            <td style="width: 33%;">
-                <strong>Comment :</strong>
-                <div style="margin-top: 5px;">
-                    {{ doc.manager_final_comment or '' }}
-                </div>
+            <td></td>
+            <td>
+                <strong>Manager Name :</strong> {{ doc.reports_to_name or '' }}
             </td>
-            <td style="width: 34%;">
-                <strong>Comment :</strong>
-                <div style="margin-top: 5px;">
-                    {{ doc.second_manager_comment or '' }}
-                </div>
+            <td>
+                <strong>Business HOD Name :</strong> {{ doc.reports_to_second_name or '' }}
+            </td>
+        </tr>
+        <tr>
+            <td></td>
+            <td>
+                <strong>Comments :</strong> {{ doc.manager_final_comment or '' }}
+            </td>
+            <td>
+                <strong>Comments :</strong> {{ doc.second_manager_comment or '' }}
             </td>
         </tr>
     </table>
 
-    <hr style="border-top: 1px dashed #000; margin-bottom: 30px;">
+    <div style="height: 70px;"></div>
+
+    <hr style="border-top: 1px dashed #000; margin-bottom: 50px;">
 
     <!-- Bottom Section -->
     <table class="pms-table">
         <tr>
-            <td style="width: 40%;">
-                <div style="margin-bottom: 15px;"><strong>Current Salary (p.a)</strong></div>
-
-                <div style="margin-bottom: 15px;">
-                    <strong>Fixed :</strong>
-                </div>
-
-                <div>
-                    <strong>Variable :</strong>
+            <td style="width: 22%;">
+                <div style="margin-bottom: 20px;"><strong style="font-size: 14px;">Previous CTC (p.a)</strong></div>
+                <div style="margin-bottom: 12px;"><strong>Fixed :</strong> {{ "%.2f"|format(previous_ssa.base or 0) if
+                    previous_ssa else '' }}</div>
+                <div><strong>Variable :</strong> {{ "%.2f"|format(previous_ssa.variable or 0) if previous_ssa else '' }}
                 </div>
             </td>
-            <td style="width: 60%;">
+            <td style="width: 22%;">
+                <div style="margin-bottom: 20px;"><strong style="font-size: 14px;">Current CTC (p.a)</strong></div>
+                <div style="margin-bottom: 12px;"><strong>Fixed :</strong> {{ "%.2f"|format(current_ssa.base or 0) if
+                    current_ssa else '' }}</div>
+                <div><strong>Variable :</strong> {{ "%.2f"|format(current_ssa.variable or 0) if current_ssa else '' }}
+                </div>
+            </td>
+            <td style="width: 22%;">
+                <div style="margin-bottom: 20px;"><strong style="font-size: 14px;">Expected CTC (p.a)</strong></div>
+                <div style="margin-bottom: 12px;"><strong>Fixed :</strong></div>
+                <div><strong>Variable :</strong></div>
+            </td>
+            <td style="width: 34%;">
                 <div class="rating-box">
                     <strong>* Management Rating & Review</strong>
-                    <div style="margin-top: 10px;">
+                    <div style="margin-top: 12px; font-size: 13px;">
                         {{ doc.final_report or '' }}
                     </div>
                 </div>
