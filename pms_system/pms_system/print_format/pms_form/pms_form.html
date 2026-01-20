@@ -36,7 +36,7 @@ limit=2) -%}
 {%- elif active_company == "Minix Holdings Private Limited" -%}
 {%- set company_name = "Holdings" -%}
 {%- set minix_start = employee.date_of_joining -%}
-{%- set fintech_start = None -%}
+{%- set fintech_start = employee.date_of_joining -%}
 {%- else -%}
 {%- set company_name = "Fintech" -%}
 {%- set minix_start = employee.custom_minix_holding_join_date -%}
