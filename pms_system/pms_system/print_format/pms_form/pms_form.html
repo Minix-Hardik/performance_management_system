@@ -26,13 +26,13 @@ limit=2) -%}
 {%- set current_ssa = ssa_list[0] if ssa_list|length > 0 else None -%}
 {%- set previous_ssa = ssa_list[1] if ssa_list|length > 1 else None -%}
 
-{%- set minix_start = None -%}
-{%- set fintech_start = None -%}
+{%- set default_company = frappe.db.get_default("company") -%}
+{%- set active_company = doc.company or default_company -%}
 
-{%- if doc.company == "Minix Fintech Private Limited" -%}
+{%- if active_company == "Minix Fintech Private Limited" -%}
 {%- set minix_start = employee.custom_minix_holding_join_date -%}
 {%- set fintech_start = employee.date_of_joining -%}
-{%- elif doc.company == "Minix Holdings Private Limited" -%}
+{%- elif active_company == "Minix Holdings Private Limited" -%}
 {%- set minix_start = employee.date_of_joining -%}
 {%- set fintech_start = None -%}
 {%- else -%}
