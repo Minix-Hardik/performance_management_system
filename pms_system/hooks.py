@@ -17,7 +17,7 @@ fixtures = [
     {
         "doctype": "Property Setter",
         "filters": [
-            ["name", "in", ["Goal-section_break_cycle-hidden","Appraisee-appraisal_template-hidden","KRA-main-allow_import","Appraisee-employee-ignore_user_permissions"]]
+            ["name", "in", ["Appraisee-appraisal_template-hidden","KRA-main-allow_import","Appraisee-employee-ignore_user_permissions"]]
         ]
     }
 ]
@@ -43,7 +43,12 @@ fixtures = [
 
 # include js, css files in header of desk.html
 app_include_css = ["/assets/pms_system/pms-ui/index.css"]
-app_include_js = ["/assets/pms_system/js/load-reactapp.bundle.js"]
+app_include_js = ["/assets/pms_system/js/load-reactapp.bundle.js",
+                    "/assets/pms_system/js/appraisal.js"
+                ]
+doctype_list_js = {
+    "Appraisal": "public/js/appraisal_list.js"
+}
 
 # include js, css files in header of web template
 # web_include_css = "/assets/pms_system/css/pms_system.css"
