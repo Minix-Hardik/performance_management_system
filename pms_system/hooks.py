@@ -46,7 +46,8 @@ app_include_js = ["/assets/pms_system/js/load-reactapp.bundle.js",
                     "/assets/pms_system/js/appraisal.js"
                 ]
 doctype_list_js = {
-    "Appraisal": "public/js/appraisal_list.js"
+    "Appraisal": "public/js/appraisal_list.js",
+    "KRA": "public/js/kra_list.js"
 }
 app_include_css = ["/assets/pms_system/pms-ui/index.css"]
 
