@@ -9,6 +9,13 @@ frappe.ui.form.on('Appraisal', {
                 }
             };
         };
-
+        frm.get_field('custom_question').$wrapper.html(
+            `<question-interface docname="${frm.doc.name}"></question-interface>`
+        );
+    },
+    onload(frm) {
+        frm.get_field('custom_question').$wrapper.html(
+            `<question-interface docname="${frm.doc.name}"></question-interface>`
+        );
     }
 });
