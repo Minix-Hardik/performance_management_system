@@ -15,6 +15,12 @@ fixtures = [
         ]
     },
     {
+        "doctype": "Custom HTML Block",
+        "filters": [
+            ["name", "in", ["Manager Dashboard Cards"]]
+        ]
+    },
+    {
         "doctype": "Property Setter",
         "filters": [
             ["name", "in", ["Appraisee-appraisal_template-hidden","KRA-main-allow_import","Appraisee-employee-ignore_user_permissions"]]
