@@ -34,7 +34,6 @@ def send_bulk_kra_mail(kras):
             rows += f"""
                 <tr>
                     <td>{kra.name}</td>
-                    <td>{kra.kra}</td>
                 </tr>
             """
 
@@ -51,7 +50,6 @@ def send_bulk_kra_mail(kras):
             <table border="1" cellpadding="5" cellspacing="0"
             style="border-collapse: collapse;">
                 <tr>
-                    <th>KRA ID</th>
                     <th>KRA</th>
                 </tr>
 
