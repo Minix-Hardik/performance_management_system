@@ -28,39 +28,42 @@ export const QuestionInterface = ({ docname }: { docname?: string }) => {
             return;
         }
 
-        // Check if there are existing answers in the child table
-        const existingAnswers = frm.doc.custom_question_child_table || [];
+        // Always fetch from Question Master to ensure we have any newly added questions
+        fetch("/api/resource/Question Master?fields=[\"name\",\"question\"]&limit_page_length=100", {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json"
+            }
+        })
+            .then((res) => res.json())
+            .then((data) => {
+                const existingAnswers = frm.doc.custom_question_child_table || [];
+                let hasNewAdditions = false;
 
-        if (existingAnswers.length > 0) {
-            // Load from existing child table rows
-            const mappedQuestions = existingAnswers.map((row: any) => ({
-                id: row.name, // Use row name as ID for existing rows
-                question: row.question,
-                selfAnswer: row.employee_ans_in_discriptive || "",
-                managerComments: row.manager_comment || "",
-                secondManagerComment: row.second_manager_description || ""
-            }));
-            setQuestions(mappedQuestions);
-            setLoading(false);
-        } else {
-            // No existing answers, fetch from Question Master
-            fetch("/api/resource/Question Master?limit_page_length=100", {
-                method: "GET",
-                headers: {
-                    "Content-Type": "application/json"
-                }
-            })
-                .then((res) => res.json())
-                .then((data) => {
-                    if (data && data.data) {
-                        const mappedQuestions = data.data.map((q: any) => {
-                            // Add row directly to frappe child table so it can be saved
+                if (data && data.data) {
+                    const mappedQuestions = data.data.map((q: any) => {
+                        // Check if this question already exists in the child table
+                        // The title field in the child table links to the Question Master name
+                        const existingRow = existingAnswers.find((row: any) => row.title === q.name);
+
+                        if (existingRow) {
+                            // Use existing row
+                            return {
+                                id: existingRow.name,
+                                question: q.question || existingRow.question || q.name,
+                                selfAnswer: existingRow.employee_ans_in_discriptive || "",
+                                managerComments: existingRow.manager_comment || "",
+                                secondManagerComment: existingRow.second_manager_description || ""
+                            };
+                        } else {
+                            // Question not in child table yet! Add new row
                             const row = window.frappe.model.add_child(frm.doc, "Question Child Table", "custom_question_child_table");
                             row.title = q.name;
-                            row.question = q.name || q.question;
+                            row.question = q.question || q.name;
                             row.employee_ans_in_discriptive = "";
                             row.manager_comment = "";
                             row.second_manager_description = "";
+                            hasNewAdditions = true;
 
                             return {
                                 id: row.name, // Use the newly generated row name
@@ -69,19 +72,47 @@ export const QuestionInterface = ({ docname }: { docname?: string }) => {
                                 managerComments: "",
                                 secondManagerComment: ""
                             };
-                        });
-                        
-                        // Notify frappe that the child table has been modified
+                        }
+                    });
+                    
+                    if (hasNewAdditions) {
+                        // Notify frappe that the child table has been modified with new rows
                         frm.refresh_field("custom_question_child_table");
+                    }
+                    
+                    setQuestions(mappedQuestions);
+                } else {
+                    // Fallback if Question Master is empty but we have existing rows
+                    if (existingAnswers.length > 0) {
+                        const mappedQuestions = existingAnswers.map((row: any) => ({
+                            id: row.name,
+                            question: row.question,
+                            selfAnswer: row.employee_ans_in_discriptive || "",
+                            managerComments: row.manager_comment || "",
+                            secondManagerComment: row.second_manager_description || ""
+                        }));
                         setQuestions(mappedQuestions);
                     }
-                    setLoading(false);
-                })
-                .catch((err) => {
-                    console.error("Failed to fetch questions:", err);
-                    setLoading(false);
-                });
-        }
+                }
+                setLoading(false);
+            })
+            .catch((err) => {
+                console.error("Failed to fetch questions:", err);
+                
+                // Fallback to existing rows if fetch fails
+                const existingAnswers = frm.doc.custom_question_child_table || [];
+                if (existingAnswers.length > 0) {
+                    const mappedQuestions = existingAnswers.map((row: any) => ({
+                        id: row.name,
+                        question: row.question,
+                        selfAnswer: row.employee_ans_in_discriptive || "",
+                        managerComments: row.manager_comment || "",
+                        secondManagerComment: row.second_manager_description || ""
+                    }));
+                    setQuestions(mappedQuestions);
+                }
+                setLoading(false);
+            });
     }, [docname]);
 
     const updateQuestion = (qId: string | number, field: keyof Question, value: any) => {
