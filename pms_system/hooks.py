@@ -23,7 +23,8 @@ fixtures = [
     {
         "doctype": "Property Setter",
         "filters": [
-            ["name", "in", ["Appraisee-appraisal_template-hidden","KRA-main-allow_import","Appraisee-employee-ignore_user_permissions"]]
+            ["name", "in", ["KRA-main-allow_import","Appraisee-employee-ignore_user_permissions",
+                            "Appraisal-goal_score_percentage-allow_on_submit", "Appraisal-total_score-allow_on_submit", "Appraisal-final_score-allow_on_submit"]]
         ]
     }
 ]

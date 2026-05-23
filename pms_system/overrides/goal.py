@@ -91,19 +91,23 @@ def custom_update_goal_progress_in_appraisal(self):
 
             print("MATCHED")
 
-            score = (
-                flt(self.progress) * flt(row.per_weightage)
-            ) / 100
+            # KRA Score is unweighted progress (0-100)
+            score = flt(self.progress)
 
             # FORCE DB UPDATE
             row.db_set("goal_completion", self.progress)
             row.db_set("goal_score", score)
 
-            total_score += score
-
             updated = True
 
     if updated:
+        # Recalculate parent Appraisal scores
+        appraisal.calculate_total_score()
+        appraisal.calculate_final_score()
+
+        # Direct store in database
+        appraisal.db_set("total_score", appraisal.total_score)
+        appraisal.db_set("final_score", appraisal.final_score)
 
         print("Appraisal updated successfully")
 
