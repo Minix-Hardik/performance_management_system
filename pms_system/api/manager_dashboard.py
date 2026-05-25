@@ -33,13 +33,27 @@ def get_reports_tree(manager_employee):
             docstatus = a_doc.docstatus
             appraisal_id = a_doc.name
             
+        # Get manager rating from linked Employee Performance Feedback
+        manager_rating = 0
+        if appraisal_id:
+            feedback = frappe.get_all("Employee Performance Feedback",
+                filters={
+                    "appraisal": appraisal_id,
+                    "reviewer": manager_employee
+                },
+                fields=["total_score"],
+                limit=1
+            )
+            if feedback:
+                manager_rating = feedback[0].total_score or 0
+            
         employees_data.append({
             "name": emp.name,
             "appraisal_id": appraisal_id,
             "employee_name": emp.employee_name,
             "kra_score": kra_score,
             "self_rating": self_rating,
-            "manager_rating": kra_score, # using kra_score if no manager_rating exists
+            "manager_rating": manager_rating,
             "docstatus": docstatus,
             "employees": children
         })
