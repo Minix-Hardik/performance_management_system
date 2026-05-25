@@ -33,9 +33,9 @@ def custom_set_goal_score(self, update=False):
             kra.precision("goal_completion")
         )
 
-        # YOUR CUSTOM CALCULATION
+        # YOUR CUSTOM CALCULATION: (Goal Completion * Weight) / 100
         kra.goal_score = flt(
-            kra.goal_completion,
+            (kra.goal_completion * kra.per_weightage) / 100.0,
             kra.precision("goal_score")
         )
 
@@ -62,15 +62,12 @@ def custom_calculate_total_score(self):
             total += flt(entry.score_earned)
             total_weightage += flt(entry.per_weightage)
     else:
-        goal_score_percentage = 0
         for entry in self.appraisal_kra:
             score = flt(entry.goal_score or 0)
-            weight = flt(entry.per_weightage or 0)
-            goal_score_percentage += score * (weight / 100.0)
-            total_weightage += weight
+            total += score
+            total_weightage += flt(entry.per_weightage or 0)
 
-        self.goal_score_percentage = flt(goal_score_percentage, self.precision("goal_score_percentage"))
-        total = goal_score_percentage / 5.0
+        self.goal_score_percentage = flt(total, self.precision("goal_score_percentage"))
 
     if total_weightage and flt(total_weightage, 2) != 100.0:
         frappe.throw(
@@ -93,14 +90,12 @@ def custom_calculate_final_score(self):
     else:
         for entry in self.appraisal_kra:
             score = flt(entry.goal_score or 0)
-            weight = flt(entry.per_weightage or 0)
-            total += score * (weight / 100.0)
-            total_weightage += weight
+            total += score
+            total_weightage += flt(entry.per_weightage or 0)
 
     if total_weightage > 0:
-        final_score = total / 5.0
-        self.final_score = flt(final_score, self.precision("final_score"))
-        self.total_score = flt(final_score, self.precision("total_score"))
+        self.final_score = flt(total, self.precision("final_score"))
+        self.total_score = flt(total, self.precision("total_score"))
 
 
 # OVERRIDE

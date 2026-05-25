@@ -25,7 +25,7 @@ frappe.ui.form.on('Appraisal', {
 });
 
 frappe.ui.form.on('Appraisal KRA', {
-    goal_score(frm, cdt, cdn) {
+    goal_completion(frm, cdt, cdn) {
         calculate_final_score(frm);
     },
     per_weightage(frm, cdt, cdn) {
@@ -35,21 +35,20 @@ frappe.ui.form.on('Appraisal KRA', {
 
 function calculate_final_score(frm) {
     let total = 0;
-    let total_weight = 0;
 
     (frm.doc.appraisal_kra || []).forEach(row => {
-        let score = flt(row.goal_score || 0); // KRA Score
+        let completion = flt(row.goal_completion || 0); // Goal Completion (%)
         let weight = flt(row.per_weightage || 0); // KRA Weight (%)
 
-        total += score * (weight / 100);
-        total_weight += weight;
+        let score = (completion * weight) / 100;
+
+        if (flt(row.goal_score) !== flt(score)) {
+            frappe.model.set_value(row.doctype, row.name, 'goal_score', score);
+        }
+
+        total += score;
     });
 
-    if (total_weight > 0) {
-        // Overall score = Σ (KRA Score × KRA Weight%) ÷ 5
-        let final_score = total / 5;
-
-        frm.set_value('total_score', final_score);
-        frm.set_value('final_score', final_score);
-    }
+    frm.set_value('total_score', total);
+    frm.set_value('final_score', total);
 }

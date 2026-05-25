@@ -1,0 +1,90 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-05-25 11:58:36.978703",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "key",
+  "status",
+  "assignee",
+  "column_break_pusq",
+  "id",
+  "priority",
+  "reporter",
+  "section_break_vbfo",
+  "summary",
+  "description"
+ ],
+ "fields": [
+  {
+   "fieldname": "key",
+   "fieldtype": "Data",
+   "label": "key"
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Status"
+  },
+  {
+   "fieldname": "assignee",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Assignee"
+  },
+  {
+   "fieldname": "column_break_pusq",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "id",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Id"
+  },
+  {
+   "fieldname": "priority",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Priority"
+  },
+  {
+   "fieldname": "reporter",
+   "fieldtype": "Data",
+   "label": "Reporter"
+  },
+  {
+   "fieldname": "section_break_vbfo",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "summary",
+   "fieldtype": "Small Text",
+   "in_list_view": 1,
+   "label": "Summary"
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Small Text",
+   "in_list_view": 1,
+   "label": "Description"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-05-25 12:43:45.689094",
+ "modified_by": "Administrator",
+ "module": "Pms System",
+ "name": "Jira Task",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

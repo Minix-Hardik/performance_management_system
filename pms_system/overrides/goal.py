@@ -91,8 +91,8 @@ def custom_update_goal_progress_in_appraisal(self):
 
             print("MATCHED")
 
-            # KRA Score is unweighted progress (0-100)
-            score = flt(self.progress)
+            # Goal Score (weighted) = Goal Completion (%) * Weightage (%) / 100
+            score = (flt(self.progress) * flt(row.per_weightage)) / 100.0
 
             # FORCE DB UPDATE
             row.db_set("goal_completion", self.progress)

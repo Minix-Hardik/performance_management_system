@@ -75,7 +75,8 @@ app_include_css = ["/assets/pms_system/pms-ui/index.css"]
 # include js in doctype views
 # doctype_js = {"doctype" : "public/js/doctype.js"}
 doctype_js = {
-    "Appraisal Cycle": "public/js/appraisalCycle.js"
+    "Appraisal Cycle": "public/js/appraisalCycle.js",
+    "Goal": "public/js/goal.js"
 }
 override_doctype_class = {
     "Appraisal Cycle": "pms_system.python.appraisal_cycle.CustomAppraisalCycle"
