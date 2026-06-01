@@ -82,3 +82,15 @@ def send_bulk_kra_mail(kras):
         )
 
     return True
+
+
+@frappe.whitelist()
+def update_note_kra(kra_name, note_for_modification):
+
+    doc = frappe.get_doc("KRA", kra_name)
+
+    doc.custom_modify_kra_note = note_for_modification
+
+    doc.save(ignore_permissions=True)
+
+    return True
