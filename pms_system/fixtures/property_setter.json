@@ -7,7 +7,7 @@
   "doctype_or_field": "DocType",
   "field_name": null,
   "is_system_generated": 0,
-  "modified": "2026-05-25 14:30:49.031881",
+  "modified": "2026-06-11 12:21:29.111973",
   "module": "Pms System",
   "name": "KRA-main-allow_import",
   "property": "allow_import",

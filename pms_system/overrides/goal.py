@@ -1,5 +1,8 @@
+# pyrefly: ignore [missing-import]
 import frappe
+# pyrefly: ignore [missing-import]
 from hrms.hr.doctype.goal.goal import Goal
+# pyrefly: ignore [missing-import]
 from frappe.utils import flt
 
 
@@ -44,6 +47,7 @@ Goal.validate_parent_fields = custom_validate_parent_fields
 # CUSTOM APPRAISAL UPDATE
 # ==========================================
 
+# pyrefly: ignore [missing-import]
 from frappe.utils import flt
 
 

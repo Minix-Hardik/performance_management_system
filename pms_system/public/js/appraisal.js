@@ -9,15 +9,31 @@ frappe.ui.form.on('Appraisal', {
                 }
             };
         };
+        if (frm.fields_dict.self_ratings) {
+            frm.toggle_display("self_ratings", false);
+        }
         frm.get_field('custom_question').$wrapper.html(
             `<question-interface docname="${frm.doc.name}"></question-interface>`
         );
+        if (frm.fields_dict.custom_self_appraisal_rating_html) {
+            frm.get_field('custom_self_appraisal_rating_html').$wrapper.html(
+                `<self-appraisal-rating-interface docname="${frm.doc.name}"></self-appraisal-rating-interface>`
+            );
+        }
         calculate_final_score(frm);
     },
     onload(frm) {
+        if (frm.fields_dict.self_ratings) {
+            frm.toggle_display("self_ratings", false);
+        }
         frm.get_field('custom_question').$wrapper.html(
             `<question-interface docname="${frm.doc.name}"></question-interface>`
         );
+        if (frm.fields_dict.custom_self_appraisal_rating_html) {
+            frm.get_field('custom_self_appraisal_rating_html').$wrapper.html(
+                `<self-appraisal-rating-interface docname="${frm.doc.name}"></self-appraisal-rating-interface>`
+            );
+        }
     },
     validate(frm) {
         calculate_final_score(frm);

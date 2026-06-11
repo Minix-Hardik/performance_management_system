@@ -77,7 +77,8 @@ app_include_css = ["/assets/pms_system/pms-ui/index.css"]
 doctype_js = {
     "Appraisal Cycle": "public/js/appraisalCycle.js",
     "Goal": "public/js/goal.js",
-    "KRA": "public/js/kra.js"
+    "KRA": "public/js/kra.js",
+    "Appraisal": "public/js/appraisal.js"
 }
 override_doctype_class = {
     "Appraisal Cycle": "pms_system.python.appraisal_cycle.CustomAppraisalCycle"

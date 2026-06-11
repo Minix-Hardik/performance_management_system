@@ -28,8 +28,8 @@ export const QuestionInterface = ({ docname }: { docname?: string }) => {
             return;
         }
 
-        // Always fetch from Question Master to ensure we have any newly added questions
-        fetch("/api/resource/Question Master?fields=[\"name\",\"question\"]&limit_page_length=100", {
+        // Always fetch from Question Master to ensure we have any newly added questions, filtering out disabled ones
+        fetch("/api/resource/Question Master?fields=[\"name\",\"question\"]&filters=[[\"disable\",\"=\",0]]&limit_page_length=100", {
             method: "GET",
             headers: {
                 "Content-Type": "application/json"
