@@ -143,6 +143,7 @@ export const QuestionInterface = ({ docname }: { docname?: string }) => {
                 // Notify frappe that the field has changed to mark the form as dirty
                 // Since fields are 'Allow on Submit', this works for docstatus 1 as well
                 frm.refresh_field("custom_question_child_table");
+                frm.dirty();
             }
         }
     };
