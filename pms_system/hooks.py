@@ -78,10 +78,12 @@ doctype_js = {
     "Appraisal Cycle": "public/js/appraisalCycle.js",
     "Goal": "public/js/goal.js",
     "KRA": "public/js/kra.js",
-    "Appraisal": "public/js/appraisal.js"
+    "Appraisal": "public/js/appraisal.js",
+    "Employee Performance Feedback": "public/js/employee_performance_feedback.js"
 }
 override_doctype_class = {
-    "Appraisal Cycle": "pms_system.python.appraisal_cycle.CustomAppraisalCycle"
+    "Appraisal Cycle": "pms_system.python.appraisal_cycle.CustomAppraisalCycle",
+    "Employee Performance Feedback": "pms_system.overrides.feedback.CustomEmployeePerformanceFeedback"
 }
 permission_query_conditions = {
     "Appraisal List": "pms_system.api.get_appraisal_list_permission.get_permission_query_conditions"
