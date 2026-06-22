@@ -9,6 +9,21 @@ frappe.ui.form.on("Employee Performance Feedback", {
             frm.trigger("appraisal");
         }
         calculate_scores(frm);
+
+        // Debug dirty fields to find what triggers the Not Saved status
+        setTimeout(() => {
+            if (frm.is_dirty()) {
+                let changed = [];
+                for (let key in frm.doc) {
+                    if (frm._original_doc && frm.doc[key] !== frm._original_doc[key]) {
+                        if (!key.startsWith("__") && key !== "modified") {
+                            changed.push(`${key}: current=${JSON.stringify(frm.doc[key])}, original=${JSON.stringify(frm._original_doc[key])}`);
+                        }
+                    }
+                }
+                console.log("PMS SYSTEM DEBUG: Form is dirty. Changed fields:", changed);
+            }
+        }, 100);
     }
 });
 
@@ -49,6 +64,12 @@ function calculate_scores(frm) {
         self_total += self_rating * 5.0 * weight;
     });
 
-    frm.set_value("total_score", total);
-    frm.set_value("custom_avg_score", (total + self_total) / 2.0);
+    const new_avg = (total + self_total) / 2.0;
+
+    if (Math.abs(flt(frm.doc.total_score) - total) > 0.001) {
+        frm.set_value("total_score", total);
+    }
+    if (Math.abs(flt(frm.doc.custom_avg_score) - new_avg) > 0.001) {
+        frm.set_value("custom_avg_score", new_avg);
+    }
 }
