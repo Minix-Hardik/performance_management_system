@@ -11,6 +11,7 @@ declare global {
 interface RatingRow {
     name: string;
     criteria: string;
+    criteria_id?: string;
     per_weightage: number;
     rating: number; // 0.0 to 1.0
     custom_justification: string;
@@ -28,13 +29,31 @@ export const SelfAppraisalRatingInterface = ({ docname }: { docname?: string }) 
         if (!frm?.doc) return;
 
         const rawRows = frm.doc.self_ratings || [];
-        const mapped: RatingRow[] = rawRows.map((r: any) => ({
-            name: r.name,
-            criteria: r.criteria || "",
-            per_weightage: Number(r.per_weightage) || 0,
-            rating: Number(r.rating) || 0,
-            custom_justification: r.custom_justification || "",
-        }));
+        const appraisalKras = frm.doc.appraisal_kra || [];
+        
+        const mapped: RatingRow[] = rawRows.map((r: any, idx: number) => {
+            let kraTitle = r.criteria || "";
+            let kraId = r.criteria || "";
+
+            // Check custom_kra_title first, fallback to appraisal_kra index match
+            const customKraTitle = r.custom_kra_title;
+            if (customKraTitle) {
+                kraTitle = customKraTitle;
+                kraId = customKraTitle;
+            } else if (idx < appraisalKras.length && appraisalKras[idx].kra) {
+                kraTitle = appraisalKras[idx].kra;
+                kraId = appraisalKras[idx].kra;
+            }
+
+            return ({
+                name: r.name,
+                criteria: kraTitle,
+                criteria_id: kraId,
+                per_weightage: Number(r.per_weightage) || 0,
+                rating: Number(r.rating) || 0,
+                custom_justification: r.custom_justification || "",
+            });
+        });
 
         setRows(mapped);
         
@@ -212,10 +231,22 @@ export const SelfAppraisalRatingInterface = ({ docname }: { docname?: string }) 
                                         {/* Rating Selection Row */}
                                         <tr className="ef-bg-[#222]">
                                             <td className="ef-border ef-border-[#333] ef-p-4 ef-font-medium ef-text-white">
-                                                {row.criteria}
-                                                {/* <span className="ef-text-gray-400 ef-text-xs ef-block ef-mt-1">
-                                                    Weightage: {row.per_weightage}%
-                                                </span> */}
+                                                {row.criteria_id ? (
+                                                    <a
+                                                        href={`/app/kra/${encodeURIComponent(row.criteria_id)}`}
+                                                        className="ef-text-[#9396e6] hover:ef-underline"
+                                                        onClick={(e) => {
+                                                            if (window.frappe) {
+                                                                e.preventDefault();
+                                                                window.frappe.set_route("Form", "KRA", row.criteria_id);
+                                                            }
+                                                        }}
+                                                    >
+                                                        {row.criteria}
+                                                    </a>
+                                                ) : (
+                                                    row.criteria
+                                                )}
                                             </td>
                                             {[1, 2, 3, 4, 5].map((val) => {
                                                 const isActive = currentStars === val;
