@@ -33,19 +33,21 @@ def get_reports_tree(manager_employee):
             docstatus = a_doc.docstatus
             appraisal_id = a_doc.name
             
-        # Get manager rating from linked Employee Performance Feedback
+        # Get manager rating and feedback ID from linked Employee Performance Feedback
         manager_rating = 0
+        feedback_id = None
         if appraisal_id:
             feedback = frappe.get_all("Employee Performance Feedback",
                 filters={
                     "appraisal": appraisal_id,
                     "reviewer": manager_employee
                 },
-                fields=["total_score"],
+                fields=["name", "total_score"],
                 limit=1
             )
             if feedback:
                 manager_rating = feedback[0].total_score or 0
+                feedback_id = feedback[0].name
             
         employees_data.append({
             "name": emp.name,
@@ -55,6 +57,7 @@ def get_reports_tree(manager_employee):
             "self_rating": self_rating,
             "manager_rating": manager_rating,
             "docstatus": docstatus,
+            "feedback_id": feedback_id,
             "employees": children
         })
         
@@ -83,6 +86,38 @@ def get_stats_from_tree(employees):
 
 @frappe.whitelist()
 def get_dashboard_data():
+    # Sync Custom HTML Block from fixture file on each dashboard load
+    try:
+        import os
+        import json
+        fixture_path = frappe.get_app_path("pms_system", "fixtures", "custom_html_block.json")
+        if os.path.exists(fixture_path):
+            with open(fixture_path, "r") as f:
+                data = json.load(f)
+            if data and isinstance(data, list):
+                block_data = data[0]
+                name = block_data.get("name")
+                if frappe.db.exists("Custom HTML Block", name):
+                    db_doc = frappe.get_doc("Custom HTML Block", name)
+                    if db_doc.script != block_data.get("script") or db_doc.html != block_data.get("html") or db_doc.style != block_data.get("style"):
+                        db_doc.script = block_data.get("script")
+                        db_doc.html = block_data.get("html")
+                        db_doc.style = block_data.get("style")
+                        db_doc.save(ignore_permissions=True)
+                        frappe.db.commit()
+                else:
+                    db_doc = frappe.get_doc({
+                        "doctype": "Custom HTML Block",
+                        "name": name,
+                        "html": block_data.get("html"),
+                        "script": block_data.get("script"),
+                        "style": block_data.get("style")
+                    })
+                    db_doc.insert(ignore_permissions=True)
+                    frappe.db.commit()
+    except Exception as e:
+        pass
+
     user = frappe.session.user
     
     # 1. Get Employee for logged in user

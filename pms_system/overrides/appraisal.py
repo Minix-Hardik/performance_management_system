@@ -102,3 +102,38 @@ def custom_calculate_final_score(self):
 Appraisal.set_goal_score = custom_set_goal_score
 Appraisal.calculate_total_score = custom_calculate_total_score
 Appraisal.calculate_final_score = custom_calculate_final_score
+
+# Store original validate
+original_validate = Appraisal.validate
+
+
+def custom_validate(self):
+    # Call original validate
+    original_validate(self)
+
+    # Custom validation: Check self appraisal date limit for employees
+    if self.appraisal_cycle:
+        cycle_doc = frappe.get_doc("Appraisal Cycle", self.appraisal_cycle)
+        if cycle_doc.custom_self_appraisal_end_date:
+            from frappe.utils import getdate, today, formatdate
+
+            # Check if the current user is the employee of this appraisal
+            employee_user = frappe.db.get_value("Employee", self.employee, "user_id")
+            if employee_user == frappe.session.user:
+                if getdate(today()) > getdate(cycle_doc.custom_self_appraisal_end_date):
+                    frappe.throw(
+                        frappe._("Self Appraisal period ended on {0}. You are not allowed to save or submit this appraisal.")
+                        .format(formatdate(cycle_doc.custom_self_appraisal_end_date))
+                    )
+
+
+Appraisal.validate = custom_validate
+
+
+def custom_before_submit(self):
+    for entry in self.get("custom_question_child_table") or []:
+        if not entry.employee_ans_in_discriptive or not entry.employee_ans_in_discriptive.strip():
+            frappe.throw(frappe._("Please answer all questions before submitting the appraisal."))
+
+
+Appraisal.before_submit = custom_before_submit

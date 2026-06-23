@@ -9,21 +9,6 @@ frappe.ui.form.on("Employee Performance Feedback", {
             frm.trigger("appraisal");
         }
         calculate_scores(frm);
-
-        // Debug dirty fields to find what triggers the Not Saved status
-        setTimeout(() => {
-            if (frm.is_dirty()) {
-                let changed = [];
-                for (let key in frm.doc) {
-                    if (frm._original_doc && frm.doc[key] !== frm._original_doc[key]) {
-                        if (!key.startsWith("__") && key !== "modified") {
-                            changed.push(`${key}: current=${JSON.stringify(frm.doc[key])}, original=${JSON.stringify(frm._original_doc[key])}`);
-                        }
-                    }
-                }
-                console.log("PMS SYSTEM DEBUG: Form is dirty. Changed fields:", changed);
-            }
-        }, 100);
     }
 });
 
