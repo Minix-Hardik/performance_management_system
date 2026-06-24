@@ -66,35 +66,37 @@ def create_appraisal_list(doc_name):
 
     created_appraisals = []
     errors = []
-    report_level = 1 if doc.custom_reports_to == "Single Level" else 2
 
     if employees:
         for d in employees:
             try:
-                manager = get_reports_to(d.employee, report_level)
-                data = {
-                    "doctype": "Appraisal List",
+                # Find the Appraisal Template based on the employee code matching the template name
+                appraisal_template = d.appraisal_template
+                if frappe.db.exists("Appraisal Template", d.employee):
+                    appraisal_template = d.employee
+
+                # Check if already exists to avoid duplicate error
+                if frappe.db.exists("Appraisal", {
+                    "employee": d.employee,
+                    "appraisal_cycle": doc.name,
+                    "docstatus": ["!=", 2]
+                }):
+                    continue
+
+                appraisal = frappe.get_doc({
+                    "doctype": "Appraisal",
+                    "company": doc.company,
+                    "appraisal_template": appraisal_template,
                     "employee": d.employee,
                     "appraisal_cycle": doc.name,
                     "start_date": doc.start_date,
                     "end_date": doc.end_date
-                }
-                print(manager)
-                if len(manager) == 1:
-                    data["reports_to"] = manager[0]
-                if len(manager) >= 1:
-                    data["reports_to"] = manager[0]
-                if len(manager) == 2:
-                    data["reports_to_second"] = manager[1]
-                
-                # Check if already exists to avoid duplicate error
-                if frappe.db.exists("Appraisal List", {
-                    "employee": d.employee,
-                    "appraisal_cycle": doc.name
-                }):
-                    continue
+                })
 
-                appraisal = frappe.get_doc(data)
+                appraisal.rate_goals_manually = (
+                    1 if doc.kra_evaluation_method == "Manual Rating" else 0
+                )
+                appraisal.set_kras_and_rating_criteria()
                 appraisal.insert(ignore_permissions=True)
                 created_appraisals.append(appraisal.name)
 
@@ -108,7 +110,7 @@ def create_appraisal_list(doc_name):
                 frappe.log_error(error_message, "Appraisal Creation Error")
 
         # Final message
-        msg = _("Appraisal Lists created successfully.")
+        msg = _("Appraisals created successfully.")
 
         if errors:
             msg += "<br><br><b>Some errors occurred:</b><ul>"
