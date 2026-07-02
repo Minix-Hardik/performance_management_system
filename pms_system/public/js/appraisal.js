@@ -1,3 +1,50 @@
+// Disable standard crashing setup_chart handler
+frappe.ui.form.off('Appraisal', 'setup_chart');
+
+// Register safe chart handler
+frappe.ui.form.on('Appraisal', 'setup_chart', function(frm) {
+    const labels = [];
+    const maximum_scores = [];
+    const scores = [];
+
+    (frm.doc.appraisal_kra || []).forEach((d) => {
+        labels.push(d.kra);
+        maximum_scores.push(d.per_weightage || 0);
+        scores.push(d.goal_score || 0);
+    });
+
+    if (labels.length && maximum_scores.length && scores.length) {
+        try {
+            frm.dashboard.render_graph({
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            name: "Maximum Score",
+                            chartType: "bar",
+                            values: maximum_scores,
+                        },
+                        {
+                            name: "Score Obtained",
+                            chartType: "bar",
+                            values: scores,
+                        },
+                    ],
+                },
+                title: __("Scores"),
+                height: 250,
+                type: "bar",
+                barOptions: {
+                    spaceRatio: 0.7,
+                },
+                colors: ["blue", "green"],
+            });
+        } catch (err) {
+            console.warn("Chart rendering failed (container width calculation error):", err);
+        }
+    }
+});
+
 frappe.ui.form.on('Appraisal', {
     refresh(frm) {
 

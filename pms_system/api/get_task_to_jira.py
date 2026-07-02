@@ -37,6 +37,7 @@ def fetch_project_tasks(goal_name, project_id=None, task_id=None):
 	"""
 	Fetches tasks from Jira based on project_id and/or task_id, using the logged-in user's
 	Jira connection credentials, and maps them to the Goal document.
+	Supports pagination for large projects and direct single issue retrieval.
 	"""
 	# 1. Verify global settings
 	jira_setting = frappe.get_single("Jira Setting")
@@ -59,50 +60,71 @@ def fetch_project_tasks(goal_name, project_id=None, task_id=None):
 	if not jira_email or not jira_api_token:
 		frappe.throw(_("Invalid Jira credentials in User Jira Connection."))
 
-	# 3. Construct JQL Query
-	jql_clauses = []
-	if project_id:
-		jql_clauses.append(f'project = "{project_id}"')
-	if task_id:
-		jql_clauses.append(f'(key = "{task_id}" OR id = "{task_id}")')
-
-	if not jql_clauses:
-		frappe.throw(_("Please provide either a Project ID or a Task ID (Issue Key)."))
-
-	jql_query = " AND ".join(jql_clauses)
-
-	# 4. Request Jira API
-	url = f"{jira_setting.jira_url.rstrip('/')}/rest/api/3/search/jql"
-	auth = HTTPBasicAuth(jira_email, jira_api_token)
 	headers = {
 		"Accept": "application/json"
 	}
-	query = {
-		"jql": jql_query,
-		"maxResults": "5000",
-		"fields": "summary,description,status,priority,assignee,reporter"
-	}
+	auth = HTTPBasicAuth(jira_email, jira_api_token)
+	base_url = jira_setting.jira_url.rstrip('/')
 
-	response = requests.get(
-		url,
-		headers=headers,
-		params=query,
-		auth=auth
-	)
+	issues = []
 
-	if response.status_code != 200:
-		frappe.throw(
-			f"Failed to fetch tasks from Jira (Status Code: {response.status_code}): {response.text}"
-		)
+	# 3. Retrieve Tasks
+	if task_id:
+		# Direct fetch for single task using Jira's issue API (more robust than JQL search)
+		url = f"{base_url}/rest/api/3/issue/{task_id}"
+		response = requests.get(url, headers=headers, auth=auth)
+		
+		if response.status_code == 200:
+			issues = [response.json()]
+		else:
+			frappe.throw(
+				_("Failed to fetch task '{0}' from Jira. Please make sure the Task ID is correct and you have access to it.").format(task_id),
+				title=_("Task Not Found")
+			)
+	elif project_id:
+		# Fetch all tasks in a project using search API with pagination support
+		url = f"{base_url}/rest/api/3/search/jql"
+		jql_query = f'project = "{project_id}"'
+		
+		start_at = 0
+		max_results = 100  # Jira max cap per request
+		
+		while True:
+			query = {
+				"jql": jql_query,
+				"startAt": start_at,
+				"maxResults": max_results,
+				"fields": "summary,description,status,priority,assignee,reporter"
+			}
+			
+			response = requests.get(url, headers=headers, params=query, auth=auth)
+			
+			if response.status_code != 200:
+				frappe.throw(
+					f"Failed to fetch tasks from Jira (Status Code: {response.status_code}): {response.text}"
+				)
+				
+			data = response.json()
+			batch_issues = data.get("issues", [])
+			if not batch_issues:
+				break
+				
+			issues.extend(batch_issues)
+			total = data.get("total", 0)
+			
+			# Exit conditions: pulled all or reached the end
+			if len(issues) >= total or len(batch_issues) < max_results:
+				break
+				
+			start_at += len(batch_issues)
+	else:
+		frappe.throw(_("Please provide either a Project ID or a Task ID (Issue Key)."))
 
-	data = response.json()
-	issues = data.get("issues", [])
-
-	# 5. Map/Save to Goal Document
+	# 4. Map/Save to Goal Document
 	goal_doc = frappe.get_doc("Goal", goal_name)
 
-	if task_id and not project_id:
-		# Fetching a single task: update if key exists, otherwise append
+	if task_id:
+		# Fetching/updating a single task: update if key exists, otherwise append
 		for issue in issues:
 			fields = issue.get("fields", {})
 			issue_key = issue.get("key")
@@ -131,7 +153,7 @@ def fetch_project_tasks(goal_name, project_id=None, task_id=None):
 			else:
 				goal_doc.append("custom_jira_task", row_data)
 	else:
-		# Fetching project or project+task: refresh/replace all rows
+		# Fetching project: refresh/replace all rows
 		goal_doc.set("custom_jira_task", [])
 		for issue in issues:
 			fields = issue.get("fields", {})
