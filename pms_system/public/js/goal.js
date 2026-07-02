@@ -74,7 +74,7 @@ function show_fetch_dialog(frm) {
 			}
 
 			try {
-				await frappe.call({
+				let r = await frappe.call({
 					method: 'pms_system.api.get_task_to_jira.fetch_project_tasks',
 					args: {
 						project_id: values.project_id || '',
@@ -85,7 +85,8 @@ function show_fetch_dialog(frm) {
 					freeze_message: __('Fetching tasks from Jira...')
 				});
 
-				frappe.msgprint(__('Tasks fetched successfully'));
+				let count = (r && r.message) ? r.message.count : 0;
+				frappe.msgprint(__('Tasks fetched successfully: {0} tasks imported', [count]));
 				d.hide();
 				frm.reload_doc();
 			} catch (err) {

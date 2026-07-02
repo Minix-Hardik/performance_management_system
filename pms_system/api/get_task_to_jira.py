@@ -78,7 +78,7 @@ def fetch_project_tasks(goal_name, project_id=None, task_id=None):
 			issues = [response.json()]
 		else:
 			frappe.throw(
-				_("Failed to fetch task '{0}' from Jira. Please make sure the Task ID is correct and you have access to it.").format(task_id),
+				_("Failed to fetch task '{0}' from Jira (Status Code: {1}). Response: {2}").format(task_id, response.status_code, response.text),
 				title=_("Task Not Found")
 			)
 	elif project_id:
