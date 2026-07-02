@@ -112,6 +112,10 @@ function calculate_final_score(frm) {
         total += score;
     });
 
-    frm.set_value('total_score', total);
-    frm.set_value('final_score', total);
+    if (flt(frm.doc.total_score) !== flt(total)) {
+        frm.set_value('total_score', total);
+    }
+    if (flt(frm.doc.final_score) !== flt(total)) {
+        frm.set_value('final_score', total);
+    }
 }
