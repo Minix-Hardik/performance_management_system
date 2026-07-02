@@ -9,7 +9,8 @@
   "user",
   "jira_email",
   "column_break_xatt",
-  "jira_api_token"
+  "jira_api_token",
+  "generate_token_btn"
  ],
  "fields": [
   {
@@ -37,6 +38,11 @@
    "fieldtype": "Password",
    "label": "Jira API Token",
    "reqd": 1
+  },
+  {
+   "fieldname": "generate_token_btn",
+   "fieldtype": "Button",
+   "label": "Generate API Token"
   }
  ],
  "grid_page_length": 50,
