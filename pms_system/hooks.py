@@ -86,7 +86,8 @@ override_doctype_class = {
     "Employee Performance Feedback": "pms_system.overrides.feedback.CustomEmployeePerformanceFeedback"
 }
 permission_query_conditions = {
-    "Appraisal List": "pms_system.api.get_appraisal_list_permission.get_permission_query_conditions"
+    "Appraisal List": "pms_system.api.get_appraisal_list_permission.get_permission_query_conditions",
+    "User Jira Connection": "pms_system.pms_system.doctype.user_jira_connection.user_jira_connection.get_permission_query_conditions"
 }
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
