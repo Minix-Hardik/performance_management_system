@@ -115,6 +115,7 @@ def custom_validate(self):
     if self.appraisal_cycle:
         cycle_doc = frappe.get_doc("Appraisal Cycle", self.appraisal_cycle)
         if cycle_doc.custom_self_appraisal_end_date:
+            # pyrefly: ignore [missing-import]
             from frappe.utils import getdate, today, formatdate
 
             # Check if the current user is the employee of this appraisal

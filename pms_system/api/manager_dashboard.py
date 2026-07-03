@@ -1,3 +1,4 @@
+# pyrefly: ignore [missing-import]
 import frappe
 
 def get_reports_tree(manager_employee):
@@ -36,18 +37,20 @@ def get_reports_tree(manager_employee):
         # Get manager rating and feedback ID from linked Employee Performance Feedback
         manager_rating = 0
         feedback_id = None
+        custom_avg_score = 0
         if appraisal_id:
             feedback = frappe.get_all("Employee Performance Feedback",
                 filters={
                     "appraisal": appraisal_id,
                     "reviewer": manager_employee
                 },
-                fields=["name", "total_score"],
+                fields=["name", "total_score", "custom_avg_score"],
                 limit=1
             )
             if feedback:
                 manager_rating = feedback[0].total_score or 0
                 feedback_id = feedback[0].name
+                custom_avg_score = feedback[0].custom_avg_score or 0
             
         employees_data.append({
             "name": emp.name,
@@ -58,6 +61,7 @@ def get_reports_tree(manager_employee):
             "manager_rating": manager_rating,
             "docstatus": docstatus,
             "feedback_id": feedback_id,
+            "custom_avg_score": custom_avg_score,
             "employees": children
         })
         
