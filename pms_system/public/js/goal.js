@@ -77,34 +77,57 @@ function show_fetch_dialog(frm) {
 			d.get_primary_btn().attr('disabled', true);
 			d.get_close_btn().attr('disabled', true);
 
-			try {
-				let r = await frappe.call({
-					method: 'pms_system.api.get_task_to_jira.fetch_project_tasks',
-					args: {
-						project_id: values.project_id || '',
-						task_id: values.task_id || '',
-						goal_name: frm.doc.name
-					},
-					freeze: true,
-					freeze_message: __('Fetching tasks from Jira...')
-				});
+			let start_at = 0;
+			let limit = 100;
+			let total_fetched = 0;
 
-				let count = (r && r.message) ? r.message.count : 0;
-				frappe.msgprint(__('Tasks fetched successfully: {0} tasks imported', [count]));
-				d.hide();
-				frm.reload_doc();
-			} catch (err) {
-				console.error(err);
-				frappe.msgprint(__('Failed to fetch Jira tasks'));
-			} finally {
-				// Re-enable buttons if dialog is not hidden yet
-				if (d && d.get_primary_btn()) {
-					d.get_primary_btn().attr('disabled', false);
+			// Define chunk fetch function
+			let fetch_chunk = async () => {
+				// Update the loader message on screen
+				if ($('.freeze-message').length) {
+					$('.freeze-message').text(__('Fetching tasks from Jira... ({0} imported)', [total_fetched]));
 				}
-				if (d && d.get_close_btn()) {
-					d.get_close_btn().attr('disabled', false);
+
+				try {
+					let r = await frappe.call({
+						method: 'pms_system.api.get_task_to_jira.fetch_project_tasks',
+						args: {
+							project_id: values.project_id || '',
+							task_id: values.task_id || '',
+							goal_name: frm.doc.name,
+							start_at: start_at,
+							limit: limit
+						},
+						freeze: true,
+						freeze_message: __('Fetching tasks from Jira... ({0} imported)', [total_fetched])
+					});
+
+					let res = r.message || { count: 0, has_more: false };
+					total_fetched += res.count;
+
+					if (res.has_more && !values.task_id) {
+						start_at += limit;
+						await fetch_chunk();
+					} else {
+						frappe.msgprint(__('Tasks fetched successfully: {0} tasks imported', [total_fetched]));
+						d.hide();
+						frm.reload_doc();
+					}
+				} catch (err) {
+					console.error(err);
+					frappe.msgprint(__('Failed to fetch Jira tasks. Saved up to {0} tasks.', [total_fetched]));
+					// Re-enable buttons on error
+					if (d && d.get_primary_btn()) {
+						d.get_primary_btn().attr('disabled', false);
+					}
+					if (d && d.get_close_btn()) {
+						d.get_close_btn().attr('disabled', false);
+					}
 				}
-			}
+			};
+
+			// Trigger the first page fetch
+			await fetch_chunk();
 		}
 	});
 

@@ -33,11 +33,11 @@ def check_user_jira_connection():
 
 
 @frappe.whitelist()
-def fetch_project_tasks(goal_name, project_id=None, task_id=None):
+def fetch_project_tasks(goal_name, project_id=None, task_id=None, start_at=0, limit=100):
 	"""
-	Fetches tasks from Jira based on project_id and/or task_id, using the logged-in user's
-	Jira connection credentials, and maps them to the Goal document.
-	Supports pagination for large projects and direct single issue retrieval.
+	Fetches a single batch of tasks from Jira based on project_id and/or task_id, using the logged-in
+	user's Jira credentials, and maps them to the Goal document child table.
+	Prevents timeouts by paginating on the client-side.
 	"""
 	# 1. Verify global settings
 	jira_setting = frappe.get_single("Jira Setting")
@@ -67,6 +67,11 @@ def fetch_project_tasks(goal_name, project_id=None, task_id=None):
 	base_url = jira_setting.jira_url.rstrip('/')
 
 	issues = []
+	has_more = False
+
+	# Convert parameters to integers safely
+	start_at = int(start_at)
+	limit = int(limit)
 
 	# 3. Retrieve Tasks
 	if task_id:
@@ -76,46 +81,34 @@ def fetch_project_tasks(goal_name, project_id=None, task_id=None):
 		
 		if response.status_code == 200:
 			issues = [response.json()]
+			has_more = False
 		else:
 			frappe.throw(
 				_("Failed to fetch task '{0}' from Jira (Status Code: {1}). Response: {2}").format(task_id, response.status_code, response.text),
 				title=_("Task Not Found")
 			)
 	elif project_id:
-		# Fetch all tasks in a project using search API with pagination support
+		# Fetch single batch using Jira search API with startAt and maxResults parameters
 		url = f"{base_url}/rest/api/3/search/jql"
 		jql_query = f'project = "{project_id}" AND assignee = "{jira_email}"'
 		
-		start_at = 0
-		max_results = 100  # Jira max cap per request
+		query = {
+			"jql": jql_query,
+			"startAt": start_at,
+			"maxResults": limit,
+			"fields": "summary,description,status,priority,assignee,reporter"
+		}
 		
-		while True:
-			query = {
-				"jql": jql_query,
-				"startAt": start_at,
-				"maxResults": max_results,
-				"fields": "summary,description,status,priority,assignee,reporter"
-			}
+		response = requests.get(url, headers=headers, params=query, auth=auth)
+		
+		if response.status_code != 200:
+			frappe.throw(
+				f"Failed to fetch tasks from Jira (Status Code: {response.status_code}): {response.text}"
+			)
 			
-			response = requests.get(url, headers=headers, params=query, auth=auth)
-			
-			if response.status_code != 200:
-				frappe.throw(
-					f"Failed to fetch tasks from Jira (Status Code: {response.status_code}): {response.text}"
-				)
-				
-			data = response.json()
-			batch_issues = data.get("issues", [])
-			if not batch_issues:
-				break
-				
-			issues.extend(batch_issues)
-			
-			# Exit condition: last page fetched
-			if len(batch_issues) < max_results:
-				break
-				
-			start_at += len(batch_issues)
+		data = response.json()
+		issues = data.get("issues", [])
+		has_more = len(issues) == limit
 	else:
 		frappe.throw(_("Please provide either a Project ID or a Task ID (Issue Key)."))
 
