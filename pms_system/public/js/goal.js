@@ -77,7 +77,7 @@ function show_fetch_dialog(frm) {
 			d.get_primary_btn().attr('disabled', true);
 			d.get_close_btn().attr('disabled', true);
 
-			let start_at = 0;
+			let next_page_token = '';
 			let limit = 100;
 			let total_fetched = 0;
 
@@ -95,18 +95,18 @@ function show_fetch_dialog(frm) {
 							project_id: values.project_id || '',
 							task_id: values.task_id || '',
 							goal_name: frm.doc.name,
-							start_at: start_at,
+							next_page_token: next_page_token || '',
 							limit: limit
 						},
 						freeze: true,
 						freeze_message: __('Fetching tasks from Jira... ({0} imported)', [total_fetched])
 					});
 
-					let res = r.message || { count: 0, has_more: false };
+					let res = r.message || { count: 0, next_page_token: null };
 					total_fetched += res.count;
+					next_page_token = res.next_page_token;
 
-					if (res.has_more && !values.task_id) {
-						start_at += limit;
+					if (next_page_token && !values.task_id) {
 						await fetch_chunk();
 					} else {
 						frappe.msgprint(__('Tasks fetched successfully: {0} tasks imported', [total_fetched]));

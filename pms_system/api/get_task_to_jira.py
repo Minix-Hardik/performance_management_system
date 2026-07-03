@@ -33,11 +33,11 @@ def check_user_jira_connection():
 
 
 @frappe.whitelist()
-def fetch_project_tasks(goal_name, project_id=None, task_id=None, start_at=0, limit=100):
+def fetch_project_tasks(goal_name, project_id=None, task_id=None, next_page_token=None, limit=100):
 	"""
 	Fetches a single batch of tasks from Jira based on project_id and/or task_id, using the logged-in
 	user's Jira credentials, and maps them to the Goal document child table.
-	Prevents timeouts by paginating on the client-side.
+	Uses token-based pagination (nextPageToken) to prevent timeouts.
 	"""
 	# 1. Verify global settings
 	jira_setting = frappe.get_single("Jira Setting")
@@ -67,10 +67,8 @@ def fetch_project_tasks(goal_name, project_id=None, task_id=None, start_at=0, li
 	base_url = jira_setting.jira_url.rstrip('/')
 
 	issues = []
-	has_more = False
 
 	# Convert parameters to integers safely
-	start_at = int(start_at)
 	limit = int(limit)
 
 	# 3. Retrieve Tasks
@@ -81,23 +79,25 @@ def fetch_project_tasks(goal_name, project_id=None, task_id=None, start_at=0, li
 		
 		if response.status_code == 200:
 			issues = [response.json()]
-			has_more = False
+			next_page_token = None
 		else:
 			frappe.throw(
 				_("Failed to fetch task '{0}' from Jira (Status Code: {1}). Response: {2}").format(task_id, response.status_code, response.text),
 				title=_("Task Not Found")
 			)
 	elif project_id:
-		# Fetch single batch using Jira search API with startAt and maxResults parameters
-		url = f"{base_url}/rest/api/3/search"
+		# Fetch single batch using Jira search/jql API with nextPageToken and maxResults parameters
+		url = f"{base_url}/rest/api/3/search/jql"
 		jql_query = f'project = "{project_id}" AND assignee = "{jira_email}"'
 		
 		query = {
 			"jql": jql_query,
-			"startAt": start_at,
 			"maxResults": limit,
 			"fields": "summary,description,status,priority,assignee,reporter"
 		}
+		
+		if next_page_token:
+			query["nextPageToken"] = next_page_token
 		
 		response = requests.get(url, headers=headers, params=query, auth=auth)
 		
@@ -108,7 +108,7 @@ def fetch_project_tasks(goal_name, project_id=None, task_id=None, start_at=0, li
 			
 		data = response.json()
 		issues = data.get("issues", [])
-		has_more = len(issues) == limit
+		next_page_token = data.get("nextPageToken")
 	else:
 		frappe.throw(_("Please provide either a Project ID or a Task ID (Issue Key)."))
 
@@ -148,6 +148,6 @@ def fetch_project_tasks(goal_name, project_id=None, task_id=None, start_at=0, li
 	frappe.db.commit()
 
 	return {
-		"message": "Tasks Imported",
-		"count": len(issues)
+		"count": len(issues),
+		"next_page_token": next_page_token
 	}
