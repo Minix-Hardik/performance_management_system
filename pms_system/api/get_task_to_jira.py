@@ -110,10 +110,9 @@ def fetch_project_tasks(goal_name, project_id=None, task_id=None):
 				break
 				
 			issues.extend(batch_issues)
-			total = data.get("total", 0)
 			
-			# Exit conditions: pulled all or reached the end
-			if len(issues) >= total or len(batch_issues) < max_results:
+			# Exit condition: last page fetched
+			if len(batch_issues) < max_results:
 				break
 				
 			start_at += len(batch_issues)

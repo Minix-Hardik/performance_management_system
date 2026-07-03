@@ -73,6 +73,10 @@ function show_fetch_dialog(frm) {
 				return;
 			}
 
+			// Disable buttons during the fetch call
+			d.get_primary_btn().attr('disabled', true);
+			d.get_close_btn().attr('disabled', true);
+
 			try {
 				let r = await frappe.call({
 					method: 'pms_system.api.get_task_to_jira.fetch_project_tasks',
@@ -92,6 +96,14 @@ function show_fetch_dialog(frm) {
 			} catch (err) {
 				console.error(err);
 				frappe.msgprint(__('Failed to fetch Jira tasks'));
+			} finally {
+				// Re-enable buttons if dialog is not hidden yet
+				if (d && d.get_primary_btn()) {
+					d.get_primary_btn().attr('disabled', false);
+				}
+				if (d && d.get_close_btn()) {
+					d.get_close_btn().attr('disabled', false);
+				}
 			}
 		}
 	});
