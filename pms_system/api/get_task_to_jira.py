@@ -84,7 +84,7 @@ def fetch_project_tasks(goal_name, project_id=None, task_id=None):
 	elif project_id:
 		# Fetch all tasks in a project using search API with pagination support
 		url = f"{base_url}/rest/api/3/search/jql"
-		jql_query = f'project = "{project_id}"'
+		jql_query = f'project = "{project_id}" AND assignee = "{jira_email}"'
 		
 		start_at = 0
 		max_results = 100  # Jira max cap per request
@@ -123,50 +123,34 @@ def fetch_project_tasks(goal_name, project_id=None, task_id=None):
 	# 4. Map/Save to Goal Document
 	goal_doc = frappe.get_doc("Goal", goal_name)
 
-	if task_id:
-		# Fetching/updating a single task: update if key exists, otherwise append
-		for issue in issues:
-			fields = issue.get("fields", {})
-			issue_key = issue.get("key")
-			issue_id = issue.get("id")
+	# Process all fetched issues (single or project level) without creating duplicates
+	for issue in issues:
+		fields = issue.get("fields", {})
+		issue_key = issue.get("key")
+		issue_id = issue.get("id")
 
-			# Look for existing task in custom_jira_task child table
-			existing_row = None
-			for row in goal_doc.custom_jira_task:
-				if row.key == issue_key or row.id == issue_id:
-					existing_row = row
-					break
+		# Look for existing task in custom_jira_task child table
+		existing_row = None
+		for row in goal_doc.custom_jira_task:
+			if row.key == issue_key or row.id == issue_id:
+				existing_row = row
+				break
 
-			row_data = {
-				"key": issue_key,
-				"id": issue_id,
-				"summary": fields.get("summary"),
-				"description": str(fields.get("description") or ""),
-				"status": fields.get("status", {}).get("name") if fields.get("status") else "",
-				"priority": fields.get("priority", {}).get("name") if fields.get("priority") else "",
-				"assignee": fields.get("assignee", {}).get("displayName") if fields.get("assignee") else "",
-				"reporter": fields.get("reporter", {}).get("displayName") if fields.get("reporter") else ""
-			}
+		row_data = {
+			"key": issue_key,
+			"id": issue_id,
+			"summary": fields.get("summary"),
+			"description": str(fields.get("description") or ""),
+			"status": fields.get("status", {}).get("name") if fields.get("status") else "",
+			"priority": fields.get("priority", {}).get("name") if fields.get("priority") else "",
+			"assignee": fields.get("assignee", {}).get("displayName") if fields.get("assignee") else "",
+			"reporter": fields.get("reporter", {}).get("displayName") if fields.get("reporter") else ""
+		}
 
-			if existing_row:
-				existing_row.update(row_data)
-			else:
-				goal_doc.append("custom_jira_task", row_data)
-	else:
-		# Fetching project: refresh/replace all rows
-		goal_doc.set("custom_jira_task", [])
-		for issue in issues:
-			fields = issue.get("fields", {})
-			goal_doc.append("custom_jira_task", {
-				"key": issue.get("key"),
-				"id": issue.get("id"),
-				"summary": fields.get("summary"),
-				"description": str(fields.get("description") or ""),
-				"status": fields.get("status", {}).get("name") if fields.get("status") else "",
-				"priority": fields.get("priority", {}).get("name") if fields.get("priority") else "",
-				"assignee": fields.get("assignee", {}).get("displayName") if fields.get("assignee") else "",
-				"reporter": fields.get("reporter", {}).get("displayName") if fields.get("reporter") else ""
-			})
+		if existing_row:
+			existing_row.update(row_data)
+		else:
+			goal_doc.append("custom_jira_task", row_data)
 
 	goal_doc.save(ignore_permissions=True)
 	frappe.db.commit()
