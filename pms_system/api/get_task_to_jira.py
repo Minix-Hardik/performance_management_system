@@ -89,7 +89,7 @@ def fetch_project_tasks(goal_name, project_id=None, task_id=None, start_at=0, li
 			)
 	elif project_id:
 		# Fetch single batch using Jira search API with startAt and maxResults parameters
-		url = f"{base_url}/rest/api/3/search/jql"
+		url = f"{base_url}/rest/api/3/search"
 		jql_query = f'project = "{project_id}" AND assignee = "{jira_email}"'
 		
 		query = {
