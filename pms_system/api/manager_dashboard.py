@@ -70,23 +70,32 @@ def get_reports_tree(manager_employee):
 def get_stats_from_tree(employees):
     total_count = 0
     pending_reviews = 0
-    total_score = 0
+    appraisal_count = 0
+    total_kra = 0
+    total_self = 0
+    total_manager = 0
     
     for emp in employees:
         total_count += 1
         if emp.get("appraisal_id"):
+            appraisal_count += 1
             if (emp.get("kra_score") or 0) == 0:
                 pending_reviews += 1
-            total_score += (emp.get("kra_score") or 0)
+            total_kra += (emp.get("kra_score") or 0)
+            total_self += (emp.get("self_rating") or 0)
+            total_manager += (emp.get("manager_rating") or 0)
         else:
             pending_reviews += 1
             
-        sub_total, sub_pending, sub_score = get_stats_from_tree(emp.get("employees", []))
+        sub_total, sub_pending, sub_appr, sub_kra, sub_self, sub_manager = get_stats_from_tree(emp.get("employees", []))
         total_count += sub_total
         pending_reviews += sub_pending
-        total_score += sub_score
+        appraisal_count += sub_appr
+        total_kra += sub_kra
+        total_self += sub_self
+        total_manager += sub_manager
         
-    return total_count, pending_reviews, total_score
+    return total_count, pending_reviews, appraisal_count, total_kra, total_self, total_manager
 
 @frappe.whitelist()
 def get_dashboard_data():
@@ -139,14 +148,21 @@ def get_dashboard_data():
     employees_tree = get_reports_tree(manager_employee)
     
     # 3. Calculate statistics recursively
-    total_employees, pending_reviews, total_kra_score = get_stats_from_tree(employees_tree)
-    avg_score = round(total_kra_score / total_employees, 2) if total_employees > 0 else 0
+    total_employees, pending_reviews, appraisal_count, total_kra, total_self, total_manager = get_stats_from_tree(employees_tree)
+    avg_score = round(total_kra / total_employees, 2) if total_employees > 0 else 0
+    
+    team_kra_avg = round(total_kra / appraisal_count, 2) if appraisal_count > 0 else 0
+    team_self_avg = round(total_self / appraisal_count, 2) if appraisal_count > 0 else 0
+    team_manager_avg = round(total_manager / appraisal_count, 2) if appraisal_count > 0 else 0
     
     return {
         "manager_employee_id": manager_employee,
         "total_employees": total_employees,
         "pending_reviews": pending_reviews,
         "average_score": avg_score,
+        "team_kra_avg": team_kra_avg,
+        "team_self_avg": team_self_avg,
+        "team_manager_avg": team_manager_avg,
         "employees": employees_tree
     }
 
