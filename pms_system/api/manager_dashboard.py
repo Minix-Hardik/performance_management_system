@@ -52,6 +52,17 @@ def get_reports_tree(manager_employee):
                 feedback_id = feedback[0].name
                 custom_avg_score = feedback[0].custom_avg_score or 0
             
+        team_kra_avg = 0
+        team_self_avg = 0
+        team_manager_avg = 0
+        has_team = len(children) > 0
+        
+        if has_team:
+            sub_total, sub_pending, sub_appr, sub_kra, sub_self, sub_manager = get_stats_from_tree(children)
+            team_kra_avg = round(sub_kra / sub_appr, 2) if sub_appr > 0 else 0
+            team_self_avg = round(sub_self / sub_appr, 2) if sub_appr > 0 else 0
+            team_manager_avg = round(sub_manager / sub_appr, 2) if sub_appr > 0 else 0
+
         employees_data.append({
             "name": emp.name,
             "appraisal_id": appraisal_id,
@@ -62,7 +73,11 @@ def get_reports_tree(manager_employee):
             "docstatus": docstatus,
             "feedback_id": feedback_id,
             "custom_avg_score": custom_avg_score,
-            "employees": children
+            "employees": children,
+            "has_team": has_team,
+            "team_kra_avg": team_kra_avg,
+            "team_self_avg": team_self_avg,
+            "team_manager_avg": team_manager_avg
         })
         
     return employees_data
