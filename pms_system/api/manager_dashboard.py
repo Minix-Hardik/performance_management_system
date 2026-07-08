@@ -101,6 +101,7 @@ def get_stats_from_tree(employees):
 def get_dashboard_data():
     # Sync Custom HTML Block from fixture file on each dashboard load
     try:
+        frappe.clear_cache()
         import os
         import json
         fixture_path = frappe.get_app_path("pms_system", "fixtures", "custom_html_block.json")
@@ -118,6 +119,7 @@ def get_dashboard_data():
                         db_doc.style = block_data.get("style")
                         db_doc.save(ignore_permissions=True)
                         frappe.db.commit()
+                        frappe.clear_cache()
                 else:
                     db_doc = frappe.get_doc({
                         "doctype": "Custom HTML Block",
@@ -128,8 +130,11 @@ def get_dashboard_data():
                     })
                     db_doc.insert(ignore_permissions=True)
                     frappe.db.commit()
+                    frappe.clear_cache()
     except Exception as e:
-        pass
+        import traceback
+        with open("/Users/hardik/minix-bench/dashboard_sync_error.log", "w") as log_file:
+            log_file.write(traceback.format_exc())
 
     user = frappe.session.user
     
