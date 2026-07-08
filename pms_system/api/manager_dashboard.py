@@ -1,6 +1,78 @@
 # pyrefly: ignore [missing-import]
 import frappe
 
+def get_employee_node_data(emp_name, employee_name, reviewer_employee):
+    children = get_reports_tree(emp_name)
+    
+    # Get latest Appraisal for this employee
+    a = frappe.get_all("Appraisal",
+        filters={
+            "employee": emp_name,
+            "docstatus": ["<", 2]
+        },
+        fields=["name", "employee_name", "employee", "final_score", "total_score", "self_score", "docstatus"],
+        order_by="creation desc",
+        limit=1
+    )
+    
+    kra_score = 0
+    self_rating = 0
+    docstatus = 0
+    appraisal_id = None
+    
+    if a:
+        a_doc = a[0]
+        kra_score = a_doc.final_score or a_doc.total_score or 0
+        self_rating = a_doc.self_score or 0
+        docstatus = a_doc.docstatus
+        appraisal_id = a_doc.name
+        
+    # Get manager rating and feedback ID from linked Employee Performance Feedback
+    manager_rating = 0
+    feedback_id = None
+    custom_avg_score = 0
+    if appraisal_id and reviewer_employee:
+        feedback = frappe.get_all("Employee Performance Feedback",
+            filters={
+                "appraisal": appraisal_id,
+                "reviewer": reviewer_employee
+            },
+            fields=["name", "total_score", "custom_avg_score"],
+            limit=1
+        )
+        if feedback:
+            manager_rating = feedback[0].total_score or 0
+            feedback_id = feedback[0].name
+            custom_avg_score = feedback[0].custom_avg_score or 0
+        
+    team_kra_avg = 0
+    team_self_avg = 0
+    team_manager_avg = 0
+    has_team = len(children) > 0
+    
+    if has_team:
+        sub_total, sub_pending, sub_appr, sub_kra, sub_self, sub_manager = get_stats_from_tree(children)
+        team_kra_avg = round(sub_kra / sub_appr, 2) if sub_appr > 0 else 0
+        team_self_avg = round(sub_self / sub_appr, 2) if sub_appr > 0 else 0
+        team_manager_avg = round(sub_manager / sub_appr, 2) if sub_appr > 0 else 0
+
+    return {
+        "name": emp_name,
+        "appraisal_id": appraisal_id,
+        "employee_name": employee_name,
+        "kra_score": kra_score,
+        "self_rating": self_rating,
+        "manager_rating": manager_rating,
+        "docstatus": docstatus,
+        "feedback_id": feedback_id,
+        "custom_avg_score": custom_avg_score,
+        "employees": children,
+        "has_team": has_team,
+        "team_kra_avg": team_kra_avg,
+        "team_self_avg": team_self_avg,
+        "team_manager_avg": team_manager_avg
+    }
+
 def get_reports_tree(manager_employee):
     reporting_employees = frappe.get_all("Employee", 
         filters={"reports_to": manager_employee, "status": "Active"},
@@ -9,76 +81,8 @@ def get_reports_tree(manager_employee):
     
     employees_data = []
     for emp in reporting_employees:
-        children = get_reports_tree(emp.name)
-        
-        # Get latest Appraisal for this employee
-        a = frappe.get_all("Appraisal",
-            filters={
-                "employee": emp.name,
-                "docstatus": ["<", 2]
-            },
-            fields=["name", "employee_name", "employee", "final_score", "total_score", "self_score", "docstatus"],
-            order_by="creation desc",
-            limit=1
-        )
-        
-        kra_score = 0
-        self_rating = 0
-        docstatus = 0
-        appraisal_id = None
-        
-        if a:
-            a_doc = a[0]
-            kra_score = a_doc.final_score or a_doc.total_score or 0
-            self_rating = a_doc.self_score or 0
-            docstatus = a_doc.docstatus
-            appraisal_id = a_doc.name
-            
-        # Get manager rating and feedback ID from linked Employee Performance Feedback
-        manager_rating = 0
-        feedback_id = None
-        custom_avg_score = 0
-        if appraisal_id:
-            feedback = frappe.get_all("Employee Performance Feedback",
-                filters={
-                    "appraisal": appraisal_id,
-                    "reviewer": manager_employee
-                },
-                fields=["name", "total_score", "custom_avg_score"],
-                limit=1
-            )
-            if feedback:
-                manager_rating = feedback[0].total_score or 0
-                feedback_id = feedback[0].name
-                custom_avg_score = feedback[0].custom_avg_score or 0
-            
-        team_kra_avg = 0
-        team_self_avg = 0
-        team_manager_avg = 0
-        has_team = len(children) > 0
-        
-        if has_team:
-            sub_total, sub_pending, sub_appr, sub_kra, sub_self, sub_manager = get_stats_from_tree(children)
-            team_kra_avg = round(sub_kra / sub_appr, 2) if sub_appr > 0 else 0
-            team_self_avg = round(sub_self / sub_appr, 2) if sub_appr > 0 else 0
-            team_manager_avg = round(sub_manager / sub_appr, 2) if sub_appr > 0 else 0
-
-        employees_data.append({
-            "name": emp.name,
-            "appraisal_id": appraisal_id,
-            "employee_name": emp.employee_name,
-            "kra_score": kra_score,
-            "self_rating": self_rating,
-            "manager_rating": manager_rating,
-            "docstatus": docstatus,
-            "feedback_id": feedback_id,
-            "custom_avg_score": custom_avg_score,
-            "employees": children,
-            "has_team": has_team,
-            "team_kra_avg": team_kra_avg,
-            "team_self_avg": team_self_avg,
-            "team_manager_avg": team_manager_avg
-        })
+        node_data = get_employee_node_data(emp.name, emp.employee_name, manager_employee)
+        employees_data.append(node_data)
         
     return employees_data
 
@@ -152,11 +156,13 @@ def get_dashboard_data():
             log_file.write(traceback.format_exc())
 
     user = frappe.session.user
+    roles = frappe.get_roles(user)
+    is_hr_admin = "HR Admin" in roles or "System Manager" in roles
     
     # 1. Get Employee for logged in user
     manager_employee = frappe.get_value("Employee", {"user_id": user, "status": "Active"}, "name")
     
-    if not manager_employee:
+    if not manager_employee and not is_hr_admin:
         return {
             "total_employees": 0,
             "pending_reviews": 0,
@@ -165,7 +171,22 @@ def get_dashboard_data():
         }
         
     # 2. Get recursive tree
-    employees_tree = get_reports_tree(manager_employee)
+    if is_hr_admin:
+        # Fetch all top-level active employees
+        top_employees = frappe.get_all(
+            "Employee",
+            filters={
+                "reports_to": ["in", [None, ""]],
+                "status": "Active"
+            },
+            fields=["name", "employee_name"]
+        )
+        employees_tree = []
+        for top_emp in top_employees:
+            node_data = get_employee_node_data(top_emp.name, top_emp.employee_name, manager_employee)
+            employees_tree.append(node_data)
+    else:
+        employees_tree = get_reports_tree(manager_employee)
     
     # 3. Calculate statistics recursively
     total_employees, pending_reviews, appraisal_count, total_kra, total_self, total_manager = get_stats_from_tree(employees_tree)
