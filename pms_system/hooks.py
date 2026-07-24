@@ -17,7 +17,7 @@ fixtures = [
     {
         "doctype": "Custom HTML Block",
         "filters": [
-            ["name", "in", ["Manager Dashboard Cards"]]
+            ["name", "in", ["Manager Dashboard Cards", "Travel Portal Link", "Org Overview Dashboard"]]
         ]
     },
     {
