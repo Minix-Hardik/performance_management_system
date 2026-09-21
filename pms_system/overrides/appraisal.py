@@ -161,8 +161,8 @@ def custom_before_submit(self):
                         frappe._("Please provide justification for all KRAs before submitting the appraisal. Missing justification for: {0}").format(kra_label)
                     )
 
-        # 2. Review Questions mandatory check
-        if cycle_doc.get("custom_question_answer_mandatory"):
+        # 2. Review Questions mandatory check (only if questions are enabled in the cycle)
+        if cycle_doc.get("custom_question") and cycle_doc.get("custom_question_answer_mandatory"):
             for entry in self.get("custom_question_child_table") or []:
                 if not entry.employee_ans_in_discriptive or not entry.employee_ans_in_discriptive.strip():
                     q_label = entry.question or entry.title or f"Row #{entry.idx}"
