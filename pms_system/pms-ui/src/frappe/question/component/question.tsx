@@ -9,7 +9,8 @@ interface QuestionCardProps {
     employeeCanEdit: boolean;
     managerCanEdit: boolean;
     showManagerData: boolean;
-    secondManagerCanEdit: boolean
+    secondManagerCanEdit: boolean;
+    isAnswerMandatory?: boolean;
 }
 
 export interface Question {
@@ -28,7 +29,8 @@ export const QuestionCard = ({
     employeeCanEdit,
     managerCanEdit,
     showManagerData,
-    secondManagerCanEdit
+    secondManagerCanEdit,
+    isAnswerMandatory
 }: QuestionCardProps) => {
 
     const LockIcon = () => (
@@ -53,7 +55,14 @@ export const QuestionCard = ({
                 {appraisalMode === "self" && (
                     <div className="ef-px-3 ef-py-2">
                         <div className="ef-flex ef-items-center ef-gap-2 ef-mb-1">
-                            <span className="ef-text-xs ef-font-semibold ef-text-gray-600">Your Answer</span>
+                            <span className="ef-text-xs ef-font-semibold ef-text-gray-600">
+                                Your Answer
+                                {isAnswerMandatory ? (
+                                    <span className="ef-text-red-500 ef-ml-1.5 ef-font-medium">* (Mandatory)</span>
+                                ) : (
+                                    <span className="ef-text-gray-400 ef-ml-1.5 ef-font-normal">(Optional)</span>
+                                )}
+                            </span>
                             {!employeeCanEdit && <LockIcon />}
                         </div>
                         <textarea
@@ -68,7 +77,7 @@ export const QuestionCard = ({
                                 : "ef-bg-gray-50 ef-text-gray-500 ef-border-gray-200 ef-cursor-not-allowed"
                                 }`}
                             rows={3}
-                            placeholder="Enter your answer..."
+                            placeholder={isAnswerMandatory ? "Enter your answer (Mandatory)..." : "Enter your answer..."}
                         />
                     </div>
                 )}

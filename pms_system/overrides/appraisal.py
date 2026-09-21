@@ -111,6 +111,17 @@ def custom_validate(self):
     # Call original validate
     original_validate(self)
 
+    # Calculate previous and cumulative self scores
+    if self.employee:
+        prev_score = get_previous_self_score(self.employee, self.name)
+        if prev_score is not None:
+            self.custom_previous_self_score = flt(prev_score, 3)
+            if self.self_score is not None:
+                self.custom_cumulative_self_score = flt((flt(self.self_score) + flt(prev_score)) / 2.0, 3)
+        else:
+            self.custom_previous_self_score = 0.0
+            self.custom_cumulative_self_score = flt(self.self_score or 0.0, 3)
+
     # Custom validation: Check self appraisal date limit for employees
     if self.appraisal_cycle:
         cycle_doc = frappe.get_doc("Appraisal Cycle", self.appraisal_cycle)
@@ -132,9 +143,61 @@ Appraisal.validate = custom_validate
 
 
 def custom_before_submit(self):
-    for entry in self.get("custom_question_child_table") or []:
-        if not entry.employee_ans_in_discriptive or not entry.employee_ans_in_discriptive.strip():
-            frappe.throw(frappe._("Please answer all questions before submitting the appraisal."))
+    if self.appraisal_cycle:
+        cycle_doc = frappe.get_doc("Appraisal Cycle", self.appraisal_cycle)
+
+        # 1. KRA Justification / Comment mandatory check
+        if cycle_doc.get("custom_kra_comment_mandtory"):
+            for entry in self.get("self_ratings") or []:
+                if not entry.custom_justification or not entry.custom_justification.strip():
+                    kra_label = entry.custom_kra_title or entry.criteria or f"Row #{entry.idx}"
+                    frappe.throw(
+                        frappe._("Please provide justification for all KRAs before submitting the appraisal. Missing justification for: {0}").format(kra_label)
+                    )
+
+        # 2. Review Questions mandatory check
+        if cycle_doc.get("custom_question_answer_mandatory"):
+            for entry in self.get("custom_question_child_table") or []:
+                if not entry.employee_ans_in_discriptive or not entry.employee_ans_in_discriptive.strip():
+                    q_label = entry.question or entry.title or f"Row #{entry.idx}"
+                    frappe.throw(
+                        frappe._("Please answer all questions before submitting the appraisal. Missing answer for: {0}").format(q_label)
+                    )
 
 
 Appraisal.before_submit = custom_before_submit
+
+
+@frappe.whitelist()
+def get_previous_self_score(employee, current_appraisal=None):
+    if not employee:
+        return None
+
+    filters = {
+        "employee": employee,
+        "docstatus": 1
+    }
+    if current_appraisal:
+        filters["name"] = ["!=", current_appraisal]
+
+    prev = frappe.get_all("Appraisal",
+        filters=filters,
+        fields=["self_score", "name", "creation"],
+        order_by="creation desc",
+        limit=1
+    )
+
+    if not prev:
+        # Fallback to any previous appraisal
+        filters["docstatus"] = ["<", 2]
+        prev = frappe.get_all("Appraisal",
+            filters=filters,
+            fields=["self_score", "name", "creation"],
+            order_by="creation desc",
+            limit=1
+        )
+
+    if prev and prev[0].self_score is not None:
+        return flt(prev[0].self_score)
+
+    return None

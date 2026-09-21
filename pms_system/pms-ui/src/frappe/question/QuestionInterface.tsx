@@ -19,6 +19,7 @@ export interface Question {
 
 export const QuestionInterface = ({ docname }: { docname?: string }) => {
     const [questions, setQuestions] = useState<Question[]>([]);
+    const [isAnswerMandatory, setIsAnswerMandatory] = useState<boolean>(false);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -26,6 +27,16 @@ export const QuestionInterface = ({ docname }: { docname?: string }) => {
         if (!frm) {
             setLoading(false);
             return;
+        }
+
+        // Check if Question Answer is mandatory on linked Appraisal Cycle
+        if (frm.doc?.appraisal_cycle) {
+            window.frappe?.db?.get_value("Appraisal Cycle", frm.doc.appraisal_cycle, "custom_question_answer_mandatory")
+                .then((r: any) => {
+                    if (r && r.message && r.message.custom_question_answer_mandatory !== undefined) {
+                        setIsAnswerMandatory(Boolean(r.message.custom_question_answer_mandatory));
+                    }
+                });
         }
 
         // Always fetch from Question Master to ensure we have any newly added questions, filtering out disabled ones
@@ -162,6 +173,7 @@ export const QuestionInterface = ({ docname }: { docname?: string }) => {
             employeeCanEdit={true}
             managerCanEdit={true}
             showManagerData={true}
+            isAnswerMandatory={isAnswerMandatory}
         />
     );
 };

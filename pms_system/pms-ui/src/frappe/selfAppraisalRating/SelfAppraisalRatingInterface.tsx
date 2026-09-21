@@ -20,6 +20,8 @@ interface RatingRow {
 export const SelfAppraisalRatingInterface = ({ docname }: { docname?: string }) => {
     const [rows, setRows] = useState<RatingRow[]>([]);
     const [selfScore, setSelfScore] = useState<number>(0);
+    const [previousSelfScore, setPreviousSelfScore] = useState<number | null>(null);
+    const [isJustificationMandatory, setIsJustificationMandatory] = useState<boolean>(false);
     const [loading, setLoading] = useState(true);
     const [employeeUserId, setEmployeeUserId] = useState<string>("");
 
@@ -70,6 +72,16 @@ export const SelfAppraisalRatingInterface = ({ docname }: { docname?: string }) 
 
         syncFromFrappe();
 
+        // Check if KRA comment/justification is mandatory on Appraisal Cycle
+        if (frm.doc.appraisal_cycle) {
+            window.frappe?.db?.get_value("Appraisal Cycle", frm.doc.appraisal_cycle, "custom_kra_comment_mandtory")
+                .then((r: any) => {
+                    if (r && r.message && r.message.custom_kra_comment_mandtory !== undefined) {
+                        setIsJustificationMandatory(Boolean(r.message.custom_kra_comment_mandtory));
+                    }
+                });
+        }
+
         // Fetch employee's user_id if not present on doc
         if (frm.doc.employee_user_id) {
             setEmployeeUserId(frm.doc.employee_user_id);
@@ -80,6 +92,43 @@ export const SelfAppraisalRatingInterface = ({ docname }: { docname?: string }) 
                         setEmployeeUserId(r.message.user_id);
                     }
                 });
+        }
+
+        // Fetch previous self score for this employee
+        if (frm.doc.employee) {
+            if (window.frappe?.call) {
+                window.frappe.call({
+                    method: "pms_system.overrides.appraisal.get_previous_self_score",
+                    args: {
+                        employee: frm.doc.employee,
+                        current_appraisal: frm.doc.name
+                    },
+                    callback: (r: any) => {
+                        if (r && r.message !== undefined && r.message !== null) {
+                            setPreviousSelfScore(Number(r.message));
+                        } else {
+                            setPreviousSelfScore(null);
+                        }
+                    }
+                });
+            } else if (window.frappe?.db) {
+                window.frappe.db.get_list("Appraisal", {
+                    filters: [
+                        ["employee", "=", frm.doc.employee],
+                        ["name", "!=", frm.doc.name],
+                        ["docstatus", "<", 2]
+                    ],
+                    fields: ["self_score", "name"],
+                    order_by: "creation desc",
+                    limit: 1
+                }).then((res: any) => {
+                    if (res && res.length > 0 && res[0].self_score !== undefined && res[0].self_score !== null) {
+                        setPreviousSelfScore(Number(res[0].self_score));
+                    } else {
+                        setPreviousSelfScore(null);
+                    }
+                }).catch(() => setPreviousSelfScore(null));
+            }
         }
 
         // Listen to form refresh/load updates to sync component state
@@ -116,14 +165,6 @@ export const SelfAppraisalRatingInterface = ({ docname }: { docname?: string }) 
     const isWorkflowStateAllow = !workflowStatus || workflowStatus === "Self Appraisal" || workflowStatus === "Draft";
     const employeeCanEdit = isEmployeeOrAdmin && isWorkflowStateAllow && frm.doc.docstatus === 0;
 
-    console.log("SelfAppraisalRatingInterface Permissions Check:", {
-        currentUser,
-        employeeUserId,
-        workflowStatus,
-        docstatus: frm.doc.docstatus,
-        employeeCanEdit
-    });
-
     const recalculateTotalScore = (updatedRows: RatingRow[]) => {
         let total = 0;
         updatedRows.forEach((r) => {
@@ -137,6 +178,20 @@ export const SelfAppraisalRatingInterface = ({ docname }: { docname?: string }) 
         // Update Total Self Score in Appraisal Doc
         frm.set_value("self_score", total);
         frm.refresh_field("self_score");
+
+        // Update Cumulative Score in doc
+        const cumulative = previousSelfScore !== null && previousSelfScore !== undefined
+            ? (total + previousSelfScore) / 2.0
+            : total;
+
+        if (frm.fields_dict?.custom_cumulative_self_score) {
+            frm.set_value("custom_cumulative_self_score", cumulative);
+            frm.refresh_field("custom_cumulative_self_score");
+        }
+        if (frm.fields_dict?.custom_previous_self_score && previousSelfScore !== null) {
+            frm.set_value("custom_previous_self_score", previousSelfScore);
+            frm.refresh_field("custom_previous_self_score");
+        }
     };
 
     const handleSelectRating = (rowName: string, val: number) => {
@@ -189,9 +244,27 @@ export const SelfAppraisalRatingInterface = ({ docname }: { docname?: string }) 
         <div className="ef-w-full ef-bg-[#1a1a1a] ef-p-6 ef-rounded-lg ef-shadow-lg ef-border ef-border-[#2d2d2d] ef-font-sans ef-text-[#e0e0e0]">
             <div className="ef-flex ef-justify-between ef-items-center ef-mb-4">
                 <h3 className="ef-text-lg ef-font-bold ef-text-white">Self Appraisal Ratings</h3>
-                <div className="ef-bg-[#222] ef-px-4 ef-py-2 ef-rounded ef-border ef-border-[#333]">
-                    <span className="ef-text-xs ef-text-gray-400 ef-mr-2">Calculated Self Score:</span>
-                    <span className="ef-text-base ef-font-bold ef-text-[#9396e6]">{selfScore.toFixed(2)}</span>
+                <div className="ef-flex ef-items-center ef-gap-3">
+                    <div className="ef-bg-[#222] ef-px-4 ef-py-2 ef-rounded ef-border ef-border-[#333]">
+                        <span className="ef-text-xs ef-text-gray-400 ef-mr-2">Previous Self Score:</span>
+                        <span className="ef-text-base ef-font-bold ef-text-[#38bdf8]">
+                            {previousSelfScore !== null && previousSelfScore !== undefined
+                                ? previousSelfScore.toFixed(2)
+                                : "—"}
+                        </span>
+                    </div>
+                    <div className="ef-bg-[#222] ef-px-4 ef-py-2 ef-rounded ef-border ef-border-[#333]">
+                        <span className="ef-text-xs ef-text-gray-400 ef-mr-2">Calculated Self Score:</span>
+                        <span className="ef-text-base ef-font-bold ef-text-[#9396e6]">{selfScore.toFixed(2)}</span>
+                    </div>
+                    <div className="ef-bg-[#222] ef-px-4 ef-py-2 ef-rounded ef-border ef-border-[#333]">
+                        <span className="ef-text-xs ef-text-gray-400 ef-mr-2">Cumulative Score:</span>
+                        <span className="ef-text-base ef-font-bold ef-text-[#34d399]">
+                            {previousSelfScore !== null && previousSelfScore !== undefined
+                                ? ((selfScore + previousSelfScore) / 2.0).toFixed(2)
+                                : selfScore.toFixed(2)}
+                        </span>
+                    </div>
                 </div>
             </div>
 
@@ -282,6 +355,11 @@ export const SelfAppraisalRatingInterface = ({ docname }: { docname?: string }) 
                                                     <div className="ef-flex ef-items-center ef-gap-2">
                                                         <span className="ef-text-xs ef-font-semibold ef-text-gray-400">
                                                             Justification / evidence:
+                                                            {isJustificationMandatory ? (
+                                                                <span className="ef-text-red-400 ef-ml-1.5 ef-font-medium">* (Mandatory)</span>
+                                                            ) : (
+                                                                <span className="ef-text-gray-500 ef-ml-1.5 ef-font-normal">(Optional)</span>
+                                                            )}
                                                         </span>
                                                         {!employeeCanEdit && (
                                                             <Lock size={12} className="ef-text-gray-500" />

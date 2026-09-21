@@ -12,7 +12,8 @@ interface QuestionsTabProps {
     employeeCanEdit: boolean;
     managerCanEdit: boolean;
     showManagerData: boolean;
-    secondManagerCanEdit: boolean
+    secondManagerCanEdit: boolean;
+    isAnswerMandatory?: boolean;
 }
 
 export interface Question {
@@ -31,7 +32,8 @@ export const QuestionsTab = ({
     employeeCanEdit,
     managerCanEdit,
     showManagerData,
-    secondManagerCanEdit
+    secondManagerCanEdit,
+    isAnswerMandatory
 }: QuestionsTabProps) => {
     return (
         <div className="ef-space-y-6">
@@ -47,6 +49,7 @@ export const QuestionsTab = ({
                     managerCanEdit={managerCanEdit}
                     showManagerData={showManagerData}
                     secondManagerCanEdit={secondManagerCanEdit}
+                    isAnswerMandatory={isAnswerMandatory}
                 />
             ))}
         </div>
