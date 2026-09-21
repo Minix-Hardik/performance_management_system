@@ -137,21 +137,29 @@ function update_cumulative_self_score(frm) {
         callback: function(r) {
             let prev = (r.message !== undefined && r.message !== null) ? flt(r.message) : null;
             if (prev !== null) {
-                if (flt(frm.doc.custom_previous_self_score) !== prev) {
-                    frm.set_value("custom_previous_self_score", prev);
+                if (frm.fields_dict && frm.fields_dict.custom_previous_self_score) {
+                    if (flt(frm.doc.custom_previous_self_score) !== prev) {
+                        frm.set_value("custom_previous_self_score", prev);
+                    }
                 }
                 let self_score = flt(frm.doc.self_score || 0);
                 let cumulative = flt((self_score + prev) / 2.0, 3);
-                if (flt(frm.doc.custom_cumulative_self_score) !== cumulative) {
-                    frm.set_value("custom_cumulative_self_score", cumulative);
+                if (frm.fields_dict && frm.fields_dict.custom_cumulative_self_score) {
+                    if (flt(frm.doc.custom_cumulative_self_score) !== cumulative) {
+                        frm.set_value("custom_cumulative_self_score", cumulative);
+                    }
                 }
             } else {
-                if (flt(frm.doc.custom_previous_self_score) !== 0) {
-                    frm.set_value("custom_previous_self_score", 0.0);
+                if (frm.fields_dict && frm.fields_dict.custom_previous_self_score) {
+                    if (flt(frm.doc.custom_previous_self_score) !== 0) {
+                        frm.set_value("custom_previous_self_score", 0.0);
+                    }
                 }
                 let cumulative = flt(frm.doc.self_score || 0, 3);
-                if (flt(frm.doc.custom_cumulative_self_score) !== cumulative) {
-                    frm.set_value("custom_cumulative_self_score", cumulative);
+                if (frm.fields_dict && frm.fields_dict.custom_cumulative_self_score) {
+                    if (flt(frm.doc.custom_cumulative_self_score) !== cumulative) {
+                        frm.set_value("custom_cumulative_self_score", cumulative);
+                    }
                 }
             }
         }

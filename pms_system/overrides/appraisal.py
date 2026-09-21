@@ -114,13 +114,19 @@ def custom_validate(self):
     # Calculate previous and cumulative self scores
     if self.employee:
         prev_score = get_previous_self_score(self.employee, self.name)
+        has_prev_field = self.meta.has_field("custom_previous_self_score")
+        has_cum_field = self.meta.has_field("custom_cumulative_self_score")
+
         if prev_score is not None:
-            self.custom_previous_self_score = flt(prev_score, 3)
-            if self.self_score is not None:
+            if has_prev_field:
+                self.custom_previous_self_score = flt(prev_score, 3)
+            if has_cum_field and self.self_score is not None:
                 self.custom_cumulative_self_score = flt((flt(self.self_score) + flt(prev_score)) / 2.0, 3)
         else:
-            self.custom_previous_self_score = 0.0
-            self.custom_cumulative_self_score = flt(self.self_score or 0.0, 3)
+            if has_prev_field:
+                self.custom_previous_self_score = 0.0
+            if has_cum_field:
+                self.custom_cumulative_self_score = flt(self.self_score or 0.0, 3)
 
     # Custom validation: Check self appraisal date limit for employees
     if self.appraisal_cycle:
