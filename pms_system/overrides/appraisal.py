@@ -111,8 +111,8 @@ def custom_validate(self):
     # Call original validate
     original_validate(self)
 
-    # Calculate previous and cumulative self scores
-    if self.employee:
+    # Calculate previous and cumulative self scores (only in draft, not after submitted)
+    if self.docstatus == 0 and self.employee:
         prev_score = get_previous_self_score(self.employee, self.name)
         has_prev_field = self.meta.has_field("custom_previous_self_score")
         has_cum_field = self.meta.has_field("custom_cumulative_self_score")

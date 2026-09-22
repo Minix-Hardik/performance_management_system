@@ -66,7 +66,9 @@ frappe.ui.form.on('Appraisal', {
             );
         }
         calculate_final_score(frm);
-        update_cumulative_self_score(frm);
+        if (frm.doc.docstatus === 0) {
+            update_cumulative_self_score(frm);
+        }
     },
     onload(frm) {
         if (frm.fields_dict.self_ratings) {
@@ -78,17 +80,23 @@ frappe.ui.form.on('Appraisal', {
                 `<self-appraisal-rating-interface docname="${frm.doc.name}"></self-appraisal-rating-interface>`
             );
         }
-        update_cumulative_self_score(frm);
+        if (frm.doc.docstatus === 0) {
+            update_cumulative_self_score(frm);
+        }
     },
     appraisal_cycle(frm) {
         toggle_questions_visibility(frm);
     },
     self_score(frm) {
-        update_cumulative_self_score(frm);
+        if (frm.doc.docstatus === 0) {
+            update_cumulative_self_score(frm);
+        }
     },
     validate(frm) {
         calculate_final_score(frm);
-        update_cumulative_self_score(frm);
+        if (frm.doc.docstatus === 0) {
+            update_cumulative_self_score(frm);
+        }
     }
 });
 
@@ -127,6 +135,7 @@ function calculate_final_score(frm) {
 
 function update_cumulative_self_score(frm) {
     if (!frm.doc.employee) return;
+    if (frm.doc.docstatus >= 1) return; // Do not calculate after doctype is submitted!
     frappe.call({
         method: "pms_system.overrides.appraisal.get_previous_self_score",
         args: {

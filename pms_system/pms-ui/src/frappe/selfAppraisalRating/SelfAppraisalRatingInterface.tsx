@@ -96,7 +96,13 @@ export const SelfAppraisalRatingInterface = ({ docname }: { docname?: string }) 
 
         // Fetch previous self score for this employee
         if (frm.doc.employee) {
-            if (window.frappe?.call) {
+            if (frm.doc.docstatus >= 1) {
+                if (frm.doc.custom_previous_self_score !== undefined && frm.doc.custom_previous_self_score !== null) {
+                    setPreviousSelfScore(Number(frm.doc.custom_previous_self_score));
+                } else {
+                    setPreviousSelfScore(null);
+                }
+            } else if (window.frappe?.call) {
                 window.frappe.call({
                     method: "pms_system.overrides.appraisal.get_previous_self_score",
                     args: {
@@ -166,6 +172,8 @@ export const SelfAppraisalRatingInterface = ({ docname }: { docname?: string }) 
     const employeeCanEdit = isEmployeeOrAdmin && isWorkflowStateAllow && frm.doc.docstatus === 0;
 
     const recalculateTotalScore = (updatedRows: RatingRow[]) => {
+        if (frm.doc.docstatus >= 1) return;
+
         let total = 0;
         updatedRows.forEach((r) => {
             const stars = Math.round(r.rating * 5);
@@ -260,9 +268,11 @@ export const SelfAppraisalRatingInterface = ({ docname }: { docname?: string }) 
                     <div className="ef-bg-[#222] ef-px-4 ef-py-2 ef-rounded ef-border ef-border-[#333]">
                         <span className="ef-text-xs ef-text-gray-400 ef-mr-2">Cumulative Score:</span>
                         <span className="ef-text-base ef-font-bold ef-text-[#34d399]">
-                            {previousSelfScore !== null && previousSelfScore !== undefined
-                                ? ((selfScore + previousSelfScore) / 2.0).toFixed(2)
-                                : selfScore.toFixed(2)}
+                            {frm.doc.docstatus >= 1 && frm.doc.custom_cumulative_self_score !== undefined && frm.doc.custom_cumulative_self_score !== null
+                                ? Number(frm.doc.custom_cumulative_self_score).toFixed(2)
+                                : (previousSelfScore !== null && previousSelfScore !== undefined
+                                    ? ((selfScore + previousSelfScore) / 2.0).toFixed(2)
+                                    : selfScore.toFixed(2))}
                         </span>
                     </div>
                 </div>

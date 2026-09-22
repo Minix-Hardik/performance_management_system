@@ -1,22 +1,27 @@
 # pyrefly: ignore [missing-import]
 import frappe
 
-def get_employee_node_data(emp_name, employee_name, reviewer_employee):
-    children = get_reports_tree(emp_name)
+def get_employee_node_data(emp_name, employee_name, reviewer_employee, cycle_name=None):
+    children = get_reports_tree(emp_name, cycle_name=cycle_name)
     
-    # Get latest Appraisal for this employee
+    # Get latest Appraisal for this employee for the specified appraisal cycle
+    filters = {
+        "employee": emp_name,
+        "docstatus": ["<", 2]
+    }
+    if cycle_name:
+        filters["appraisal_cycle"] = cycle_name
+
     a = frappe.get_all("Appraisal",
-        filters={
-            "employee": emp_name,
-            "docstatus": ["<", 2]
-        },
-        fields=["name", "employee_name", "employee", "final_score", "total_score", "self_score", "docstatus"],
+        filters=filters,
+        fields=["name", "employee_name", "employee", "final_score", "total_score", "self_score", "custom_cumulative_self_score", "docstatus"],
         order_by="creation desc",
         limit=1
     )
     
     kra_score = 0
     self_rating = 0
+    cumulative_self_score = 0
     docstatus = 0
     appraisal_id = None
     
@@ -24,6 +29,9 @@ def get_employee_node_data(emp_name, employee_name, reviewer_employee):
         a_doc = a[0]
         kra_score = a_doc.final_score or a_doc.total_score or 0
         self_rating = a_doc.self_score or 0
+        cumulative_self_score = a_doc.get("custom_cumulative_self_score")
+        if cumulative_self_score is None or cumulative_self_score == 0:
+            cumulative_self_score = self_rating
         docstatus = a_doc.docstatus
         appraisal_id = a_doc.name
         
@@ -62,6 +70,7 @@ def get_employee_node_data(emp_name, employee_name, reviewer_employee):
         "employee_name": employee_name,
         "kra_score": kra_score,
         "self_rating": self_rating,
+        "cumulative_self_score": cumulative_self_score,
         "manager_rating": manager_rating,
         "docstatus": docstatus,
         "feedback_id": feedback_id,
@@ -73,7 +82,7 @@ def get_employee_node_data(emp_name, employee_name, reviewer_employee):
         "team_manager_avg": team_manager_avg
     }
 
-def get_reports_tree(manager_employee):
+def get_reports_tree(manager_employee, cycle_name=None):
     reporting_employees = frappe.get_all("Employee", 
         filters={"reports_to": manager_employee, "status": "Active"},
         fields=["name", "employee_name"]
@@ -81,7 +90,7 @@ def get_reports_tree(manager_employee):
     
     employees_data = []
     for emp in reporting_employees:
-        node_data = get_employee_node_data(emp.name, emp.employee_name, manager_employee)
+        node_data = get_employee_node_data(emp.name, emp.employee_name, manager_employee, cycle_name=cycle_name)
         employees_data.append(node_data)
         
     return employees_data
@@ -159,18 +168,24 @@ def get_dashboard_data():
     roles = frappe.get_roles(user)
     is_hr_admin = "HR Admin" in roles or "System Manager" in roles
     
-    # 1. Get Employee for logged in user
+    # 1. Get latest created Appraisal Cycle
+    latest_cycle = frappe.get_all("Appraisal Cycle", order_by="creation desc", limit=1, pluck="name")
+    latest_cycle_name = latest_cycle[0] if latest_cycle else None
+
+    # 2. Get Employee for logged in user
     manager_employee = frappe.get_value("Employee", {"user_id": user, "status": "Active"}, "name")
     
     if not manager_employee and not is_hr_admin:
         return {
+            "manager_employee_id": "",
+            "appraisal_cycle": latest_cycle_name,
             "total_employees": 0,
             "pending_reviews": 0,
             "average_score": 0,
             "employees": []
         }
         
-    # 2. Get recursive tree
+    # 3. Get recursive tree filtered by the latest created appraisal cycle
     if is_hr_admin:
         # Fetch all top-level active employees
         top_employees = frappe.get_all(
@@ -183,12 +198,12 @@ def get_dashboard_data():
         )
         employees_tree = []
         for top_emp in top_employees:
-            node_data = get_employee_node_data(top_emp.name, top_emp.employee_name, manager_employee)
+            node_data = get_employee_node_data(top_emp.name, top_emp.employee_name, manager_employee, cycle_name=latest_cycle_name)
             employees_tree.append(node_data)
     else:
-        employees_tree = get_reports_tree(manager_employee)
+        employees_tree = get_reports_tree(manager_employee, cycle_name=latest_cycle_name)
     
-    # 3. Calculate statistics recursively
+    # 4. Calculate statistics recursively
     total_employees, pending_reviews, appraisal_count, total_kra, total_self, total_manager = get_stats_from_tree(employees_tree)
     avg_score = round(total_kra / total_employees, 2) if total_employees > 0 else 0
     
@@ -198,6 +213,7 @@ def get_dashboard_data():
     
     return {
         "manager_employee_id": manager_employee,
+        "appraisal_cycle": latest_cycle_name,
         "total_employees": total_employees,
         "pending_reviews": pending_reviews,
         "average_score": avg_score,
