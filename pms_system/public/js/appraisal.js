@@ -47,9 +47,7 @@ frappe.ui.form.on('Appraisal', 'setup_chart', function(frm) {
 
 frappe.ui.form.on('Appraisal', {
     refresh(frm) {
-
         frm.fields_dict.appraisal_kra.grid.get_field('kra').get_query = function (doc, cdt, cdn) {
-
             return {
                 filters: {
                     custom_employee: frm.doc.employee
@@ -61,13 +59,13 @@ frappe.ui.form.on('Appraisal', {
         }
         toggle_questions_visibility(frm);
         if (frm.fields_dict.custom_self_appraisal_rating_html) {
-            frm.get_field('custom_self_appraisal_rating_html').$wrapper.html(
-                `<self-appraisal-rating-interface docname="${frm.doc.name}"></self-appraisal-rating-interface>`
-            );
-        }
-        calculate_final_score(frm);
-        if (frm.doc.docstatus === 0) {
-            update_cumulative_self_score(frm);
+            let $container = frm.get_field('custom_self_appraisal_rating_html').$wrapper;
+            let $existing = $container.find('self-appraisal-rating-interface');
+            if (!$existing.length || $existing.attr('docname') !== frm.doc.name) {
+                $container.html(
+                    `<self-appraisal-rating-interface docname="${frm.doc.name}"></self-appraisal-rating-interface>`
+                );
+            }
         }
     },
     onload(frm) {
@@ -76,27 +74,17 @@ frappe.ui.form.on('Appraisal', {
         }
         toggle_questions_visibility(frm);
         if (frm.fields_dict.custom_self_appraisal_rating_html) {
-            frm.get_field('custom_self_appraisal_rating_html').$wrapper.html(
-                `<self-appraisal-rating-interface docname="${frm.doc.name}"></self-appraisal-rating-interface>`
-            );
-        }
-        if (frm.doc.docstatus === 0) {
-            update_cumulative_self_score(frm);
+            let $container = frm.get_field('custom_self_appraisal_rating_html').$wrapper;
+            let $existing = $container.find('self-appraisal-rating-interface');
+            if (!$existing.length || $existing.attr('docname') !== frm.doc.name) {
+                $container.html(
+                    `<self-appraisal-rating-interface docname="${frm.doc.name}"></self-appraisal-rating-interface>`
+                );
+            }
         }
     },
     appraisal_cycle(frm) {
         toggle_questions_visibility(frm);
-    },
-    self_score(frm) {
-        if (frm.doc.docstatus === 0) {
-            update_cumulative_self_score(frm);
-        }
-    },
-    validate(frm) {
-        calculate_final_score(frm);
-        if (frm.doc.docstatus === 0) {
-            update_cumulative_self_score(frm);
-        }
     }
 });
 
@@ -131,47 +119,6 @@ function calculate_final_score(frm) {
     if (flt(frm.doc.final_score) !== flt(total)) {
         frm.set_value('final_score', total);
     }
-}
-
-function update_cumulative_self_score(frm) {
-    if (!frm.doc.employee) return;
-    if (frm.doc.docstatus >= 1) return; // Do not calculate after doctype is submitted!
-    frappe.call({
-        method: "pms_system.overrides.appraisal.get_previous_self_score",
-        args: {
-            employee: frm.doc.employee,
-            current_appraisal: frm.doc.name
-        },
-        callback: function(r) {
-            let prev = (r.message !== undefined && r.message !== null) ? flt(r.message) : null;
-            if (prev !== null) {
-                if (frm.fields_dict && frm.fields_dict.custom_previous_self_score) {
-                    if (flt(frm.doc.custom_previous_self_score) !== prev) {
-                        frm.set_value("custom_previous_self_score", prev);
-                    }
-                }
-                let self_score = flt(frm.doc.self_score || 0);
-                let cumulative = flt((self_score + prev) / 2.0, 3);
-                if (frm.fields_dict && frm.fields_dict.custom_cumulative_self_score) {
-                    if (flt(frm.doc.custom_cumulative_self_score) !== cumulative) {
-                        frm.set_value("custom_cumulative_self_score", cumulative);
-                    }
-                }
-            } else {
-                if (frm.fields_dict && frm.fields_dict.custom_previous_self_score) {
-                    if (flt(frm.doc.custom_previous_self_score) !== 0) {
-                        frm.set_value("custom_previous_self_score", 0.0);
-                    }
-                }
-                let cumulative = flt(frm.doc.self_score || 0, 3);
-                if (frm.fields_dict && frm.fields_dict.custom_cumulative_self_score) {
-                    if (flt(frm.doc.custom_cumulative_self_score) !== cumulative) {
-                        frm.set_value("custom_cumulative_self_score", cumulative);
-                    }
-                }
-            }
-        }
-    });
 }
 
 function toggle_questions_visibility(frm) {

@@ -5,6 +5,7 @@ declare global {
     interface Window {
         cur_frm: any;
         frappe: any;
+        $: any;
     }
 }
 
@@ -138,16 +139,27 @@ export const SelfAppraisalRatingInterface = ({ docname }: { docname?: string }) 
         }
 
         // Listen to form refresh/load updates to sync component state
-        const handleRefresh = () => syncFromFrappe();
+        const handleRefresh = (_e?: any, refreshedFrm?: any) => {
+            if (!refreshedFrm || refreshedFrm?.doc?.name === frm?.doc?.name) {
+                syncFromFrappe();
+            }
+        };
         
         // Hook into standard Frappe refresh events
         if (frm.fields_dict && frm.fields_dict.custom_self_appraisal_rating_html) {
-            frm.fields_dict.custom_self_appraisal_rating_html.on_refresh = handleRefresh;
+            frm.fields_dict.custom_self_appraisal_rating_html.on_refresh = () => syncFromFrappe();
+        }
+
+        if (window.$) {
+            window.$(document).on("form-refresh", handleRefresh);
         }
 
         return () => {
             if (frm.fields_dict && frm.fields_dict.custom_self_appraisal_rating_html) {
                 delete frm.fields_dict.custom_self_appraisal_rating_html.on_refresh;
+            }
+            if (window.$) {
+                window.$(document).off("form-refresh", handleRefresh);
             }
         };
     }, [docname]);
@@ -242,6 +254,7 @@ export const SelfAppraisalRatingInterface = ({ docname }: { docname?: string }) 
             const docRow = frm.doc.self_ratings.find((x: any) => x.name === rowName);
             if (docRow) {
                 docRow.custom_justification = value;
+                docRow.__unsaved = 1;
                 frm.refresh_field("self_ratings");
                 frm.dirty();
             }
