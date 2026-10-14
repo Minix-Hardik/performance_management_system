@@ -24,7 +24,8 @@ fixtures = [
         "doctype": "Property Setter",
         "filters": [
             ["name", "in", ["KRA-main-allow_import","Appraisee-employee-ignore_user_permissions",
-                            "Appraisal-goal_score_percentage-allow_on_submit", "Appraisal-total_score-allow_on_submit", "Appraisal-final_score-allow_on_submit"]]
+                            "Appraisal-goal_score_percentage-allow_on_submit", "Appraisal-total_score-allow_on_submit", "Appraisal-final_score-allow_on_submit",
+                            "Employee Performance Feedback-employee-ignore_user_permissions"]]
         ]
     }
 ]
@@ -87,7 +88,11 @@ override_doctype_class = {
 }
 permission_query_conditions = {
     "Appraisal List": "pms_system.api.get_appraisal_list_permission.get_permission_query_conditions",
-    "User Jira Connection": "pms_system.pms_system.doctype.user_jira_connection.user_jira_connection.get_permission_query_conditions"
+    "User Jira Connection": "pms_system.pms_system.doctype.user_jira_connection.user_jira_connection.get_permission_query_conditions",
+    "Employee Performance Feedback": "pms_system.api.feedback_permission.get_permission_query_conditions"
+}
+has_permission = {
+    "Employee Performance Feedback": "pms_system.api.feedback_permission.has_permission"
 }
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
